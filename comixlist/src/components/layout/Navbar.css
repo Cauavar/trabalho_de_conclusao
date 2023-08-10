@@ -1,0 +1,84 @@
+#navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: black;
+}
+
+#navbar h2 a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Arial', sans-serif;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #f7d354;
+  text-decoration: none;
+}
+
+#navbar h2 a:hover {
+  color: #fff;
+}
+
+#navbar .navbar-links a {
+  margin-right: 1rem;
+  font-family: 'Arial', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f7d354;
+  text-decoration: none;
+}
+
+#navbar .navbar-links a:hover {
+  color: #fff;
+}
+
+#navbar form {
+  display: flex;
+  align-items: center;
+}
+
+#navbar input {
+  padding: 0.2rem 0.8rem;
+  border-radius: 4px;
+  border: none;
+  height: 2rem;
+}
+
+#navbar form button {
+  background-color: #f7d354;
+  border: 2px solid #f7d354;
+  border-radius: 4px;
+  color: #000;
+  padding: 0.3rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.4s;
+  height: 2rem; 
+}
+
+#navbar form button:hover {
+  background-color: transparent;
+  color: #f7d354;
+}
+
+#navbar .navbar-links button {
+  margin-right: 1rem;
+  font-family: 'Arial', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f7d354;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+#navbar .navbar-links button:hover {
+  color: #fff;
+}

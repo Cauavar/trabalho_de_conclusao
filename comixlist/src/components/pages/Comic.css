@@ -1,0 +1,94 @@
+.comic-page {
+  color: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* Adicione esta linha */
+  width: 100%;
+  height: 100%;
+  max-width: 1500px;
+  max-height: 700px;
+  margin: 2rem auto;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+
+.comic-page .comic-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.5rem;
+  margin: 0 auto;
+  margin-bottom: 0;
+  justify-content: center; /* Adicione esta linha */
+}
+
+
+
+
+.comic-page .comic-card img {
+  max-width: 50%;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+}
+
+.comic-page .comic-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.comic-page .comic-card p {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  flex: 1;
+  padding-top: 4rem;
+  padding-right: 5rem;
+}
+
+.description {
+  padding-bottom: 0; 
+}
+
+.description p {
+  font-size: 0.9rem;
+  line-height: 1.2rem;
+}
+
+.addToListButton {
+  background-color: #000000;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-left: 9rem;
+}
+
+.addToListButton:hover {
+    color: #f7d354;
+}
+
+.addToListButton svg {
+  font-size: 1.2rem;
+}

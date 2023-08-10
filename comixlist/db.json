@@ -1,0 +1,49 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "John",
+      "email": "john@example.com",
+      "password": "password123"
+    },
+    {
+      "id": 2,
+      "name": "Jane",
+      "email": "jane@example.com",
+      "password": "secret456"
+    },
+    {
+      "id": 1690852956559,
+      "name": "a",
+      "email": "a@a",
+      "password": "a"
+    },
+    {
+      "id": 1690943942259,
+      "name": "sirius",
+      "email": "sirius@black",
+      "password": "123"
+    },
+    {
+      "id": 1691110267389,
+      "name": "a",
+      "email": "a@a",
+      "password": "a"
+    }
+  ],
+  "sessions": []
+}

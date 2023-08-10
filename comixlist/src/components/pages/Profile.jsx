@@ -1,0 +1,66 @@
+import React from 'react';
+import './Profile.css';
+import LinkButton from '../layout/LinkButton';
+import CommentBar from '../layout/CommentBar';
+
+function Profile() {
+  return (
+    <div className="profile-container">
+      <div className="profile-content">
+        <div className="profile-card">
+          <div className="profile-header">
+            <img className="profile-avatar" src="https://cdn.myanimelist.net/s/common/userimages/a2e60043-40d8-453f-ade0-65c97bc1a03c_225w?s=9ffed031c11ec3c8840de4fabadb5bbc" alt="Profile Avatar" />
+          </div>
+          <div className="profile-info">
+            <h1 className="profile-username">Nome de Usuário</h1>
+          </div>
+          <div className="profile-details">
+            <h2>Informações do Perfil</h2>
+            <div className="detail-row">
+              <span className="detail-label">Local:</span>
+              <span className="detail-value">Cidade, País</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Aniversário:</span>
+              <span className="detail-value">05/02/2000</span>
+            </div>
+            <div className='button'>
+              <LinkButton  to="/listaPessoal" text="ComixList"/> 
+            </div>
+          </div>
+        </div>
+
+        <div className="profile-description">
+          <h2>Descrição</h2>
+          <textarea placeholder="Escreva uma descrição sobre você e seus interesses"></textarea>
+        </div>
+
+        <div className="profile-comics">
+          <h2>ComixList</h2>
+          <div className="comics-grid">
+            {/* Add comic list sections here */}
+            <div className="comics-section">
+              <h3>Completos</h3>
+              {/* Add completed comics */}
+            </div>
+            <div className="comics-section">
+              <h3>Lendo</h3>
+              {/* Add reading comics */}
+            </div>
+            <div className="comics-section">
+              <h3>Em Espera</h3>
+              {/* Add on-hold comics */}
+            </div>
+            <div className="comics-section">
+              <h3>Planejo Ler</h3>
+              {/* Add plan-to-read comics */}
+            </div>
+          </div>
+        </div>
+      </div>
+      <CommentBar />
+    </div>
+  );
+}
+
+export default Profile;
