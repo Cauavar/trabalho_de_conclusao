@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, database } from '../bd/FireBase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, firestore } from '../bd/FireBase'; // Apenas importe auth e firestore
+import { doc, setDoc } from 'firebase/firestore'; // Importe as funções corretas
+import { createUserWithEmailAndPassword} from 'firebase/auth';
 
 
 export const AuthContext = createContext();
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, senha) => {
     try {
-      await auth.signInWithEmailAndPassword(email, senha);
+      await signInWithEmailAndPassword(auth, email, senha);
       navigate('/');
     } catch (error) {
       console.error('Error during login', error);
@@ -42,18 +42,15 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (nome, email, senha) => {
     try {
-      // Cria o usuário no serviço de autenticação
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-      
-      // consegue o ID do usuário recém-criado
       const userId = userCredential.user.uid;
-      
-      await database.ref('users/' + userId).set({
+  
+      const userDocRef = doc(firestore, 'users', userId);
+      await setDoc(userDocRef, {
         nome: nome,
         email: email,
       });
-      
-      // Atualiza o nome de exibição do usuário no serviço de autenticação
+  
       await updateProfile(auth.currentUser, {
         displayName: nome,
       });
@@ -63,7 +60,6 @@ export const AuthProvider = ({ children }) => {
       console.error('Error during signup', error);
     }
   };
-  
 
   return (
     <AuthContext.Provider value={{ isAuthenticated: !!user, user, login, logout, signup }}>

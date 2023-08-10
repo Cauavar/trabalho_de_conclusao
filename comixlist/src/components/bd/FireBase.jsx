@@ -6,15 +6,15 @@ import { getFirestore } from 'firebase/firestore';
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
-    authDomain: "tcccomixlist.firebaseapp.com",
-    databaseURL: "https://tcccomixlist-default-rtdb.firebaseio.com",
-    projectId: "tcccomixlist",
-    storageBucket: "tcccomixlist.appspot.com",
-    messagingSenderId: "299354265800",
-    appId: "1:299354265800:web:7a428260830240f11aedfd",
-    measurementId: "G-VFQYV56G6D"
-  };
+  apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
+  authDomain: "tcccomixlist.firebaseapp.com",
+  databaseURL: "https://tcccomixlist-default-rtdb.firebaseio.com",
+  projectId: "tcccomixlist",
+  storageBucket: "tcccomixlist.appspot.com",
+  messagingSenderId: "299354265800",
+  appId: "1:299354265800:web:7a428260830240f11aedfd",
+  measurementId: "G-VFQYV56G6D"
+};
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
