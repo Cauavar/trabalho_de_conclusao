@@ -3,21 +3,32 @@ import Input from '../form/Input';
 import SubmitButton from '../form/SubmitButton';
 import styles from './LoginForm.module.css';
 import { AuthContext } from '../contexts/auth';
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Importe o método correto
+import { signInWithEmailAndPassword } from 'firebase/auth'; 
+import ReCAPTCHA from "react-google-recaptcha";
 
 function LoginForm({ btnText }) {
-  const { auth } = useContext(AuthContext); // Certifique-se de que auth está sendo importado e fornecido pelo AuthContext
+  const { auth } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [recaptchaValue, setRecaptchaValue] = useState(null);
+
+  const handleRecaptchaChange = (value) => {
+    setRecaptchaValue(value);
+  }
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (recaptchaValue){
     try {
-      await signInWithEmailAndPassword(auth, email, senha); // Use a função correta
+      await signInWithEmailAndPassword(auth, email, senha); 
     } catch (error) {
       console.error('Error during login', error);
     }
+  }  else {
+    console.log("Please complete the reCAPTCHA.");
+  }
   };
 
   return (
@@ -38,6 +49,10 @@ function LoginForm({ btnText }) {
         placeholder="Insira a senha"
         value={senha}
         onChange={(e) => setSenha(e.target.value)}
+      />
+        <ReCAPTCHA
+        sitekey="6LfYeJgnAAAAADdYBPsx2VapcoHVFX2CVhRRKT1Y"
+        onChange={handleRecaptchaChange}
       />
       <SubmitButton text={btnText} />
     </form>

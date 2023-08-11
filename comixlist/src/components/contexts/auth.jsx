@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, firestore } from '../bd/FireBase'; // Apenas importe auth e firestore
-import { doc, setDoc } from 'firebase/firestore'; // Importe as funções corretas
+import { auth, firestore } from '../bd/FireBase'; 
+import { doc, setDoc } from 'firebase/firestore'; 
 import { createUserWithEmailAndPassword} from 'firebase/auth';
 
 
@@ -50,10 +50,7 @@ export const AuthProvider = ({ children }) => {
         nome: nome,
         email: email,
       });
-  
-      await updateProfile(auth.currentUser, {
-        displayName: nome,
-      });
+
   
       navigate('/');
     } catch (error) {

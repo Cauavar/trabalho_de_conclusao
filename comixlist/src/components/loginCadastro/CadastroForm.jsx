@@ -3,6 +3,7 @@ import Input from '../form/Input';
 import SubmitButton from '../form/SubmitButton';
 import styles from './CadastroForm.module.css';
 import { AuthContext } from '../contexts/auth';
+import ReCAPTCHA from "react-google-recaptcha";
 
 function CadastroForm({ btnText }) {
   const { signup } = useContext(AuthContext);
@@ -10,11 +11,31 @@ function CadastroForm({ btnText }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [recaptchaValue, setRecaptchaValue] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+
+  const handleRecaptchaChange = (value) => {
+    setRecaptchaValue(value);
+  }
+
+  const handleToggleShowPassword = () => {
+    setShowPassword(prevShowPassword => !prevShowPassword);
+  }
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("submit", { nome, email, senha });
-    await signup(nome, email, senha);
+    if (recaptchaValue) {
+      try {
+        console.log("submit", { nome, email, senha });
+        await signup(nome, email, senha);
+      } catch (error) {
+        console.error('Error during login', error);
+      } 
+    }  else {
+        console.log("Please complete the reCAPTCHA.");
+      }
   };
 
   return (
@@ -38,14 +59,25 @@ function CadastroForm({ btnText }) {
       />
 
       <Input
-        type="password"
+        type={showPassword ? "text" : "password"}
         text="Senha"
         name="password"
         placeholder="Insira uma senha"
         value={senha} 
         onChange={(e) => setSenha(e.target.value)}
       />
-      
+      <button // componentizar botao e usar o react icons depois
+        type="button"
+        onClick={handleToggleShowPassword}
+        className={styles.showPasswordButton}
+      >
+        {showPassword ? "🙈" : "👁️"}
+      </button>
+      <ReCAPTCHA
+        sitekey="6LfYeJgnAAAAADdYBPsx2VapcoHVFX2CVhRRKT1Y"
+        onChange={handleRecaptchaChange}
+      />
+
       <SubmitButton text={btnText} />
     </form>
   );

@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Profile.css';
 import LinkButton from '../layout/LinkButton';
 import CommentBar from '../layout/CommentBar';
+import { AuthContext } from '../contexts/auth';
+import { firestore } from '../bd/FireBase';
+import { collection, doc, getDoc } from 'firebase/firestore';
 
 function Profile() {
+
+  const {user} = useContext(AuthContext);
+
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      const userDocRef = doc(collection(firestore, "users"), user.uid);
+      getDoc(userDocRef).then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          setUserProfile(docSnapshot.data());
+        }
+      });
+    }
+  }, [user]);
+if (!userProfile){
+  return <div>Loading...</div>;
+}
+
   return (
     <div className="profile-container">
       <div className="profile-content">
@@ -12,7 +34,7 @@ function Profile() {
             <img className="profile-avatar" src="https://cdn.myanimelist.net/s/common/userimages/a2e60043-40d8-453f-ade0-65c97bc1a03c_225w?s=9ffed031c11ec3c8840de4fabadb5bbc" alt="Profile Avatar" />
           </div>
           <div className="profile-info">
-            <h1 className="profile-username">Nome de Usuário</h1>
+            <h1 className="profile-username">Nome: {userProfile.nome}</h1>
           </div>
           <div className="profile-details">
             <h2>Informações do Perfil</h2>
