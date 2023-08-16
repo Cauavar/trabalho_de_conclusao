@@ -4,6 +4,8 @@ import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import "./Comic.css";
 import md5 from "md5";
 import SeriesCard from "./SeriesCard";
+import { getDoc, doc, collection } from 'firebase/firestore';
+import { firestore } from "../bd/FireBase";
 
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
@@ -12,18 +14,39 @@ const Comic = () => {
   const { id } = useParams();
   const [series, setSeries] = useState(null);
 
-  const getSeries = async (url) => {
-    const res = await fetch(url);
-    const data = await res.json();
-    setSeries(data.data.results[0]);
+  const fetchSeriesData = async (id) => {
+    const timestamp = Date.now().toString();
+    const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
+  
+    if (id.startsWith('API')) {
+      const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id.substr(3)}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+      try {
+        const res = await fetch(seriesUrl);
+        const data = await res.json();
+        console.log(data)
+        const apiSeries = data.data.results[0];
+        apiSeries.origin = 'API'; 
+        setSeries(apiSeries);
+      } catch (error) {
+        console.error("Error fetching series from API:", error);
+      }
+    } else {
+      try {
+        const docRef = doc(collection(firestore, "serie"), id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSeries(docSnap.data());
+        } else {
+          console.log('Sem retorno!');
+        }
+      } catch (error) {
+        console.error('Error fetching series from Firestore:', error);
+      }
+    }
   };
 
   useEffect(() => {
-    const timestamp = Date.now().toString();
-    const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
-
-    const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-    getSeries(seriesUrl);
+    fetchSeriesData(id);
   }, [id]);
 
   const handleAddToList = () => {
@@ -35,7 +58,6 @@ const Comic = () => {
     const onSaleDate = dates && dates.find((date) => date.type === "onsaleDate");
     return onSaleDate ? new Date(onSaleDate.date).toLocaleDateString(undefined, options) : "Not available";
   };
-  
 
   return (
     <div className="comic-page">
@@ -63,18 +85,33 @@ const Comic = () => {
             <h3>
               <BsFillFileEarmarkTextFill /> Descrição:
             </h3>
-            <p>{series.description || "Description not available"}</p>
-
+            <p>{id.startsWith('API') ? series.description : series.descriçãoSerie || "Description not available"}</p>
+  
             {/* Exibir outras informações relevantes da série */}
-            <h3>
-              <BsFillFileEarmarkTextFill /> Outra Informação:
-            </h3>
-            <p>{series.someProperty || "N/A"}</p>
-
-            <h3>
-              <BsFillFileEarmarkTextFill /> Data de Publicação:
-            </h3>
-            <p>{formatPublishDate(series.dates)}</p>
+            {series.origin === 'API' ? (
+              <>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Autor:
+                </h3>
+                <p>{series.someProperty || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Data de Publicação:
+                </h3>
+                <p>{formatPublishDate(series.dates)}</p>
+              </>
+            ) : (
+              <>
+                {/* Detalhes do banco de dados */}
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Autor:
+                </h3>
+                <p>{series.autorSerie || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Data de Publicação:
+                </h3>
+                <p>{series.publiSerie}</p>
+              </>
+            )}
           </div>
         </>
       ) : (
@@ -82,6 +119,8 @@ const Comic = () => {
       )}
     </div>
   );
+  
+  
 };
 
 export default Comic;

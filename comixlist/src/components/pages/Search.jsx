@@ -4,13 +4,15 @@ import SeriesCard from './SeriesCard';
 import md5 from 'md5';
 import './ComicsGrid.css';
 import { useParams } from 'react-router-dom';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { firestore } from '../bd/FireBase';
 
 const seriesURL = 'https://gateway.marvel.com/v1/public/series';
 const apiPublicKey = '1f9dc1c5fe6d097dde3bb4ca36ecbff0';
 const apiPrivateKey = '219b41d0053667342c94897c56048704ecc93e7e';
 
-const Search = ({}) => {
-  const { searchTerm  } = useParams();
+const Search = () => {
+  const { searchTerm } = useParams();
   const [series, setSeries] = useState([]);
 
   const getSeriesBySearchTerm = async (searchTerm) => {
@@ -27,17 +29,40 @@ const Search = ({}) => {
         },
       });
 
-      const data = response.data.data;
-      const results = data.results;
-      setSeries(results);
+      const apiResults = response.data.data.results;
+      return apiResults;
     } catch (error) {
-      console.error('Error fetching series:', error);
+      console.error('Error fetching series from API:', error);
+      return [];
+    }
+  };
+
+  const getSeriesFromFirestore = async (searchTerm) => {
+    try {
+      const seriesCollectionRef = collection(firestore, 'serie');
+      const queryRef = query(seriesCollectionRef, where('nomeSerie', '>=', searchTerm));
+      const querySnapshot = await getDocs(queryRef);
+      const firestoreResults = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return firestoreResults;
+    } catch (error) {
+      console.error('Error fetching series from Firestore:', error);
+      return [];
     }
   };
 
   useEffect(() => {
     if (searchTerm) {
-      getSeriesBySearchTerm(searchTerm);
+      const fetchSearchResults = async () => {
+        const apiResults = await getSeriesBySearchTerm(searchTerm);
+        const firestoreResults = await getSeriesFromFirestore(searchTerm);
+        const combinedResults = [...apiResults, ...firestoreResults];
+        setSeries(combinedResults);
+      };
+
+      fetchSearchResults();
     } else {
       setSeries([]);
     }
