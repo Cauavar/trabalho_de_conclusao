@@ -35,6 +35,7 @@ const Navbar = () => {
         {isAuthenticated ? (
           <>
             <Link to="/profile">Profile</Link>
+            <Link to="/cadastroSerie">CadastroSérie</Link>
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (

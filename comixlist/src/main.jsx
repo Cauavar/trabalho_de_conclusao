@@ -11,6 +11,7 @@ import Cadastro from './components/pages/Cadastro';
 import Login from './components/pages/Login';
 import ProfilePage from './components/pages/ProfilePage';
 import ListaPessoal from './components/pages/ListaPessoal';
+import CadastroSerie from './components/pages/CadastroSerie';
 import { AuthProvider, AuthContext } from './components/contexts/auth';
 
 
@@ -41,6 +42,7 @@ const AppRoutes = () => {
             <Route path="/search/:searchTerm" element={<Search />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/cadastroSerie" element={<CadastroSerie />} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/listaPessoal" element={<PrivateRoute><ListaPessoal /></PrivateRoute>} />
           </Routes>
