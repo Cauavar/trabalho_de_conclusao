@@ -2,7 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
-import { getFirestore, collection, addDoc } from 'firebase/firestore'; 
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getStorage }  from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
@@ -31,3 +32,5 @@ export const addSerieToFirestore = async (serieData) => {
     throw new Error('Erro ao adicionar série ao Firestore: ' + error.message);
   }
 };
+
+export const storage = getStorage(app);

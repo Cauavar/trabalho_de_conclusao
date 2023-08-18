@@ -2,8 +2,10 @@ import React, { useState, useContext } from 'react';
 import styles from './CadastroSerieForm.module.css';
 import SubmitButton from '../form/SubmitButton';
 import Input from '../form/Input';
-import { addSerieToFirestore } from '../bd/FireBase'; 
+import { addSerieToFirestore, storage } from '../bd/FireBase'; 
 import { useNavigate } from 'react-router-dom';
+import { ref } from 'firebase/database';
+import { uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 function CadastroSerieForm({btnText}) {
     const navigate = useNavigate();
@@ -12,6 +14,34 @@ function CadastroSerieForm({btnText}) {
     const [descricaoSerie, setDescricaoSerie] = useState('');
     const [publiSerie, setPubliSerie] = useState('');
     const [imagemSerie, setImagemSerie] = useState('');
+    const [progess, setProgress] = useState(0);
+
+    const handleUpload = async (e) => {
+      e.preventDefault()
+
+      const file = e.target[0]?.files[0]
+      if(!file) return;
+
+      const storageRef = ref(storage, 'images/${file.name}');
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_change",
+        snapshot => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          setProgress(progess);
+      },
+      error =>{
+        alert(error)
+      },
+      () =>{
+        getDownloadURL(uploadTask.snapshot.ref).then(url =>{
+          setImagemSerie(url);
+          serieData.imagemSerie = url;
+        })
+      }
+      )
+    };
 
 
     const handleSubmit = async (e) => {
@@ -69,15 +99,18 @@ function CadastroSerieForm({btnText}) {
             value={publiSerie} 
             onChange={(e) => setPubliSerie(e.target.value)}
           />  
-
+        <form className={styles.form} onSubmit={handleUpload}>
           <Input
-            type="text"
+            type="file"
             text="Capa da Série"
             name="Capa"
             placeholder="Insira uma capa para a Série"
             value={imagemSerie} 
             onChange={(e) => setImagemSerie(e.target.value)}
           />  
+          <br></br>
+          {!imagemSerie && <progess value={progess} max="100"/> }
+          </form>
     
           <SubmitButton text={btnText} />
         </form>
