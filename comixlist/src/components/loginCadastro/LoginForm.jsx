@@ -3,7 +3,7 @@ import Input from '../form/Input';
 import SubmitButton from '../form/SubmitButton';
 import styles from './LoginForm.module.css';
 import { AuthContext } from '../contexts/auth';
-import { signInWithEmailAndPassword } from 'firebase/auth'; 
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import ReCAPTCHA from "react-google-recaptcha";
 
 function LoginForm({ btnText }) {
@@ -13,10 +13,6 @@ function LoginForm({ btnText }) {
   const [senha, setSenha] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
 
-  const handleRecaptchaChange = (value) => {
-    setRecaptchaValue(value);
-  }
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,12 +20,19 @@ function LoginForm({ btnText }) {
     try {
       await signInWithEmailAndPassword(auth, email, senha); 
     } catch (error) {
-      console.error('Error during login', error);
+        console.error('Error during login', error);
+        console.log(error.code); 
+        console.log(error.message); 
     }
   }  else {
     console.log("Please complete the reCAPTCHA.");
   }
   };
+
+  const handleRecaptchaChange = (value) => {
+    setRecaptchaValue(value);
+  }
+
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>

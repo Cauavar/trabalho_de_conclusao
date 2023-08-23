@@ -6,6 +6,7 @@ import md5 from "md5";
 import SeriesCard from "./SeriesCard";
 import { getDoc, doc, collection } from 'firebase/firestore';
 import { firestore } from "../bd/FireBase";
+import AddListaPessoalModal from "../modals/AddListaPessoalModal";
 
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
@@ -13,6 +14,15 @@ const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
 const Comic = () => {
   const { id } = useParams();
   const [series, setSeries] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
 
   const fetchSeriesData = async (id) => {
     const timestamp = Date.now().toString();
@@ -65,20 +75,26 @@ const Comic = () => {
         <>
           <div className="comic-card">
             <SeriesCard serie={series} showLink={false} />
-            <button className="addToListButton" onClick={handleAddToList}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Adicionar à Lista
-            </button>
+            <button className="addToListButton" onClick={openModal}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+  Adicionar à Lista
+</button>
+<AddListaPessoalModal
+  isOpen={isModalOpen}
+  onClose={closeModal}
+  onAddToList={handleAddToList}
+  getSeries={() => series} 
+/>
           </div>
           <div className="info">
             <p className="tagLine">{series.tagline}</p>

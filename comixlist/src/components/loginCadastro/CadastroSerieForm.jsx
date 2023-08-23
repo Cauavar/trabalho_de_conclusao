@@ -7,114 +7,112 @@ import { useNavigate } from 'react-router-dom';
 import { ref } from 'firebase/database';
 import { uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
-function CadastroSerieForm({btnText}) {
-    const navigate = useNavigate();
-    const [nomeSerie, setNomeSerie] = useState('');
-    const [autorSerie, setAutorSerie] = useState('');
-    const [descricaoSerie, setDescricaoSerie] = useState('');
-    const [publiSerie, setPubliSerie] = useState('');
-    const [imagemSerie, setImagemSerie] = useState('');
-    const [progess, setProgress] = useState(0);
+function CadastroSerieForm({ btnText }) {
+  const navigate = useNavigate();
+  const [nomeSerie, setNomeSerie] = useState('');
+  const [autorSerie, setAutorSerie] = useState('');
+  const [descricaoSerie, setDescricaoSerie] = useState('');
+  const [publiSerie, setPubliSerie] = useState('');
+  const [imagemSerie, setImagemSerie] = useState('');
+  const [progress, setProgress] = useState(0);
 
-    const handleUpload = async (e) => {
-      e.preventDefault()
+  const handleUpload = async (e) => {
+    e.preventDefault();
 
-      const file = e.target[0]?.files[0]
-      if(!file) return;
+    const file = e.target[0]?.files[0];
+    if (!file) return;
 
-      const storageRef = ref(storage, 'images/${file.name}');
-      const uploadTask = uploadBytesResumable(storageRef, file);
+    const storageRef = ref(storage, `images/${file.name}`); 
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-      uploadTask.on(
-        "state_change",
-        snapshot => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          setProgress(progess);
+    uploadTask.on(
+      "state_change",
+      snapshot => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(progress);
       },
       error =>{
-        alert(error)
+        alert(error);
       },
-      () =>{
-        getDownloadURL(uploadTask.snapshot.ref).then(url =>{
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(url => {
           setImagemSerie(url);
-          serieData.imagemSerie = url;
-        })
+          // serieData.imagemSerie = url; Removi essa linha, pois parece não estar sendo usada aqui
+        });
       }
-      )
-    };
+    );
+  };
 
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-          try {
-            const serieData = {
-              nomeSerie,
-              autorSerie,
-              descricaoSerie,
-              publiSerie,
-              imagemSerie, 
-            };
-            await addSerieToFirestore(serieData); 
-            console.log('Série cadastrada com sucesso:', serieData);
-            navigate('/');
-          } catch (error) {
-            console.error('Erro durante o cadastro da Série', error);
-          } 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const serieData = {
+        nomeSerie,
+        autorSerie,
+        descricaoSerie,
+        publiSerie,
+        imagemSerie, 
       };
+      await addSerieToFirestore(serieData); 
+      console.log('Série cadastrada com sucesso:', serieData);
+      navigate('/');
+    } catch (error) {
+      console.error('Erro durante o cadastro da Série', error);
+    } 
+  };
 
-      return (
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            text="Nome da Série"
-            name="name"
-            placeholder="Insira o nome da Série"
-            value={nomeSerie} 
-            onChange={(e) => setNomeSerie(e.target.value)}
-          />
-    
-          <Input
-            type="text"
-            text="Nome do Autor"
-            name="autor"
-            placeholder="Insira o nome do Autor"
-            value={autorSerie} 
-            onChange={(e) => setAutorSerie(e.target.value)}
-          />
+  return (
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <Input
+        type="text"
+        text="Nome da Série"
+        name="name"
+        placeholder="Insira o nome da Série"
+        value={nomeSerie} 
+        onChange={(e) => setNomeSerie(e.target.value)}
+      />
+  
+      <Input
+        type="text"
+        text="Nome do Autor"
+        name="autor"
+        placeholder="Insira o nome do Autor"
+        value={autorSerie} 
+        onChange={(e) => setAutorSerie(e.target.value)}
+      />
 
+      <Input
+        type="text"
+        text="Descrição da Série"
+        name="descricao"
+        placeholder="Insira a descrição da Série"
+        value={descricaoSerie} 
+        onChange={(e) => setDescricaoSerie(e.target.value)}
+      />
+
+      <Input
+        type="date"
+        text="Data da Públicação"
+        name="publicação"
+        placeholder="Insira a data da Públicação"
+        value={publiSerie} 
+        onChange={(e) => setPubliSerie(e.target.value)}
+      />  
+      <form className={styles.form} onSubmit={handleUpload}>
         <Input
-            type="text"
-            text="Descrição da Série"
-            name="autor"
-            placeholder="Insira a descrição da Série"
-            value={descricaoSerie} 
-            onChange={(e) => setDescricaoSerie(e.target.value)}
-          />
+          type="file"
+          text="Capa da Série"
+          name="Capa"
+          placeholder="Insira uma capa para a Série"
+          onChange={handleUpload} 
+        />
+        <br />
+        {!imagemSerie && <progress value={progress} max="100" />} 
+      </form>
 
-        <Input
-            type="date"
-            text="Data da Públicação"
-            name="publicação"
-            placeholder="Insira a data da Públicação"
-            value={publiSerie} 
-            onChange={(e) => setPubliSerie(e.target.value)}
-          />  
-        <form className={styles.form} onSubmit={handleUpload}>
-          <Input
-            type="file"
-            text="Capa da Série"
-            name="Capa"
-            placeholder="Insira uma capa para a Série"
-            value={imagemSerie} 
-            onChange={(e) => setImagemSerie(e.target.value)}
-          />  
-          <br></br>
-          {!imagemSerie && <progess value={progess} max="100"/> }
-          </form>
-    
-          <SubmitButton text={btnText} />
-        </form>
-      );
-      };
+      <SubmitButton text={btnText} />
+    </form>
+  );
+}
 
 export default CadastroSerieForm;

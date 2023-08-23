@@ -4,13 +4,14 @@ import LinkButton from '../layout/LinkButton';
 import CommentBar from '../layout/CommentBar';
 import { AuthContext } from '../contexts/auth';
 import { firestore } from '../bd/FireBase';
-import { collection, doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 function Profile() {
-
-  const {user} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   const [userProfile, setUserProfile] = useState(null);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [editedDescription, setEditedDescription] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -18,20 +19,33 @@ function Profile() {
       getDoc(userDocRef).then((docSnapshot) => {
         if (docSnapshot.exists()) {
           setUserProfile(docSnapshot.data());
+          setEditedDescription(docSnapshot.data().descricaoUsuario);
         }
       });
     }
   }, [user]);
-if (!userProfile){
-  return <div>Loading...</div>;
-}
+
+  const handleEditDescription = () => {
+    setEditingDescription(true);
+  };
+
+  const handleSaveDescription = async () => {
+    const userDocRef = doc(collection(firestore, "users"), user.uid);
+    await updateDoc(userDocRef, { descricaoUsuario: editedDescription });
+    setEditingDescription(false);
+  };
+
+  if (!userProfile) {
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <div className="profile-container">
       <div className="profile-content">
         <div className="profile-card">
           <div className="profile-header">
-            <img className="profile-avatar" src="https://cdn.myanimelist.net/s/common/userimages/a2e60043-40d8-453f-ade0-65c97bc1a03c_225w?s=9ffed031c11ec3c8840de4fabadb5bbc" alt="Profile Avatar" />
+            <img className="profile-avatar" src={userProfile.imagemUsuario} alt="Profile Avatar" />
           </div>
           <div className="profile-info">
             <h1 className="profile-username">Nome: {userProfile.nome}</h1>
@@ -40,21 +54,34 @@ if (!userProfile){
             <h2>Informações do Perfil</h2>
             <div className="detail-row">
               <span className="detail-label">Local:</span>
-              <span className="detail-value">Cidade, País</span>
+              <span className="detail-value">{userProfile.local}</span>
             </div>
             <div className="detail-row">
               <span className="detail-label">Aniversário:</span>
-              <span className="detail-value">05/02/2000</span>
+              <span className="detail-value">{userProfile.aniversario}</span>
             </div>
             <div className='button'>
-              <LinkButton  to="/listaPessoal" text="ComixList"/> 
+              <LinkButton to="/listaPessoal" text="ComixList" />
             </div>
           </div>
         </div>
 
         <div className="profile-description">
           <h2>Descrição</h2>
-          <textarea placeholder="Escreva uma descrição sobre você e seus interesses"></textarea>
+          {editingDescription ? (
+            <div>
+              <textarea
+                value={editedDescription}
+                onChange={(e) => setEditedDescription(e.target.value)}
+              />
+              <button onClick={handleSaveDescription}>Salvar</button>
+            </div>
+          ) : (
+            <div>
+              <p>{userProfile.descricaoUsuario}</p>
+              <button onClick={handleEditDescription}>Editar</button>
+            </div>
+          )}
         </div>
 
         <div className="profile-comics">

@@ -40,8 +40,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (nome, email, senha) => {
+  const signup = async (userData) => {
     try {
+      const { nome, email, senha, aniversario, descricaoUsuario, imagemUsuario, local } = userData;
+
+      if (!nome || !email || !senha) {
+        console.error('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
       const userId = userCredential.user.uid;
   
@@ -49,9 +56,12 @@ export const AuthProvider = ({ children }) => {
       await setDoc(userDocRef, {
         nome: nome,
         email: email,
+        aniversario: aniversario || '',
+        descricaoUsuario: descricaoUsuario || '',
+        imagemUsuario: imagemUsuario || '',
+        local: local || '',
       });
 
-  
       navigate('/');
     } catch (error) {
       console.error('Error during signup', error);
