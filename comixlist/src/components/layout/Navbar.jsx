@@ -1,13 +1,27 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BiBook, BiSearchAlt2 } from 'react-icons/bi';
 import './Navbar.css';
 import { AuthContext } from '../contexts/auth';
+import { firestore } from '../bd/FireBase';
+import { collection, doc, getDoc } from 'firebase/firestore';
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout, user } = useContext(AuthContext);
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      const userDocRef = doc(collection(firestore, "users"), user.uid);
+      getDoc(userDocRef).then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          setUserProfile(docSnapshot.data());
+        }
+      });
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -15,9 +29,9 @@ const Navbar = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     if (!searchTerm) return;
-  
+
     navigate(`/search/${searchTerm}`);
     setSearchTerm('');
   };
@@ -31,11 +45,17 @@ const Navbar = () => {
         </Link>
       </h2>
       <div className="navbar-links">
-        <Link to="/comiclist">ComicList</Link>
         {isAuthenticated ? (
           <>
-            <Link to="/profile">Profile</Link>
-            <Link to="/cadastroSerie">CadastroSérie</Link>
+            {userProfile ? (
+              <Link to="/profile">
+                <img className="profile-avatar" src={userProfile.imagemUsuario} alt="Profile Avatar" />
+                {userProfile.nome}
+              </Link>
+            ) : (
+              <div>Loading Profile...</div>
+            )}
+            <Link to="/comiclist">Lists</Link>
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
@@ -45,7 +65,7 @@ const Navbar = () => {
           </>
         )}
       </div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="search-form">
         <input
           type="text"
           placeholder="Buscar"

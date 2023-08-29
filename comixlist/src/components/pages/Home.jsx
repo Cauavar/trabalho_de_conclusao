@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext  } from "react";
 import md5 from "md5";
 import SeriesCard from "./SeriesCard"; 
-import SerieList from "./SeriesList";
 import { collection, getDocs } from 'firebase/firestore'; 
 import { firestore } from "../bd/FireBase";
 import "./ComicsGrid.css";
+import { AuthContext } from "../contexts/auth";
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [topSeries, setTopSeries] = useState([]);
   const [mySeries, setMySeries] = useState([]);
+  const { isAuthenticated} = useContext(AuthContext);
 
   const seriesURL = "https://gateway.marvel.com/v1/public/series";
   const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
@@ -48,6 +50,16 @@ const Home = () => {
   return (
     <div className="container">
       <h2 className="title">Séries:</h2>
+      <div className="navbar-links">
+        {isAuthenticated ? (
+          <>
+            <Link to="/cadastroSerie">Cadastre uma Série</Link>
+          </>
+        ) : (
+          <>
+          </>
+        )}
+      </div>
       <div className="comics_container">
         {topSeries.length === 0 && <p>Carregando...</p>}
         {topSeries.length > 0 &&

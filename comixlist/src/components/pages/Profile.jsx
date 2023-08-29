@@ -4,14 +4,12 @@ import LinkButton from '../layout/LinkButton';
 import CommentBar from '../layout/CommentBar';
 import { AuthContext } from '../contexts/auth';
 import { firestore } from '../bd/FireBase';
-import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc } from 'firebase/firestore';
 
 function Profile() {
   const { user } = useContext(AuthContext);
 
   const [userProfile, setUserProfile] = useState(null);
-  const [editingDescription, setEditingDescription] = useState(false);
-  const [editedDescription, setEditedDescription] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -19,21 +17,10 @@ function Profile() {
       getDoc(userDocRef).then((docSnapshot) => {
         if (docSnapshot.exists()) {
           setUserProfile(docSnapshot.data());
-          setEditedDescription(docSnapshot.data().descricaoUsuario);
         }
       });
     }
   }, [user]);
-
-  const handleEditDescription = () => {
-    setEditingDescription(true);
-  };
-
-  const handleSaveDescription = async () => {
-    const userDocRef = doc(collection(firestore, "users"), user.uid);
-    await updateDoc(userDocRef, { descricaoUsuario: editedDescription });
-    setEditingDescription(false);
-  };
 
   if (!userProfile) {
     return <div>Loading...</div>;
@@ -42,6 +29,9 @@ function Profile() {
 
   return (
     <div className="profile-container">
+    <div className="profile-header">
+       <LinkButton to="/editProfile" text="Editar Perfil" />
+    </div>
       <div className="profile-content">
         <div className="profile-card">
           <div className="profile-header">
@@ -67,21 +57,8 @@ function Profile() {
         </div>
 
         <div className="profile-description">
-          <h2>Descrição</h2>
-          {editingDescription ? (
-            <div>
-              <textarea
-                value={editedDescription}
-                onChange={(e) => setEditedDescription(e.target.value)}
-              />
-              <button onClick={handleSaveDescription}>Salvar</button>
-            </div>
-          ) : (
-            <div>
+          <h2>Sobre Mim</h2>
               <p>{userProfile.descricaoUsuario}</p>
-              <button onClick={handleEditDescription}>Editar</button>
-            </div>
-          )}
         </div>
 
         <div className="profile-comics">

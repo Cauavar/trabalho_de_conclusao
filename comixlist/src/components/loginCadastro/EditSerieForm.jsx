@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ref } from 'firebase/database';
 import { uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
-function CadastroSerieForm({ btnText }) {
+function EditSerieForm({ btnText }) {
   const navigate = useNavigate();
   const [nomeSerie, setNomeSerie] = useState('');
   const [autorSerie, setAutorSerie] = useState('');
@@ -115,4 +115,4 @@ function CadastroSerieForm({ btnText }) {
   );
 }
 
-export default CadastroSerieForm;
+export default EditSerieForm;

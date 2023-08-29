@@ -4,7 +4,14 @@
   align-items: center;
   padding: 1rem 2rem;
   background-color: black;
+  position: relative;
 }
+
+#navbar .search-form {
+  display: flex;
+  align-items: center;
+}
+
 
 #navbar h2 a {
   display: flex;
@@ -19,6 +26,12 @@
 
 #navbar h2 a:hover {
   color: #fff;
+}
+
+#navbar .navbar-links {
+  display: flex;
+  align-items: center;
+  margin-left: auto; 
 }
 
 #navbar .navbar-links a {

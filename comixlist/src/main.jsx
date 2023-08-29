@@ -13,6 +13,8 @@ import ProfilePage from './components/pages/ProfilePage';
 import ListaPessoal from './components/pages/ListaPessoal';
 import CadastroSerie from './components/pages/CadastroSerie';
 import { AuthProvider, AuthContext } from './components/contexts/auth';
+import EditProfile from './components/pages/EditProfile';
+import EditSerie from './components/pages/EditSerie';
 
 
 const PrivateRoute = ({ children }) => {
@@ -45,6 +47,8 @@ const AppRoutes = () => {
             <Route path="/cadastroSerie" element={<CadastroSerie />} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/listaPessoal" element={<PrivateRoute><ListaPessoal /></PrivateRoute>} />
+            <Route path="/editProfile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+            <Route path="/editSerie" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
           </Routes>
         </AuthProvider>
       </Router>

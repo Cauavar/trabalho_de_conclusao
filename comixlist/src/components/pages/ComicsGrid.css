@@ -60,3 +60,27 @@
     color: #f7d354;
   }
   
+  .container .navbar-links {
+    display: flex;
+    justify-content: right;
+    margin-top: 1rem;
+    margin-right: 3rem;
+  }
+  
+  .container .navbar-links a {
+    display: inline-block;
+    background-color: #f7d354;
+    border: 2px solid #f7d354;
+    border-radius: 4px;
+    color: #000;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: background-color 0.4s, color 0.4s;
+    font-weight: bold;
+  }
+  
+  .container .navbar-links a:hover {
+    background-color: transparent;
+    color: #f7d354;
+  }
+  

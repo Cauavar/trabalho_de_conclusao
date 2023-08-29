@@ -122,67 +122,32 @@ function CadastroForm({ btnText }) {
         text="Nome de Usuário"
         name="name"
         placeholder="Insira o nome do usuário"
-        value={nome} 
+        value={nome}
         onChange={(e) => setNome(e.target.value)}
       />
-
       <Input
         type="email"
         text="Email"
         name="email"
         placeholder="Insira um E-mail"
-        value={email} 
+        value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-
       <Input
-        type="date"
-        text="Aniversário"
-        name="aniversario"
-        placeholder="Insira sua data de aniversário"
-        value={aniversario}
-        onChange={(e) => setAniversario(e.target.value)}
-      />
-
-      <Input
-        type="text"
-        text="Descrição do Usuário"
-        name="descricaoUsuario"
-        placeholder="Descreva-se"
-        value={descricaoUsuario}
-        onChange={(e) => setDescricaoUsuario(e.target.value)}
-      />
-
-      <Input
-        type="file"
-        text="Imagem do Usuário"
-        name="imagemUsuario"
-        onChange={handleUpload}
-      />
-
-      <Input
-        type="text"
-        text="Localização"
-        name="local"
-        placeholder="Insira sua localização"
-        value={local}
-        onChange={(e) => setLocal(e.target.value)}
-      />
-
-      <Input
-        type={showPassword ? "text" : "password"}
+        type={showPassword ? 'text' : 'password'}
         text="Senha"
         name="password"
         placeholder="Insira uma senha"
-        value={senha} 
+        value={senha}
         onChange={(e) => setSenha(e.target.value)}
       />
-      <button // componentizar botao e usar o react icons depois
+      {/* Botão para alternar a exibição da senha */}
+      <button
         type="button"
         onClick={handleToggleShowPassword}
         className={styles.showPasswordButton}
       >
-        {showPassword ? "🙈" : "👁️"}
+        {showPassword ? '🙈' : '👁️'}
       </button>
       <ReCAPTCHA
         sitekey="6LfYeJgnAAAAADdYBPsx2VapcoHVFX2CVhRRKT1Y"
