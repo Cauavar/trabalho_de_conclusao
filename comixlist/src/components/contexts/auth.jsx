@@ -5,6 +5,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword} from 'firebase/auth';
 
 
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {

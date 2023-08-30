@@ -22,7 +22,7 @@ function CadastroSerieForm({ btnText }) {
     const file = e.target[0]?.files[0];
     if (!file) return;
 
-    const storageRef = ref(storage, `images/${file.name}`); 
+    const storageRef = ref(storage, `ims/${file.name}`); 
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(

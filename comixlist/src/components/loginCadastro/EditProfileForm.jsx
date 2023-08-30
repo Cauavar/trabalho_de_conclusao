@@ -7,19 +7,20 @@ import { AuthContext } from '../contexts/auth';
 import { firestore } from '../bd/FireBase';
 import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'; 
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { storage } from '../bd/FireBase'; 
 
 
 function EditProfileForm({ btnText }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [editedProfile, setEditedProfile] = useState({
-    nome: user.displayName || '',
+    nome: user.nome || '',
     email: user.email || '',
-    aniversario: '',
-    descricaoUsuario: '',
-    imagemUsuario: '',
-    local: '',
+    aniversario: user.aniversario || '',
+    descricaoUsuario: user.descricaoUsuario || '',
+    imagemUsuario: user.imagemUsuario || '',
+    local: user.local || '',
   });
 
   useEffect(() => {
@@ -52,27 +53,31 @@ function EditProfileForm({ btnText }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const storageRef = ref(storage, `user_images/${file.name}`);
+    
+    const imageName = `${user.uid}_${Date.now()}_${file.name}`;
+  
+    const storageRef = ref(storage, `imu/${imageName}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
-    setUploading(true);
-
+  
     uploadTask.on(
       'state_changed',
-      null,
+      (snapshot) => {
+        
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Progresso do Upload: ${progress}%`);
+      },
       (error) => {
-        console.error(error);
-        setUploading(false);
+        console.error('Erro no Upload:', error);
       },
       () => {
+        
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          setImagemUsuario(url);
-          setUploading(false);
           handleChange('imagemUsuario', url);
         });
       }
     );
   };
+  
 
   const handleChange = (field, value) => {
     setEditedProfile((prevProfile) => ({
@@ -99,21 +104,21 @@ function EditProfileForm({ btnText }) {
       />
 
       <Input
-        type="email"
-        text="Email"
-        name="email"
-        placeholder="Editar E-mail"
-        value={editedProfile.email}
-        onChange={(e) => handleChange('email', e.target.value)}
-      />
-
-      <Input
         type="date"
         text="Aniversário"
         name="aniversario"
         placeholder="Editar data de aniversário"
         value={editedProfile.aniversario}
         onChange={(e) => handleChange('aniversario', e.target.value)}
+      />
+
+      <Input
+        type="text"
+        text="Local"
+        name="local"
+        placeholder="Editar local"
+        value={editedProfile.local}
+        onChange={(e) => handleChange('local', e.target.value)}
       />
 
       <Input
@@ -125,13 +130,17 @@ function EditProfileForm({ btnText }) {
         onChange={(e) => handleChange('descricaoUsuario', e.target.value)}
       />
 
+      <form className={styles.form} onSubmit={handleUpload}>
       <Input
         type="file"
         text="Editar Imagem do Usuário"
         name="imagemUsuario"
         onChange={handleUpload}
       />
-
+        <br />
+        {!imagemSerie && <progress value={progress} max="100" />} 
+      </form>
+      
       <SubmitButton text={btnText} />
     </form>
   );

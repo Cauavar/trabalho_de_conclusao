@@ -6,19 +6,23 @@ import { AuthContext } from '../contexts/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import ReCAPTCHA from "react-google-recaptcha";
 
+
 function LoginForm({ btnText }) {
-  const { auth } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
 
+  const handleRecaptchaChange = (value) => {
+    setRecaptchaValue(value);
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (recaptchaValue){
     try {
-      await signInWithEmailAndPassword(auth, email, senha); 
+      await signInWithEmailAndPassword(login, email, senha); 
     } catch (error) {
         console.error('Error during login', error);
         console.log(error.code); 
@@ -29,9 +33,6 @@ function LoginForm({ btnText }) {
   }
   };
 
-  const handleRecaptchaChange = (value) => {
-    setRecaptchaValue(value);
-  }
 
 
   return (
