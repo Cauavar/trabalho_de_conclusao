@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import SeriesCard from './SeriesCard';
+import SeriesCardApi from './SeriesCardApi';
+import SeriesCardFirestore from './SeriesCardFirestore';
 import md5 from 'md5';
 import './ComicsGrid.css';
 import { useParams } from 'react-router-dom';
@@ -22,7 +23,7 @@ const Search = () => {
     try {
       const response = await axios.get(seriesURL, {
         params: {
-          titleStartsWith: searchTerm,
+          titleStartsWith: searchTerm, // Use titleStartsWith para pesquisar pelo nome
           apikey: apiPublicKey,
           ts: timestamp,
           hash: hash,
@@ -40,7 +41,7 @@ const Search = () => {
   const getSeriesFromFirestore = async (searchTerm) => {
     try {
       const seriesCollectionRef = collection(firestore, 'serie');
-      const queryRef = query(seriesCollectionRef, where('nomeSerie', '>=', searchTerm));
+      const queryRef = query(seriesCollectionRef, where('nomeSerie', '==', searchTerm)); // Use '==' para comparação exata
       const querySnapshot = await getDocs(queryRef);
       const firestoreResults = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -67,15 +68,22 @@ const Search = () => {
       setSeries([]);
     }
   }, [searchTerm]);
-
+  
   return (
     <div className="container">
       <h2 className="title">Pesquisar Séries de Quadrinhos</h2>
       <div className="comics_container">
-        {series.length === 0 && <p>Nenhum resultado encontrado.</p>}
-        {series.map((serie) => (
-          <SeriesCard key={serie.id} serie={serie} />
-        ))}
+        {series.length === 0 ? (
+          <p>Nenhum resultado encontrado.</p>
+        ) : (
+          series.map((serie) =>
+            serie.thumbnail ? (
+              <SeriesCardApi key={serie.id} serie={serie} />
+            ) : (
+              <SeriesCardFirestore key={serie.id} serie={serie} />
+            )
+          )
+        )}
       </div>
     </div>
   );

@@ -141,7 +141,6 @@ function CadastroForm({ btnText }) {
         value={senha}
         onChange={(e) => setSenha(e.target.value)}
       />
-      {/* Botão para alternar a exibição da senha */}
       <button
         type="button"
         onClick={handleToggleShowPassword}

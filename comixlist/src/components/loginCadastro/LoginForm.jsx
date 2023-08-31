@@ -13,6 +13,7 @@ function LoginForm({ btnText }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRecaptchaChange = (value) => {
     setRecaptchaValue(value);
@@ -32,6 +33,9 @@ function LoginForm({ btnText }) {
     console.log("Please complete the reCAPTCHA.");
   }
   };
+  const handleToggleShowPassword = () => {
+    setShowPassword(prevShowPassword => !prevShowPassword);
+  }
 
 
 
@@ -54,6 +58,13 @@ function LoginForm({ btnText }) {
         value={senha}
         onChange={(e) => setSenha(e.target.value)}
       />
+      <button
+        type="button"
+        onClick={handleToggleShowPassword}
+        className={styles.showPasswordButton}
+      >
+        {showPassword ? '🙈' : '👁️'}
+      </button>
         <ReCAPTCHA
         sitekey="6LfYeJgnAAAAADdYBPsx2VapcoHVFX2CVhRRKT1Y"
         onChange={handleRecaptchaChange}

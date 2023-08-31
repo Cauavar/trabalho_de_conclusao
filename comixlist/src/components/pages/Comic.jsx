@@ -3,12 +3,12 @@ import { useParams } from "react-router-dom";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import "./Comic.css";
 import md5 from "md5";
-import SeriesCard from "./SeriesCard";
+import SeriesCardApi from "./SeriesCardApi";
+import SeriesCardFirestore from "./SeriesCardFirestore";
 import { getDoc, doc, collection } from 'firebase/firestore';
 import { firestore } from "../bd/FireBase";
 import AddListaPessoalModal from "../modals/AddListaPessoalModal";
 import LinkButton from '../layout/LinkButton';
-
 
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
@@ -17,6 +17,7 @@ const Comic = () => {
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -25,40 +26,42 @@ const Comic = () => {
     setIsModalOpen(false);
   };
 
-
-  const fetchSeriesData = async (id) => {
+  const getSeriesFromApi = async () => {
     const timestamp = Date.now().toString();
     const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
-  
-    if (id.startsWith('API')) {
-      const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id.substr(3)}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-      try {
-        const res = await fetch(seriesUrl);
-        const data = await res.json();
-        console.log(data)
-        const apiSeries = data.data.results[0];
-        apiSeries.origin = 'API'; 
-        setSeries(apiSeries);
-      } catch (error) {
-        console.error("Error fetching series from API:", error);
+    const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id.substr(3)}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+
+    try {
+      const res = await fetch(seriesUrl);
+      const data = await res.json();
+      const apiSeries = data.data.results[0];
+      apiSeries.origin = 'API'; 
+      setSeries(apiSeries);
+    } catch (error) {
+      console.error("Error fetching series from API:", error);
+    }
+  };
+
+  const getSeriesFromFirestore = async () => {
+    try {
+      const docRef = doc(collection(firestore, "serie"), id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setSeries(docSnap.data());
+      } else {
+        console.log('No data returned!');
       }
-    } else {
-      try {
-        const docRef = doc(collection(firestore, "serie"), id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setSeries(docSnap.data());
-        } else {
-          console.log('Sem retorno!');
-        }
-      } catch (error) {
-        console.error('Error fetching series from Firestore:', error);
-      }
+    } catch (error) {
+      console.error('Error fetching series from Firestore:', error);
     }
   };
 
   useEffect(() => {
-    fetchSeriesData(id);
+    if (id.startsWith('API')) {
+      getSeriesFromApi();
+    } else {
+      getSeriesFromFirestore();
+    }
   }, [id]);
 
   const handleAddToList = () => {
@@ -72,36 +75,40 @@ const Comic = () => {
   };
 
   return (
-    
     <div className="comic-page">
-                  <div className="profile-header">
-       <LinkButton to="/editSerie" text="Editar Série" />
-    </div>
+      <div className="profile-header">
+        <LinkButton to="/editSerie" text="Edit Series" />
+      </div>
       {series ? (
         <>
           <div className="comic-card">
-            <SeriesCard serie={series} showLink={false} />
+            {series.thumbnail ? (
+              <SeriesCardApi serie={series} showLink={false} />
+            ) : (
+              <SeriesCardFirestore serie={series} showLink={false} />
+            )}
             <button className="addToListButton" onClick={openModal}>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 5v14M5 12h14" />
-  </svg>
-  Adicionar à Lista
-</button>
-<AddListaPessoalModal
-  isOpen={isModalOpen}
-  onClose={closeModal}
-  onAddToList={handleAddToList}
-  getSeries={() => series} 
-/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Adicionar à Lista
+            </button>
+            <AddListaPessoalModal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              onAddToList={handleAddToList}
+              getSeries={() => series} 
+            />
           </div>
+
           <div className="info">
             <p className="tagLine">{series.tagline}</p>
             <h3>

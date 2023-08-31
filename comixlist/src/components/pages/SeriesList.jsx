@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { collection, getDocs } from 'firebase/firestore'; 
-import SeriesCard from "./SeriesCard"; 
+import SeriesCardApi from "./SeriesCardApi"; 
+import SeriesCardFirestore from "./SeriesCardFirestore"; 
 import { firestore } from "../bd/FireBase";
 
 const SerieList = () => {
@@ -27,7 +28,11 @@ const SerieList = () => {
   return (
     <div className="serie-list">
       {series.map((serie) => (
-        <SeriesCard key={serie.id} serie={serie} />
+        serie.thumbnail ? (
+          <SeriesCardApi key={serie.id} serie={serie} />
+        ) : (
+          <SeriesCardFirestore key={serie.id} serie={serie} />
+        )
       ))}
     </div>
   );
