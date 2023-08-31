@@ -12,17 +12,20 @@ import {
   updateDoc, 
 } from 'firebase/firestore'; 
 import { storage, firestore } from '../bd/FireBase'; 
+import { useContext } from 'react';
+import { AuthContext } from '../contexts/auth';
 
-function EditSerieForm({ btnText, serie }) { 
+function EditSerieForm({ btnText }) {
+  const {serie} = useContext(AuthContext);
   const navigate = useNavigate();
   const [editedSerie, setEditedSerie] = useState({
-    nomeSerie: serie?.nomeSerie || '',
-    descricaoSerie: serie?.descricaoSerie || '',
-    autorSerie: serie?.autorSerie || '',
-    editora: serie?.editora || '',
-    publiSerie: serie?.publiSerie || '',
-    imagemSerie: serie?.imagemSerie || '',
-    volumes: serie?.volumes || '',
+    nomeSerie: serie.nomeSerie || '',
+    descricaoSerie: serie.descricaoSerie || '',
+    autorSerie: serie.autorSerie || '',
+    editora: serie.editora || '',
+    publiSerie: serie.publiSerie || '',
+    imagemSerie: serie.imagemSerie || '',
+    volumes: serie.volumes || '',
   });
   
   const [progress, setProgress] = useState(0);
@@ -30,8 +33,8 @@ function EditSerieForm({ btnText, serie }) {
   useEffect(() => {
     const getSeries = async () => {
       try {
-        const serieDocRef = doc(collection(firestore, 'serie'), serie.id);
-        const docSnapshot = await getDoc(serieDocRef);
+        const seriesCollectionRef = doc(collection(firestore, 'serie'), serie.id);
+        const docSnapshot = await getDoc(seriesCollectionRef);
         if (docSnapshot.exists()) {
           setEditedSerie(docSnapshot.data());
         }
@@ -46,8 +49,8 @@ function EditSerieForm({ btnText, serie }) {
     e.preventDefault();
 
     try {
-      const serieDocRef = doc(collection(firestore, 'serie'), serie.id);
-      await updateDoc(serieDocRef, editedSerie);
+      const seriesCollectionRef = doc(collection(firestore, 'serie'), serie.id);
+      await updateDoc(seriesCollectionRef, editedSerie);
       console.log('Serie atualizado com sucesso!');
       navigate('/');
     } catch (error) {
@@ -159,7 +162,7 @@ function EditSerieForm({ btnText, serie }) {
 </form>
 
 
-<EditSerieForm btnText="Editar Série" serie={serie} />
+      <SubmitButton text={btnText} />
     </form>
   );
 }

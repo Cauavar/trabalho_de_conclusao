@@ -13,6 +13,7 @@ function CadastroSerieForm({ btnText }) {
   const [autorSerie, setAutorSerie] = useState('');
   const [descricaoSerie, setDescricaoSerie] = useState('');
   const [publiSerie, setPubliSerie] = useState('');
+  const [volumes, setVolumes] = useState('');
   const [imagemSerie, setImagemSerie] = useState('');
   const [progress, setProgress] = useState(0);
 
@@ -51,6 +52,7 @@ function CadastroSerieForm({ btnText }) {
         autorSerie,
         descricaoSerie,
         publiSerie,
+        volumes,
         imagemSerie, 
       };
       await addSerieToFirestore(serieData); 
@@ -98,7 +100,15 @@ function CadastroSerieForm({ btnText }) {
         value={publiSerie} 
         onChange={(e) => setPubliSerie(e.target.value)}
       />  
-      <form className={styles.form} onSubmit={handleUpload}>
+        <Input
+        type="number"
+        text="Número de Volumes"
+        name="volumes"
+        placeholder="Insira o Número de Volumes"
+        value={volumes} 
+        onChange={(e) => setVolumes(e.target.value)}
+      />
+     
         <Input
           type="file"
           text="Capa da Série"
@@ -106,9 +116,7 @@ function CadastroSerieForm({ btnText }) {
           placeholder="Insira uma capa para a Série"
           onChange={handleUpload} 
         />
-        <br />
-        {!imagemSerie && <progress value={progress} max="100" />} 
-      </form>
+
 
       <SubmitButton text={btnText} />
     </form>

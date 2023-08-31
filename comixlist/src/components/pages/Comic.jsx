@@ -132,6 +132,10 @@ const Comic = () => {
                   <BsFillFileEarmarkTextFill /> Data de Publicação:
                 </h3>
                 <p>{series.publiSerie}</p>
+                                <h3>
+                  <BsFillFileEarmarkTextFill /> Data de Publicação:
+                </h3>
+                <p>{series.publiSerie}</p>
               </>
             )}
           </div>

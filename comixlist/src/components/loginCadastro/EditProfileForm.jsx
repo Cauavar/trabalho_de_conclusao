@@ -137,8 +137,6 @@ function EditProfileForm({ btnText }) {
         name="imagemUsuario"
         onChange={handleUpload}
       />
-        <br />
-        {!imagemSerie && <progress value={progress} max="100" />} 
       </form>
       
       <SubmitButton text={btnText} />

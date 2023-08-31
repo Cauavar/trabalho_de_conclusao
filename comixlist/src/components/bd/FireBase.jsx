@@ -33,4 +33,5 @@ export const addSerieToFirestore = async (serieData) => {
   }
 };
 
+
 export const storage = getStorage(app);
