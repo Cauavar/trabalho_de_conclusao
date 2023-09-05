@@ -105,6 +105,7 @@ const Comic = () => {
               isOpen={isModalOpen}
               onClose={closeModal}
               onAddToList={handleAddToList}
+              serieId={id}
               getSeries={() => series} 
             />
           </div>
