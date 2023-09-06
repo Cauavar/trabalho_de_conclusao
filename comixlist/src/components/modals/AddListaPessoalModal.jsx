@@ -24,7 +24,7 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId }) { // Re
 
       await addListaPessoalToFirestore(user.uid, serieId, parseFloat(nota), review);
       alert('Item adicionado à lista pessoal com sucesso');
-      onClose(); // Fecha o modal após adicionar à lista
+      onClose(); 
     } catch (error) {
       alert('Erro ao adicionar item à lista pessoal: ' + error.message);
     }
