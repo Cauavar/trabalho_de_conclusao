@@ -1,51 +1,189 @@
 
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 100%;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-  
-  .cancel-button,
-  .add-button {
-    padding: 6px 12px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .cancel-button {
-    background-color: #ccc;
-    margin-right: 10px;
-  }
-  
-  .add-button {
-    background-color: #007bff;
-    color: #fff;
-  }
-  
-  .add-button:hover {
-    background-color: #0056b3;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  width: 100%;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.cancel-button,
+.add-button {
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+
+
+.volume-input {
+  display: flex;
+  align-items: center;
+}
+
+.total-volumes {
+  margin-right: 5px;
+}
+
+/* Estilos específicos para o seu modal */
+.modal-content h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.modal-content img {
+  max-width: 100%;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+}
+
+.modal-content h3 {
+  font-size: 1rem;
+}
+
+.modal-content label {
+  font-weight: bold;
+}
+
+.modal-content input[type="number"],
+.modal-content textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-content textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-buttons button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.modal-buttons button.add-button {
+  background-color: #f7d354; /* Cor amarela típica */
+  color: #000; /* Cor de texto preta */
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #f7d354; /* Adicione uma borda amarela */
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1rem 0; /* Espaçamento superior e inferior aumentado */
+  width: 100%; /* Largura de 100% para o botão ocupar toda a largura do modal */
+  transition: background-color 0.4s, color 0.4s; /* Adicione uma transição suave */
+}
+
+.modal-buttons button.add-button:hover {
+  background-color: #fff; /* Cor de fundo branca ao passar o mouse */
+  color: #f7d354; /* Cor de texto amarela ao passar o mouse */
+}
+.modal-buttons button.cancel-button {
+  background-color: #ccc;
+}
+
+.modal-buttons button:hover {
+  background-color: #f7d354;
+  color: #fff;
+}
+
+.modal-content h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.modal-content img {
+  max-width: 100%;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  border: 2px solid #f7d354; /* Adicione uma borda amarela típica */
+}
+
+.modal-content h3 {
+  font-size: 1rem;
+}
+
+.modal-content label {
+  font-weight: bold;
+}
+
+.modal-content input[type="number"],
+.modal-content textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-content textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Estilização para o botão "Adicionar à Lista Pessoal" */
+.modal-buttons button.add-button {
+  background-color: #f7d354; /* Cor amarela típica */
+  color: #000; /* Cor de texto preta */
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1rem 0; /* Espaçamento superior e inferior aumentado */
+  width: 100%; /* Largura de 100% para o botão ocupar toda a largura do modal */
+}
+
+.modal-buttons button.add-button:hover {
+  background-color: #000; /* Cor de fundo preta ao passar o mouse */
+  color: #f7d354; /* Cor de texto amarela ao passar o mouse */
+}
+
+/* Estilização para a barra de volumes */
+.volume-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Espaçamento entre o número de volumes lidos e o total de volumes */
+  margin-bottom: 1rem;
+}
+
+.total-volumes {
+  margin-right: 5px;
+  font-weight: bold; /* Deixar o número de volumes lidos em negrito */
+  color: #000; /* Cor de texto preta */
+}

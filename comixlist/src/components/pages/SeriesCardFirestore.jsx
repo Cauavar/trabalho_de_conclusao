@@ -7,8 +7,8 @@ const SeriesCardFirestore = ({ serie, showLink = true }) => {
     <div className="series-card">
       <img src={serie.imagemSerie} alt={serie.nomeSerie} />
       <h2>
-        {serie.nomeSerie}
-        {serie.publiSerie && `(${serie.publiSerie.split("/")[2]})`}
+        {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
+
       </h2>
       {showLink && (
         <Link to={`/series/${serie.id}`} state={{ id: serie.id }}>

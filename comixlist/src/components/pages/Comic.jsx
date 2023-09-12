@@ -29,13 +29,12 @@ const Comic = () => {
   const getSeriesFromApi = async () => {
     const timestamp = Date.now().toString();
     const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
-    const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id.substr(3)}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+    const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
 
     try {
       const res = await fetch(seriesUrl);
       const data = await res.json();
       const apiSeries = data.data.results[0];
-      apiSeries.origin = 'API'; 
       setSeries(apiSeries);
     } catch (error) {
       console.error("Error fetching series from API:", error);
@@ -56,8 +55,12 @@ const Comic = () => {
     }
   };
 
+  const isMarvelApiId = (id) => {
+    return !isNaN(parseInt(id));
+  };
+  
   useEffect(() => {
-    if (id.startsWith('API')) {
+    if (isMarvelApiId(id)) {
       getSeriesFromApi();
     } else {
       getSeriesFromFirestore();
@@ -82,7 +85,7 @@ const Comic = () => {
       {series ? (
         <>
           <div className="comic-card">
-            {series.thumbnail ? (
+            {isMarvelApiId(id) ? (
               <SeriesCardApi serie={series} showLink={false} />
             ) : (
               <SeriesCardFirestore serie={series} showLink={false} />
@@ -106,32 +109,19 @@ const Comic = () => {
               onClose={closeModal}
               onAddToList={handleAddToList}
               serieId={id}
-              getSeries={() => series} 
+              getSeries={series}
             />
           </div>
 
           <div className="info">
             <p className="tagLine">{series.tagline}</p>
-            <h3>
-              <BsFillFileEarmarkTextFill /> Descrição:
-            </h3>
-            <p>{id.startsWith('API') ? series.description : series.descriçãoSerie || "Description not available"}</p>
-  
             {/* Exibir outras informações relevantes da série */}
-            {series.origin === 'API' ? (
+            {isNaN(parseInt(id)) ? (
               <>
                 <h3>
-                  <BsFillFileEarmarkTextFill /> Autor:
+                  <BsFillFileEarmarkTextFill /> Descrição:
                 </h3>
-                <p>{series.someProperty || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Data de Publicação:
-                </h3>
-                <p>{formatPublishDate(series.dates)}</p>
-              </>
-            ) : (
-              <>
-                {/* Detalhes do banco de dados */}
+                <p>{series.description || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Autor:
                 </h3>
@@ -139,11 +129,39 @@ const Comic = () => {
                 <h3>
                   <BsFillFileEarmarkTextFill /> Data de Publicação:
                 </h3>
-                <p>{series.publiSerie}</p>
-                                <h3>
+                <p>{series.publiSerie || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Número de Volumes:
+                </h3>
+                <p>{series.volumes || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Nota Média:
+                </h3>
+                <p>{series.notaMedia || "N/A"}</p>
+              </>
+            ) : (
+              <>
+                {/* Detalhes do banco de dados */}
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Descrição:
+                </h3>
+                <p>{series.descricaoSerie || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Autor:
+                </h3>
+                <p>{series.autorSerie || "N/A"}</p>
+                <h3>
                   <BsFillFileEarmarkTextFill /> Data de Publicação:
                 </h3>
-                <p>{series.publiSerie}</p>
+                <p>{series.publiSerie || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Número de Volumes:
+                </h3>
+                <p>{series.volumes || "N/A"}</p>
+                <h3>
+                  <BsFillFileEarmarkTextFill /> Nota Média:
+                </h3>
+                <p>{series.notaMedia || "N/A"}</p>
               </>
             )}
           </div>
@@ -153,8 +171,6 @@ const Comic = () => {
       )}
     </div>
   );
-  
-  
 };
 
 export default Comic;
