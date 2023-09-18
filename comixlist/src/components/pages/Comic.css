@@ -92,3 +92,33 @@
 .addToListButton svg {
   font-size: 1.2rem;
 }
+.form{
+  width: 100%;
+  margin: 2em 0;
+}
+
+
+.iconContainer {
+  text-align: left;
+  margin-bottom: 1.5em;
+}
+  
+  .backButton {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .backIcon {
+    margin-right: 0.5em;
+  }
+  
+  .backButton:hover {
+    color: #222;
+  }
+  

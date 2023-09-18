@@ -9,11 +9,14 @@ import { getDoc, doc, collection } from 'firebase/firestore';
 import { firestore } from "../bd/FireBase";
 import AddListaPessoalModal from "../modals/AddListaPessoalModal";
 import LinkButton from '../layout/LinkButton';
+import { FiArrowLeft } from 'react-icons/fi';
+import { useNavigate } from "react-router-dom";
 
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
 
 const Comic = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,6 +84,11 @@ const Comic = () => {
     <div className="comic-page">
       <div className="profile-header">
         <LinkButton to="/editSerie" text="Edit Series" />
+      </div>
+      <div className="conContainer">
+            <button type="button" className="backButton" onClick={() => navigate('/')}>
+              <FiArrowLeft className="backIcon "/> Voltar
+            </button>
       </div>
       {series ? (
         <>

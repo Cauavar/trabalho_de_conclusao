@@ -52,8 +52,7 @@ function EditProfileForm({ btnText }) {
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    
+  
     const imageName = `${user.uid}_${Date.now()}_${file.name}`;
   
     const storageRef = ref(storage, `imu/${imageName}`);
@@ -62,7 +61,6 @@ function EditProfileForm({ btnText }) {
     uploadTask.on(
       'state_changed',
       (snapshot) => {
-        
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log(`Progresso do Upload: ${progress}%`);
       },
@@ -70,10 +68,13 @@ function EditProfileForm({ btnText }) {
         console.error('Erro no Upload:', error);
       },
       () => {
-        
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          handleChange('imagemUsuario', url);
-        });
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((url) => {
+            handleChange('imagemUsuario', url);
+          })
+          .catch((error) => {
+            console.error('Erro ao obter o URL da imagem:', error);
+          });
       }
     );
   };
@@ -129,15 +130,13 @@ function EditProfileForm({ btnText }) {
         value={editedProfile.descricaoUsuario}
         onChange={(e) => handleChange('descricaoUsuario', e.target.value)}
       />
-
-      <form className={styles.form} onSubmit={handleUpload}>
+      
       <Input
         type="file"
         text="Editar Imagem do Usuário"
         name="imagemUsuario"
         onChange={handleUpload}
       />
-      </form>
       
       <SubmitButton text={btnText} />
     </form>

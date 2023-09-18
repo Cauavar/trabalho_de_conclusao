@@ -25,6 +25,7 @@ function Profile() {
   if (!userProfile) {
     return <div>Loading...</div>;
   }
+  const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png'; 
 
 
   return (
@@ -34,8 +35,12 @@ function Profile() {
     </div>
       <div className="profile-content">
         <div className="profile-card">
-          <div className="profile-header">
-            <img className="profile-avatar" src={userProfile.imagemUsuario} alt="Profile Avatar" />
+        <div className="profile-header">
+            <img
+              className="profile-avatar"
+              src={userProfile.imagemUsuario || defaultAvatar}
+              alt="Profile Avatar"
+            />
           </div>
           <div className="profile-info">
             <h1 className="profile-username">Nome: {userProfile.nome}</h1>

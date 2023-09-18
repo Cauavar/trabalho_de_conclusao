@@ -36,6 +36,8 @@ const Navbar = () => {
     setSearchTerm('');
   };
 
+  const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png'; 
+
   return (
     <nav id="navbar">
       <h2>
@@ -49,13 +51,12 @@ const Navbar = () => {
           <>
             {userProfile ? (
               <Link to="/profile">
-                <img className="profile-avatar" src={userProfile.imagemUsuario} alt="Profile Avatar" />
-                {userProfile.nome}
+            <img className="profile-avatar" src={userProfile.imagemUsuario || defaultAvatar} alt="Profile Avatar" />
               </Link>
             ) : (
               <div>Loading Profile...</div>
             )}
-            <Link to="/comiclist">Lists</Link>
+            <Link to="/listaPessoal">Lists</Link>
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
