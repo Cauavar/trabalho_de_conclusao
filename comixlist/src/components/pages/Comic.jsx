@@ -81,15 +81,18 @@ const Comic = () => {
   };
 
   return (
+    
     <div className="comic-page">
+      <div className="conContainer">
+          <button type="button" className="backButton" onClick={() => navigate('/')}>
+          <FiArrowLeft className="backIcon "/> Voltar
+          </button>
+      </div>
+
       <div className="profile-header">
         <LinkButton to="/editSerie" text="Edit Series" />
       </div>
-      <div className="conContainer">
-            <button type="button" className="backButton" onClick={() => navigate('/')}>
-              <FiArrowLeft className="backIcon "/> Voltar
-            </button>
-      </div>
+
       {series ? (
         <>
           <div className="comic-card">

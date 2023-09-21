@@ -12,6 +12,10 @@ const Home = () => {
   const [topSeries, setTopSeries] = useState([]);
   const [mySeries, setMySeries] = useState([]);
   const { isAuthenticated } = useContext(AuthContext);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 18;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
 
   const seriesURL = "https://gateway.marvel.com/v1/public/series";
   const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
@@ -23,7 +27,7 @@ const Home = () => {
 
     try {
       const response = await fetch(
-        `${url}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}&limit=21`
+        `${url}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}`
       );
       const data = await response.json();
       setTopSeries(data.data.results);
@@ -51,6 +55,13 @@ const Home = () => {
     fetchMySeriesFromFirestore();
   }, []);
 
+  const goToNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+  const goToPreviousPage = () => {
+    setCurrentPage((prevPage) => prevPage - 1);
+  };
+
   return (
     <div className="container">
       <h2 className="title">Séries:</h2>
@@ -59,16 +70,52 @@ const Home = () => {
           <Link to="/cadastroSerie">Cadastre uma Série</Link>
         ) : null}
       </div>
+      <div className="pagination">
+        <button
+          onClick={goToPreviousPage}
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </button>
+        <span>Página {currentPage}</span>
+        <button
+          onClick={goToNextPage}
+          disabled={topSeries.length <= endIndex}
+        >
+          Próxima
+        </button>
+      </div>
       <div className="comics_container">
-        {topSeries.map((serie) => (
+        {topSeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardApi key={serie.id} serie={serie} />
         ))}
-        {mySeries.map((serie) => (
+        {mySeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardFirestore key={serie.id} serie={serie} />
         ))}
       </div>
+  
+      <div className="pagination">
+        <button
+          onClick={goToPreviousPage}
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </button>
+        <span>Página {currentPage}</span>
+        <button
+          onClick={goToNextPage}
+          disabled={topSeries.length <= endIndex}
+        >
+          Próxima
+        </button>
+      </div>
+  
+      <br />
+      <br />
+
     </div>
   );
+  
 };
 
 export default Home;

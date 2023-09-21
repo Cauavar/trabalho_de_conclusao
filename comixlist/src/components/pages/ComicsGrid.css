@@ -84,3 +84,41 @@
     color: #f7d354;
   }
   
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.pagination button {
+  background-color: #f7d354;
+  border: 2px solid #f7d354;
+  border-radius: 4px;
+  color: #000;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: background-color 0.4s, color 0.4s;
+  font-weight: bold;
+  margin: 0 0.5rem;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background-color: transparent;
+  color: #f7d354;
+}
+
+/* Estilo para o botão de página ativa (página atual) */
+.pagination .active {
+  background-color: #f7d354;
+  color: #000;
+}
+
+/* Desative os botões quando necessário */
+.pagination button:disabled {
+  background-color: #ccc;
+  color: #777;
+  cursor: not-allowed;
+}
