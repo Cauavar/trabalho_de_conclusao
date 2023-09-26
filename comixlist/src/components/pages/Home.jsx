@@ -27,7 +27,7 @@ const Home = () => {
 
     try {
       const response = await fetch(
-        `${url}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}`
+        `${url}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}&limit=50`
       );
       const data = await response.json();
       setTopSeries(data.data.results);

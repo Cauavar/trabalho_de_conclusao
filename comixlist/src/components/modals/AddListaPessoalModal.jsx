@@ -8,6 +8,8 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
   const [nota, setNota] = useState('');
   const [review, setReview] = useState('');
   const [volumesLidos, setVolumesLidos] = useState(0);
+  const [tipo, setTipo] = useState('');
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
         throw new Error('Usuário ou ID da série não definidos.');
       }
 
-      await addListaPessoalToFirestore(user.uid, serieId, parseFloat(nota), review, volumesLidos);
+      await addListaPessoalToFirestore(user.uid, serieId, parseFloat(nota), review, volumesLidos, tipo);
       alert('Item adicionado à lista pessoal com sucesso');
       onClose();
     } catch (error) {
@@ -56,8 +58,16 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
       max={getSeries.volumes}
     />
     <span className="total-volumes"> / {getSeries.volumes}</span>
-  </div>
-</div>
+    <label>Tipo:</label>
+      <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+        <option value="null">...</option>
+        <option value="completo">Completo</option>
+        <option value="lendo">Lendo</option>
+        <option value="dropado">Dropado</option>
+        <option value="planejo-ler">Planejo Ler</option>
+     </select>
+    </div>
+    </div>
         </div>
         <form onSubmit={handleSubmit}>
           <div>

@@ -4,7 +4,7 @@ import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { getStorage }  from 'firebase/storage';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
@@ -34,7 +34,7 @@ export const addSerieToFirestore = async (serieData) => {
   }
 };
 
-export const addListaPessoalToFirestore = async (userId, serieId, nota, review, volumesLidos) => {
+export const addListaPessoalToFirestore = async (userId, serieId, nota, review, volumesLidos, tipo) => {
   try {
     const userRef = doc(firestore, 'users', userId);
     const userDoc = await getDoc(userRef);
@@ -49,9 +49,10 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
         // Se a série já existe, atualize os dados
         listaPessoal[serieIndex] = {
           ...listaPessoal[serieIndex],
-          nota,
-          review,
-          volumesLidos,
+            nota,
+            review,
+            volumesLidos,
+            tipo,
         };
       } else {
         // Se a série não existe na lista, adicione-a
@@ -60,11 +61,16 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
           nota,
           review,
           volumesLidos,
+          tipo,
         };
         listaPessoal.push(itemNaLista);
       }
 
       await updateDoc(userRef, { listaPessoal });
+
+      // Após atualizar a lista pessoal, calcule a nota média
+      await calcularNotaMedia(serieId, userId); // Pass userId as an argument
+      
       console.log('Item adicionado/atualizado à lista pessoal com sucesso');
     } else {
       throw new Error('Usuário não encontrado');
@@ -74,6 +80,40 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
   }
 };
 
+const calcularNotaMedia = async (serieId, userId) => {
+  const seriesCollectionRef = collection(firestore, 'serie');
+  const serieRef = doc(seriesCollectionRef, serieId);
+  const serieDoc = await getDoc(serieRef);
 
+  if (serieDoc.exists()) {
+    const usuariosComNotaRef = collection(firestore, 'users');
+    const usuariosQuerySnapshot = await getDocs(usuariosComNotaRef);
+
+    let somaTotalNotas = 0;
+    let numUsuariosQueDeramNota = 0;
+
+    for (const userDoc of usuariosQuerySnapshot.docs) {
+      const userData = userDoc.data();
+
+      // Verifica se listaPessoal existe e é um array
+      if (userData.listaPessoal && Array.isArray(userData.listaPessoal)) {
+        const serieNaLista = userData.listaPessoal.find(item => item.serieId === serieId);
+
+        if (serieNaLista && typeof serieNaLista.nota === 'number') {
+          somaTotalNotas += serieNaLista.nota;
+          numUsuariosQueDeramNota++;
+        }
+      }
+    }
+
+    const novaMedia = numUsuariosQueDeramNota > 0 ? somaTotalNotas / numUsuariosQueDeramNota : 0;
+
+    // Atualize o campo "notaMedia" na série
+    await updateDoc(serieRef, { notaMedia: novaMedia });
+    console.log('Média de notas calculada e atualizada com sucesso:', novaMedia);
+  } else {
+    throw new Error('Série não encontrada');
+  }
+};
 
 export const storage = getStorage(app);
