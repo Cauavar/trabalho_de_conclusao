@@ -51,7 +51,11 @@ const Navbar = () => {
           <>
             {userProfile ? (
               <Link to="/profile">
-            <img className="profile-avatar" src={userProfile.imagemUsuario ? `${userProfile.imagemUsuario}?${new Date().getTime()}` : defaultAvatar} alt="Profile Avatar" />
+              <img
+                className="profile-avatar"
+                src={userProfile.imagemUsuario ? `${userProfile.imagemUsuario}?${new Date().getTime()}` : defaultAvatar}
+                alt="Profile Avatar"
+              />
               </Link>
             ) : (
               <div>Loading Profile...</div>
