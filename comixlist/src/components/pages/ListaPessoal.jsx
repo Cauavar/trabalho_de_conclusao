@@ -3,7 +3,7 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { AuthContext } from "../contexts/auth";
 import { firestore } from "../bd/FireBase";
 import SeriesCardFirestoreListaPessoal from "./SeriesCardFirestoreListaPessoal";
-import styles from './ListaPessoal.module.css';
+import styles from "./ListaPessoal.module.css"; 
 
 const ListaPessoal = () => {
   const { user } = useContext(AuthContext);
@@ -67,7 +67,7 @@ const ListaPessoal = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Lista Pessoal:</h2>
-      <div>
+      <div className={styles.buttonContainer}>
         <button onClick={() => setTipoSelecionado("todos")}>Todos</button>
         <button onClick={() => setTipoSelecionado("completo")}>Completo</button>
         <button onClick={() => setTipoSelecionado("lendo")}>Lendo</button>
@@ -134,6 +134,6 @@ const ListaPessoal = () => {
       </div>
     </div>
   );
-};  
+};
 
 export default ListaPessoal;

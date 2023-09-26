@@ -17,34 +17,39 @@ const SeriesCardFirestoreListaPessoal = ({ serie, showLink = true, nota, tipo, r
     setIsModalOpen(false);
   };
 
-    const handleEditInList = (editedData) => {
-      console.log('Dados editados na lista pessoal:', editedData);
+  const handleEditInList = (editedData) => {
+    console.log('Dados editados na lista pessoal:', editedData);
     closeModal();
   };
 
   const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'; 
+
+
+  const editButtonStyle = {
+    backgroundColor: "transparent",
+    border: "none",
+    color: "#f7d354", 
+    fontSize: "1rem",
+    padding: "0.3rem 0.5rem",
+    marginTop: "0.5rem",
+    cursor: "pointer",
+    transition: "background-color 0.4s, color 0.4s",
+  };
+
+  const editButtonHoverStyle = {
+    backgroundColor: "#f7d354", 
+    color: "#000", 
+  };
+
   return (
     <div className="series-card">
-      <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
-      <h2>
-        {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
-      </h2>
-      <p>Nota: {nota}</p> 
-      <p>Review: {review}</p> 
-      <p>Progresso: {volumesLidos}/{serie.volumes}</p>
-      <button className="editInListButton" onClick={openModal}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        Editar na Lista
+      <button
+        style={editButtonStyle}
+        onMouseEnter={() => this.style = editButtonHoverStyle}
+        onMouseLeave={() => this.style = editButtonStyle}
+        onClick={openModal}
+      >
+        Editar
       </button>
       <EditListaPessoalModal
         isOpen={isModalOpen}
@@ -55,9 +60,16 @@ const SeriesCardFirestoreListaPessoal = ({ serie, showLink = true, nota, tipo, r
           review,
           volumesLidos,
           tipo,
-          serieId: serie.id, // Passa o ID da série para o modal.
+          serieId: serie.id, 
         }}
       />
+      <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
+      <h2>
+        {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
+      </h2>
+      <p>Nota: {nota}</p> 
+      <p>Review: {review}</p> 
+      <p>Progresso: {volumesLidos}/{serie.volumes}</p>
       {showLink && (
         <Link to={`/series/${serie.id}`} state={{ id: serie.id }}>
           Detalhes
