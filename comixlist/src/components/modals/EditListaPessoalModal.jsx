@@ -13,6 +13,9 @@
   const handleSubmit = async (e) => {
       e.preventDefault();
     
+      const dataAtual = new Date();
+      const dataUltimaAtualizacao = dataAtual.toISOString();
+
       const notaFloat = parseFloat(nota);
       if (isNaN(notaFloat) || notaFloat < 0 || notaFloat > 10) {
         console.log('A nota deve estar entre 0 e 10.');
@@ -31,6 +34,7 @@
           review,
           volumesLidos,
           tipo,
+          dataUltimaAtualizacao,
         };
         
         console.log('Dados a serem editados:', editedData); 

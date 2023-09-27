@@ -14,6 +14,10 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const dataAtual = new Date();
+    const dataResenha = dataAtual.toISOString(); 
+    const dataUltimaAtualizacao = dataAtual.toISOString();
+
     const notaFloat = parseFloat(nota);
     if (isNaN(notaFloat) || notaFloat < 0 || notaFloat > 10) {
       console.log('A nota deve estar entre 0 e 10.');
@@ -25,7 +29,7 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
         throw new Error('Usuário ou ID da série não definidos.');
       }
 
-      await addListaPessoalToFirestore(user.uid, serieId, parseFloat(nota), review, volumesLidos, tipo);
+      await addListaPessoalToFirestore(user.uid, serieId, parseFloat(nota), review, volumesLidos, tipo, dataResenha, dataUltimaAtualizacao );
       alert('Item adicionado à lista pessoal com sucesso');
       onClose();
     } catch (error) {

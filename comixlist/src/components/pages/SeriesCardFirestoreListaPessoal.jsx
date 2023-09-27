@@ -112,8 +112,8 @@
         <p>Review: {review}</p>
         <p>Progresso: {volumesLidos}/{serie.volumes}</p>
         {showLink && (
-          <Link to={`/series/${serie.id}`} state={{ id: serie.id }}>
-            Detalhes
+          <Link to={`/resenha/${serie.id}`} state={{ id: serie.id }}>
+            Resenha
           </Link>
         )}
       </div>

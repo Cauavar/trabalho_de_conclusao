@@ -15,6 +15,7 @@ import CadastroSerie from './components/pages/CadastroSerie';
 import { AuthProvider, AuthContext } from './components/contexts/auth';
 import EditProfile from './components/pages/EditProfile';
 import EditSerie from './components/pages/EditSerie';
+import Resenha from './components/pages/Resenha';
 
 
 const PrivateRoute = ({ children }) => {
@@ -49,6 +50,7 @@ const AppRoutes = () => {
             <Route path="/listaPessoal" element={<PrivateRoute><ListaPessoal /></PrivateRoute>} />
             <Route path="/editProfile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
             <Route path="/editSerie" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
+            <Route path="/resenha/:id" element={<Resenha />} />
           </Routes>
         </AuthProvider>
       </Router>
