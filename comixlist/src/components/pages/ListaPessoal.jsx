@@ -4,6 +4,8 @@
   import { firestore } from "../bd/FireBase";
   import SeriesCardFirestoreListaPessoal from "./SeriesCardFirestoreListaPessoal"
   import styles from "./ListaPessoal.module.css"; 
+  import { BiSearchAlt2 } from 'react-icons/bi';
+  import { useNavigate } from 'react-router-dom';
 
   const ListaPessoal = () => {
     const { user } = useContext(AuthContext);
@@ -11,6 +13,8 @@
     const [seriesData, setSeriesData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [tipoSelecionado, setTipoSelecionado] = useState("todos");
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
     const itemsPerPage = 18;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -119,77 +123,99 @@
       setCurrentPage((prevPage) => prevPage - 1);
     };
 
+    const handleSearch = (searchTerm) => {
+      const filteredList = listaPessoal.filter((item) =>
+        item.nomeSerie && item.nomeSerie.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      return filteredList;
+    };
+    
+    
+
     return (
-      <div className={styles.container}>
-        <h2 className={styles.title}>Lista Pessoal:</h2>
-        <div className={styles.buttonContainer}>
-          <button onClick={() => setTipoSelecionado("todos")}>Todos</button>
-          <button onClick={() => setTipoSelecionado("completo")}>Completo</button>
-          <button onClick={() => setTipoSelecionado("lendo")}>Lendo</button>
-          <button onClick={() => setTipoSelecionado("dropado")}>Dropado</button>
-          <button onClick={() => setTipoSelecionado("planejo-ler")}>Planejo Ler</button>
-        </div>
-        <div className={styles.pagination}>
-          <button
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
-            className={styles.button}
-          >
-            Anterior
-          </button>
-          <span>Página {currentPage}</span>
-          <button
-            onClick={goToNextPage}
-            disabled={endIndex >= totalItems}
-            className={styles.button}
-          >
-            Próxima
-          </button>
-        </div>
-        <div className={styles.comics_container}>
-          {listaFiltrada.slice(startIndex, endIndex).map((item) => {
-            const matchingSerie = seriesData.find((serie) => serie.id === item.serieId);
-            if (matchingSerie) {
-              return (
-                <div key={item.id} className={styles.seriesCard}>
-  <SeriesCardFirestoreListaPessoal
-    serie={matchingSerie}
-    nota={item.nota}
-    tipo={item.tipo}
-    review={item.review}
-    volumesLidos={item.volumesLidos}
-    onDeleteFromList={() => handleDeleteFromList(item.serieId)}
-    onEdit={handleEditInList} 
-  />
-                </div>
-              );
-            } else {
-              return (
-                <div key={item.id} className={styles.seriesCard}>
-                  <p>Série não encontrada</p>
-                </div>
-              );
-            }
-          })}
-        </div>
-        <div className={styles.pagination}>
-          <button
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
-            className={styles.button}
-          >
-            Anterior
-          </button>
-          <span>Página {currentPage}</span>
-          <button
-            onClick={goToNextPage}
-            disabled={endIndex >= totalItems}
-            className={styles.button}
-          >
-            Próxima
-          </button>
-        </div>
-      </div>
+<div className={styles.container}>
+  <h2 className={styles.title}>Lista Pessoal:</h2>
+  <div className={styles.buttonContainer}>
+    <button onClick={() => setTipoSelecionado("todos")}>Todos</button>
+    <button onClick={() => setTipoSelecionado("completo")}>Completo</button>
+    <button onClick={() => setTipoSelecionado("lendo")}>Lendo</button>
+    <button onClick={() => setTipoSelecionado("dropado")}>Dropado</button>
+    <button onClick={() => setTipoSelecionado("planejo-ler")}>Planejo Ler</button>
+  </div>
+  <div className={styles.pagination}>
+    <button
+      onClick={goToPreviousPage}
+      disabled={currentPage === 1}
+      className={styles.button}
+    >
+      Anterior
+    </button>
+    <span>Página {currentPage}</span>
+    <button
+      onClick={goToNextPage}
+      disabled={endIndex >= totalItems}
+      className={styles.button}
+    >
+      Próxima
+    </button>
+  </div>
+  <form onSubmit={() => handleSearch(searchTerm)} className={styles["search-form"]}>
+    <input
+      type="text"
+      placeholder="Buscar"
+      onChange={(e) => setSearchTerm(e.target.value)}
+      value={searchTerm}
+      className={styles["search-form__input"]}
+    />
+    <button type="submit" className={styles["search-form__button"]}>
+      <BiSearchAlt2 />
+    </button>
+  </form>
+  <div className={styles["comics_container"]}>
+    {listaFiltrada.slice(startIndex, endIndex).map((item) => {
+      const matchingSerie = seriesData.find((serie) => serie.id === item.serieId);
+      if (matchingSerie) {
+        return (
+          <div key={item.id} className={styles["comics_container__item"]}>
+            <SeriesCardFirestoreListaPessoal
+              serie={matchingSerie}
+              nota={item.nota}
+              tipo={item.tipo}
+              review={item.review}
+              volumesLidos={item.volumesLidos}
+              onDeleteFromList={() => handleDeleteFromList(item.serieId)}
+              onEdit={handleEditInList} 
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div key={item.id} className={styles["comics_container__item"]}>
+            <p>Série não encontrada</p>
+          </div>
+        );
+      }
+    })}
+  </div>
+  <div className={styles.pagination}>
+    <button
+      onClick={goToPreviousPage}
+      disabled={currentPage === 1}
+      className={styles.button}
+    >
+      Anterior
+    </button>
+    <span>Página {currentPage}</span>
+    <button
+      onClick={goToNextPage}
+      disabled={endIndex >= totalItems}
+      className={styles.button}
+    >
+      Próxima
+    </button>
+  </div>
+</div>
+
     );
   };
 

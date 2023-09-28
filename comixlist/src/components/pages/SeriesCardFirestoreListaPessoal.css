@@ -1,0 +1,109 @@
+/* Estilos para o modal de confirmação */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo com um pouco mais de transparência */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra mais suave */
+    max-width: 450px;
+    width: 100%;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px; /* Espaçamento superior aumentado */
+  }
+  
+  .cancel-button,
+  .add-button {
+    padding: 10px 20px; /* Maior espaçamento interno */
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold; /* Texto mais em negrito */
+  }
+  
+  .add-button {
+    background-color: #f7d354;
+    color: #000;
+    margin-left: 10px; /* Espaçamento entre os botões */
+  }
+  
+  .add-button:hover {
+    background-color: #000;
+    color: #f7d354;
+  }
+  
+  .cancel-button {
+    background-color: #ccc;
+  }
+  
+  .cancel-button:hover {
+    background-color: #999;
+  }
+  
+  /* Estilos específicos para o seu modal */
+  .modal-content h2 {
+    font-size: 1.4rem; /* Tamanho de fonte aumentado */
+    margin-bottom: 1rem;
+  }
+  
+  /* Outros estilos aqui... */
+  
+  
+  .modal-content img {
+    max-width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    border: 2px solid #f7d354;
+  }
+  
+  .modal-content h3 {
+    font-size: 1rem;
+  }
+  
+  .modal-content label {
+    font-weight: bold;
+  }
+  
+  .modal-content input[type="number"],
+  .modal-content textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .modal-content textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  /* Estilização para a barra de volumes */
+  .volume-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .total-volumes {
+    margin-right: 5px;
+    font-weight: bold;
+    color: #000;
+  }
+  

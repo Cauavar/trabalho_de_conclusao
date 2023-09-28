@@ -3,9 +3,9 @@ import { useParams } from "react-router-dom";
 import { firestore } from "../bd/FireBase";
 import { AuthContext } from "../contexts/auth";
 import { doc, getDoc, collection } from "firebase/firestore";
-import LinkButton from "../layout/LinkButton";
 import { FiArrowLeft } from "react-icons/fi";
-import "./Comic.css";
+import { Link } from "react-router-dom";
+import "./Resenha.css";
 import { useNavigate } from "react-router-dom";
 
 const Resenha = () => {
@@ -44,7 +44,7 @@ const Resenha = () => {
             ...serieDocSnapshot.data(),
             nota: matchingSerie.nota,
             review: matchingSerie.review,
-            dataResenha: matchingSerie.dataResenha, // Certifique-se de ter essa informação em sua estrutura de dados
+            dataResenha: matchingSerie.dataResenha,
           });
         }
       }
@@ -55,38 +55,42 @@ const Resenha = () => {
   }, [id, user, userData]);
 
   return (
-    <div className="comic-page">
-      <div className="conContainer">
-        <button
-          type="button"
-          className="backButton"
-          onClick={() => navigate("/listaPessoal")}
-        >
-          <FiArrowLeft className="backIcon " /> Voltar
-        </button>
-      </div>
+    <div className="resenha-container">
+      <Link to="/listaPessoal" className="back-button">
+        <FiArrowLeft className="back-icon" /> Voltar
+      </Link>
 
       {serie ? (
         <>
-          <div className="comic-card">
+          <img
+            src={serie.imagemSerie}
+            alt={serie.nomeSerie}
+            className="resenha-image"
+          />
+          <h1 className="resenha-title">
+            {serie.nomeSerie} ({serie.ano})
+          </h1>
+          <p className="resenha-author">
             <img
-              src={serie.imagemSerie}
-              alt={serie.nomeSerie}
-              className="serieImage"
+              src={userData?.imagemUsuario || "URL_PADRAO_DA_IMAGEM"} // Substitua pela URL padrão da imagem de perfil
+              alt="Imagem de perfil"
+              className="author-image"
             />
-            <h1>
-              {serie.nomeSerie} ({serie.ano})
-            </h1>
-            <p>Resenha feita por: {userData ? userData.nome : "N/A"}</p>
-            <p>Nota: {serie.nota}</p>
-            <p>Data da Resenha: {serie.dataResenha}</p>
-            <p>Data da Edição: {serie.dataUltimaAtualizacao}</p>
-            <p>Resenha: {serie.review}</p>
-          </div>
+            Resenha por:{" "}
+            <span className="resenha-reviewer">
+              {userData ? userData.nome : "N/A"}
+            </span>
+          </p>
+          <p className="resenha-rating">Nota: {serie.nota}</p>
+          <p>Data da Resenha: {serie.dataResenha}</p>
+          <p>Data da Edição: {serie.dataUltimaAtualizacao}</p>
+          <p className="resenha-review">{serie.review}</p>
         </>
       ) : (
         <p>Loading...</p>
       )}
+
+      <div className="barra-preta"></div>
     </div>
   );
 };

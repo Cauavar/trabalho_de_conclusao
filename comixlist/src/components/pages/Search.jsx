@@ -23,7 +23,7 @@ const Search = () => {
     try {
       const response = await axios.get(seriesURL, {
         params: {
-          titleStartsWith: searchTerm, // Use titleStartsWith para pesquisar pelo nome
+          titleStartsWith: searchTerm, 
           apikey: apiPublicKey,
           ts: timestamp,
           hash: hash,

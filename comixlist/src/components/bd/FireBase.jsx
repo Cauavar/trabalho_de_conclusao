@@ -69,7 +69,7 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
       await updateDoc(userRef, { listaPessoal });
 
       // Após atualizar a lista pessoal, calcule a nota média
-      await calcularNotaMedia(serieId, userId); // Pass userId as an argument
+      await calcularNotaMedia(serieId, userId); 
       
       console.log('Item adicionado/atualizado à lista pessoal com sucesso');
     } else {
