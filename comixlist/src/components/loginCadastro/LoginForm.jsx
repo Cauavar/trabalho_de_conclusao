@@ -5,15 +5,17 @@ import styles from './LoginForm.module.css';
 import { AuthContext } from '../contexts/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import ReCAPTCHA from "react-google-recaptcha";
+import { auth, firestore } from '../bd/FireBase'; 
+import { useNavigate } from 'react-router-dom';
 
 
 function LoginForm({ btnText }) {
-  const { login } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleRecaptchaChange = (value) => {
     setRecaptchaValue(value);
@@ -23,7 +25,8 @@ function LoginForm({ btnText }) {
     e.preventDefault();
     if (recaptchaValue){
     try {
-      await signInWithEmailAndPassword(login, email, senha); 
+      await signInWithEmailAndPassword(auth, email, senha); 
+      navigate('/');
     } catch (error) {
         console.error('Error during login', error);
         console.log(error.code); 

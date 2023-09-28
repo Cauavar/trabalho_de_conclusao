@@ -6,19 +6,22 @@
   import styles from "./ListaPessoal.module.css"; 
   import { BiSearchAlt2 } from 'react-icons/bi';
   import { useNavigate } from 'react-router-dom';
+  import { useLocation } from 'react-router-dom';
 
   const ListaPessoal = () => {
     const { user } = useContext(AuthContext);
     const [listaPessoal, setListaPessoal] = useState([]);
     const [seriesData, setSeriesData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [tipoSelecionado, setTipoSelecionado] = useState("todos");
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const tipoQueryParam = queryParams.get('tipo');
     const itemsPerPage = 18;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-
+    
     useEffect(() => {
       if (!user) return;
 
@@ -51,13 +54,19 @@
     }, [user]);
 
     const listaFiltrada = listaPessoal.filter((item) => {
-      if (tipoSelecionado === "todos") {
-        return true;
+      if (tipoQueryParam === "completo") {
+        return item.tipo === "completo";
+      } else if (tipoQueryParam === "lendo") {
+        return item.tipo === "lendo";
+      } else if (tipoQueryParam === "dropado") {
+        return item.tipo === "dropado";
+      } else if (tipoQueryParam === "planejo-ler") {
+ 
+        return item.tipo === "planejo-ler";
       } else {
-        return item.tipo === tipoSelecionado;
+        return true;
       }
     });
-
 
     const handleDeleteFromList = async (serieId) => {
     try {
@@ -136,11 +145,10 @@
 <div className={styles.container}>
   <h2 className={styles.title}>Lista Pessoal:</h2>
   <div className={styles.buttonContainer}>
-    <button onClick={() => setTipoSelecionado("todos")}>Todos</button>
-    <button onClick={() => setTipoSelecionado("completo")}>Completo</button>
-    <button onClick={() => setTipoSelecionado("lendo")}>Lendo</button>
-    <button onClick={() => setTipoSelecionado("dropado")}>Dropado</button>
-    <button onClick={() => setTipoSelecionado("planejo-ler")}>Planejo Ler</button>
+        <button onClick={() => navigate('/listaPessoal?tipo=completo')}>Completo</button>
+        <button onClick={() => navigate('/listaPessoal?tipo=lendo')}>Lendo</button>
+        <button onClick={() => navigate('/listaPessoal?tipo=dropado')}>Dropado</button>
+        <button onClick={() => navigate('/listaPessoal?tipo=planejo-ler')}>Planejo Ler</button>
   </div>
   <div className={styles.pagination}>
     <button

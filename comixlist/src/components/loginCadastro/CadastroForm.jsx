@@ -8,6 +8,7 @@ import { storage } from '../bd/FireBase';
 import { ref } from 'firebase/database';
 import { uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore'; 
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 
 function CadastroForm({ btnText }) {

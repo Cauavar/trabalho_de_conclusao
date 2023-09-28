@@ -5,6 +5,7 @@ import CommentBar from '../layout/CommentBar';
 import { AuthContext } from '../contexts/auth';
 import { firestore } from '../bd/FireBase';
 import { collection, doc, getDoc } from 'firebase/firestore';
+import { Link } from 'react-router-dom';
 
 function Profile() {
   const { user } = useContext(AuthContext);
@@ -73,20 +74,16 @@ function Profile() {
           <div className="comics-grid">
             {/* Add comic list sections here */}
             <div className="comics-section">
-              <h3>Completos</h3>
-              {/* Add completed comics */}
+             <h3><Link to={`/listaPessoal?tipo=completo`}>Completo</Link></h3>
             </div>
             <div className="comics-section">
-              <h3>Lendo</h3>
-              {/* Add reading comics */}
+            <h3><Link to={`/listaPessoal?tipo=lendo`}>Lendo</Link></h3>
             </div>
             <div className="comics-section">
-              <h3>Em Espera</h3>
-              {/* Add on-hold comics */}
+            <h3><Link to={`/listaPessoal?tipo=dropado`}>Dropado</Link></h3>
             </div>
             <div className="comics-section">
-              <h3>Planejo Ler</h3>
-              {/* Add plan-to-read comics */}
+            <h3><Link to={`/listaPessoal?tipo=planejo-ler`}>Planejo Ler</Link></h3>
             </div>
           </div>
         </div>

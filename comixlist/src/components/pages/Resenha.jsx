@@ -53,7 +53,7 @@ const Resenha = () => {
     fetchUserData();
     fetchSerieData();
   }, [id, user, userData]);
-
+  const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
   return (
     <div className="resenha-container">
       <Link to="/listaPessoal" className="back-button">
@@ -72,7 +72,7 @@ const Resenha = () => {
           </h1>
           <p className="resenha-author">
             <img
-              src={userData?.imagemUsuario || "URL_PADRAO_DA_IMAGEM"} // Substitua pela URL padrão da imagem de perfil
+              src={userData?.imagemUsuario || defaultAvatar} 
               alt="Imagem de perfil"
               className="author-image"
             />
