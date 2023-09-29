@@ -8,9 +8,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { auth, firestore } from '../bd/FireBase'; 
 import { useNavigate } from 'react-router-dom';
 
-
 function LoginForm({ btnText }) {
-
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
@@ -23,24 +21,23 @@ function LoginForm({ btnText }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (recaptchaValue){
-    try {
-      await signInWithEmailAndPassword(auth, email, senha); 
-      navigate('/');
-    } catch (error) {
+    if (recaptchaValue) {
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        navigate('/');
+      } catch (error) {
         console.error('Error during login', error);
         console.log(error.code); 
         console.log(error.message); 
+      }
+    } else {
+      console.log("Please complete the reCAPTCHA.");
     }
-  }  else {
-    console.log("Please complete the reCAPTCHA.");
-  }
   };
+
   const handleToggleShowPassword = () => {
     setShowPassword(prevShowPassword => !prevShowPassword);
   }
-
-
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
@@ -54,7 +51,7 @@ function LoginForm({ btnText }) {
       />
 
       <Input
-        type="password"
+        type={showPassword ? "text" : "password"} // Altera o tipo com base em showPassword
         text="Senha"
         name="password"
         placeholder="Insira a senha"
@@ -68,7 +65,7 @@ function LoginForm({ btnText }) {
       >
         {showPassword ? '🙈' : '👁️'}
       </button>
-        <ReCAPTCHA
+      <ReCAPTCHA
         sitekey="6LfYeJgnAAAAADdYBPsx2VapcoHVFX2CVhRRKT1Y"
         onChange={handleRecaptchaChange}
       />

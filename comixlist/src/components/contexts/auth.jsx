@@ -1,10 +1,8 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, firestore } from '../bd/FireBase'; 
-import { doc, setDoc } from 'firebase/firestore'; 
-import { createUserWithEmailAndPassword} from 'firebase/auth';
-
-
+import { auth, firestore } from '../bd/FireBase';
+import { doc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 export const AuthContext = createContext();
 
@@ -27,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       await signInWithEmailAndPassword(auth, email, senha);
       navigate('/');
     } catch (error) {
-      console.error('Error during login', error);
+      console.error('Erro durante o login', error);
     }
   };
 
@@ -37,13 +35,13 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       navigate('/login');
     } catch (error) {
-      console.error('Error during logout', error);
+      console.error('Erro durante o logout', error);
     }
   };
 
   const signup = async (userData) => {
     try {
-      const { nome, email, senha, aniversario, descricaoUsuario, imagemUsuario, local } = userData;
+      const { nome, email, senha, aniversario, descricaoUsuario, imagemUsuario, local, isAdmin } = userData;
 
       if (!nome || !email || !senha) {
         console.error('Por favor, preencha todos os campos obrigatórios.');
@@ -52,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
       const userId = userCredential.user.uid;
-  
+
       const userDocRef = doc(firestore, 'users', userId);
       await setDoc(userDocRef, {
         nome: nome,
@@ -61,11 +59,12 @@ export const AuthProvider = ({ children }) => {
         descricaoUsuario: descricaoUsuario || '',
         imagemUsuario: imagemUsuario || '',
         local: local || '',
+        isAdmin: isAdmin || false,
       });
 
       navigate('/');
     } catch (error) {
-      console.error('Error during signup', error);
+      console.error('Erro durante o cadastro', error);
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import md5 from "md5";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import { firestore } from "../bd/FireBase";
 import SeriesCardApi from "./SeriesCardApi";
@@ -38,15 +38,15 @@ const Home = () => {
 
   const fetchMySeriesFromFirestore = async () => {
     try {
-      const seriesCollectionRef = collection(firestore, "serie");
-      const querySnapshot = await getDocs(seriesCollectionRef);
-      const seriesData = querySnapshot.docs.map((doc) => ({
+      const seriesCollectionRef = collection(firestore, 'serie');
+      const querySnapshot = await getDocs(query(seriesCollectionRef, where('Aprovada', '==', true)));
+      const approvedSeries = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setMySeries(seriesData);
+      return approvedSeries;
     } catch (error) {
-      console.error("Error fetching your series from Firestore:", error);
+      console.error('Erro ao listar séries aprovadas:', error);
     }
   };
 

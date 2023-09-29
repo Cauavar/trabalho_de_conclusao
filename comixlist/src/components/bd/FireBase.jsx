@@ -4,7 +4,7 @@ import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { getStorage }  from 'firebase/storage';
-import { doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, updateDoc, query, where } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
@@ -28,9 +28,10 @@ export { app, auth, database, analytics, firestore, collection, addDoc };
 export const addSerieToFirestore = async (serieData) => {
   try {
     const seriesCollectionRef = collection(firestore, 'serie');
-    await addDoc(seriesCollectionRef, serieData);
+    await addDoc(seriesCollectionRef, { ...serieData, Aprovada: false });
+    console.log('Série cadastrada com sucesso:', serieData);
   } catch (error) {
-    throw new Error('Erro ao adicionar série ao Firestore: ' + error.message);
+    console.error('Erro durante o cadastro da série', error);
   }
 };
 
@@ -95,7 +96,7 @@ const calcularNotaMedia = async (serieId, userId) => {
     for (const userDoc of usuariosQuerySnapshot.docs) {
       const userData = userDoc.data();
 
-      // Verifica se listaPessoal existe e é um array
+      
       if (userData.listaPessoal && Array.isArray(userData.listaPessoal)) {
         const serieNaLista = userData.listaPessoal.find(item => item.serieId === serieId);
 
@@ -113,6 +114,37 @@ const calcularNotaMedia = async (serieId, userId) => {
     console.log('Média de notas calculada e atualizada com sucesso:', novaMedia);
   } else {
     throw new Error('Série não encontrada');
+  }
+};
+
+
+export const getApprovedSeries = async () => {
+  try {
+    const seriesCollectionRef = collection(firestore, 'serie');
+    const querySnapshot = await getDocs(query(seriesCollectionRef, where('Aprovada', '==', true)));
+    const approvedSeries = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return approvedSeries;
+  } catch (error) {
+    console.error('Erro ao listar séries aprovadas:', error);
+    return [];
+  }
+};
+
+export const getUnapprovedSeries = async () => {
+  try {
+    const seriesCollectionRef = collection(firestore, 'serie');
+    const querySnapshot = await getDocs(query(seriesCollectionRef, where('Aprovada', '==', false)));
+    const unapprovedSeries = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return unapprovedSeries;
+  } catch (error) {
+    console.error('Erro ao listar séries não aprovadas:', error);
+    return [];
   }
 };
 

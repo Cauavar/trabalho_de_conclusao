@@ -41,8 +41,8 @@ const Search = () => {
   const getSeriesFromFirestore = async (searchTerm) => {
     try {
       const seriesCollectionRef = collection(firestore, 'serie');
-      const queryRef = query(seriesCollectionRef, where('nomeSerie', '==', searchTerm)); // Use '==' para comparação exata
-      const querySnapshot = await getDocs(queryRef);
+      const queryRef = query(seriesCollectionRef, where('nomeSerie', '==', searchTerm));
+      const querySnapshot = await getDocs(query(queryRef, where('Aprovada', '==', true)));
       const firestoreResults = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
