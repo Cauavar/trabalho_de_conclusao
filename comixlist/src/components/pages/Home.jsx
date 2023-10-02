@@ -44,7 +44,7 @@ const Home = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      return approvedSeries;
+      setMySeries(approvedSeries); 
     } catch (error) {
       console.error('Erro ao listar séries aprovadas:', error);
     }

@@ -7,6 +7,8 @@ import './ComicsGrid.css';
 import { useParams } from 'react-router-dom';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestore } from '../bd/FireBase';
+import Fuse from 'fuse.js';
+
 
 const seriesURL = 'https://gateway.marvel.com/v1/public/series';
 const apiPublicKey = '1f9dc1c5fe6d097dde3bb4ca36ecbff0';
@@ -41,13 +43,26 @@ const Search = () => {
   const getSeriesFromFirestore = async (searchTerm) => {
     try {
       const seriesCollectionRef = collection(firestore, 'serie');
-      const queryRef = query(seriesCollectionRef, where('nomeSerie', '==', searchTerm));
-      const querySnapshot = await getDocs(query(queryRef, where('Aprovada', '==', true)));
+      const queryRef = query(seriesCollectionRef, where('Aprovada', '==', true));
+      const querySnapshot = await getDocs(query(queryRef));
       const firestoreResults = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      return firestoreResults;
+  
+
+      const fuse = new Fuse(firestoreResults, {
+        keys: ['nomeSerie'], 
+        includeScore: true, 
+        threshold: 0.4, 
+      });
+  
+      // Realize a pesquisa
+      const searchResults = fuse.search(searchTerm);
+  
+      const results = searchResults.map((result) => result.item);
+  
+      return results;
     } catch (error) {
       console.error('Error fetching series from Firestore:', error);
       return [];

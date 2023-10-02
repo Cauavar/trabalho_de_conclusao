@@ -16,31 +16,63 @@ const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
 
 const Comic = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const [series, setSeries] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const [series, setSeries] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [apiComic, setApiComic] = useState(null);
+    const [tituloSerie, setTituloSerie] = useState("");
+    const [descricaoSerie, setDescricaoSerie] = useState("");
+    const [autorSerie, setAutorSerie] = useState("");
+    const [dataPublicacaoSerie, setDataPublicacaoSerie] = useState("");
+    const [numeroVolumesSerie, setNumeroVolumesSerie] = useState("");
+  
+    const openModal = () => {
+      setIsModalOpen(true);
+    };
+  
+    const closeModal = () => {
+      setIsModalOpen(false);
+    };
+  
+    const getSeriesFromApi = async () => {
+      if (!isNaN(parseInt(id))) {
+        const timestamp = Date.now().toString();
+        const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
+        const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+  
+        try {
+          const res = await fetch(seriesUrl);
+          const data = await res.json();
+          const apiSeries = data.data.results[0];
+          setSeries(apiSeries);
+  
+          // Buscar detalhes específicos da série aqui
+          const seriesDetailsUrl = `https://gateway.marvel.com/v1/public/comics/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+          const detailsRes = await fetch(seriesDetailsUrl);
+          const detailsData = await detailsRes.json();
+          const comic = detailsData.data.results[0];
+          setApiComic(apiSeries);
+          
+          // Agora você pode acessar as informações detalhadas da série no objeto "comic"
+          console.log("Título da Série:", comic.title);
+          console.log("Descrição/Sinopse:", comic.description);
+          console.log("Autor:", comic.creators.items[0]?.name);
+          console.log("Data de Publicação:", comic.dates.find(date => date.type === "onsaleDate")?.date);
+          console.log("Número de Volumes:", comic.pageCount);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const getSeriesFromApi = async () => {
-    const timestamp = Date.now().toString();
-    const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
-    const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-
-    try {
-      const res = await fetch(seriesUrl);
-      const data = await res.json();
-      const apiSeries = data.data.results[0];
-      setSeries(apiSeries);
-    } catch (error) {
-      console.error("Error fetching series from API:", error);
+        setTituloSerie(comic.title);
+        setDescricaoSerie(comic.description);
+        setAutorSerie(comic.creators.items[0]?.name);
+        setDataPublicacaoSerie(
+          (comic.dates &&
+            comic.dates.find((date) => date.type === "onsaleDate")?.date) ||
+            "N/A"
+        );
+        setNumeroVolumesSerie(comic.pageCount);
+      } catch (error) {
+        console.error("Error fetching series from API:", error);
+      }
     }
   };
 
@@ -125,50 +157,55 @@ const Comic = () => {
           </div>
 
           <div className="info">
-            <p className="tagLine">{series.tagline}</p>
+            <p className="tagLine">
+              {isMarvelApiId(id)
+                ? apiComic && apiComic.tagline
+                : series && series.tagLine}
+            </p>
+
             {/* Exibir outras informações relevantes da série */}
-            {isNaN(parseInt(id)) ? (
+            {isMarvelApiId(id) ? (
               <>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Descrição:
                 </h3>
-                <p>{series.description || "N/A"}</p>
+                <p>{descricaoSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Autor:
                 </h3>
-                <p>{series.autorSerie || "N/A"}</p>
+                <p>{autorSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Data de Publicação:
                 </h3>
-                <p>{series.publiSerie || "N/A"}</p>
+                <p>{dataPublicacaoSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Número de Volumes:
                 </h3>
-                <p>{series.volumes || "N/A"}</p>
+                <p>{numeroVolumesSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Nota Média:
                 </h3>
                 <p>{series.notaMedia || "N/A"}</p>
               </>
             ) : (
+              // Detalhes do banco de dados, se não for uma série da API
               <>
-                {/* Detalhes do banco de dados */}
                 <h3>
                   <BsFillFileEarmarkTextFill /> Descrição:
                 </h3>
-                <p>{series.descricaoSerie || "N/A"}</p>
+                <p>{series && series.descricaoSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Autor:
                 </h3>
-                <p>{series.autorSerie || "N/A"}</p>
+                <p>{series && series.autorSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Data de Publicação:
                 </h3>
-                <p>{series.publiSerie || "N/A"}</p>
+                <p>{series && series.publiSerie || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Número de Volumes:
                 </h3>
-                <p>{series.volumes || "N/A"}</p>
+                <p>{series && series.volumes || "N/A"}</p>
                 <h3>
                   <BsFillFileEarmarkTextFill /> Nota Média:
                 </h3>
