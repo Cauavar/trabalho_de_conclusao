@@ -5,76 +5,63 @@ import "./Comic.css";
 import md5 from "md5";
 import SeriesCardApi from "./SeriesCardApi";
 import SeriesCardFirestore from "./SeriesCardFirestore";
-import { getDoc, doc, collection } from 'firebase/firestore';
+import { getDoc, doc, collection, getDocs, query, where, addDoc } from "firebase/firestore"; // Importe a função getDocs aqui
 import { firestore } from "../bd/FireBase";
 import AddListaPessoalModal from "../modals/AddListaPessoalModal";
-import LinkButton from '../layout/LinkButton';
-import { FiArrowLeft } from 'react-icons/fi';
+import LinkButton from "../layout/LinkButton";
+import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
 
-const Comic = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [series, setSeries] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [apiComic, setApiComic] = useState(null);
-    const [tituloSerie, setTituloSerie] = useState("");
-    const [descricaoSerie, setDescricaoSerie] = useState("");
-    const [autorSerie, setAutorSerie] = useState("");
-    const [dataPublicacaoSerie, setDataPublicacaoSerie] = useState("");
-    const [numeroVolumesSerie, setNumeroVolumesSerie] = useState("");
-  
-    const openModal = () => {
-      setIsModalOpen(true);
-    };
-  
-    const closeModal = () => {
-      setIsModalOpen(false);
-    };
-  
-    const getSeriesFromApi = async () => {
-      if (!isNaN(parseInt(id))) {
-        const timestamp = Date.now().toString();
-        const hash = md5(timestamp + apiPrivateKey + apiPublicKey);
-        const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-  
-        try {
-          const res = await fetch(seriesUrl);
-          const data = await res.json();
-          const apiSeries = data.data.results[0];
-          setSeries(apiSeries);
-  
-          // Buscar detalhes específicos da série aqui
-          const seriesDetailsUrl = `https://gateway.marvel.com/v1/public/comics/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-          const detailsRes = await fetch(seriesDetailsUrl);
-          const detailsData = await detailsRes.json();
-          const comic = detailsData.data.results[0];
-          setApiComic(apiSeries);
-          
-          // Agora você pode acessar as informações detalhadas da série no objeto "comic"
-          console.log("Título da Série:", comic.title);
-          console.log("Descrição/Sinopse:", comic.description);
-          console.log("Autor:", comic.creators.items[0]?.name);
-          console.log("Data de Publicação:", comic.dates.find(date => date.type === "onsaleDate")?.date);
-          console.log("Número de Volumes:", comic.pageCount);
 
-        setTituloSerie(comic.title);
-        setDescricaoSerie(comic.description);
-        setAutorSerie(comic.creators.items[0]?.name);
-        setDataPublicacaoSerie(
-          (comic.dates &&
-            comic.dates.find((date) => date.type === "onsaleDate")?.date) ||
-            "N/A"
-        );
-        setNumeroVolumesSerie(comic.pageCount);
+const Comic = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [series, setSeries] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tituloSerie, setTituloSerie] = useState(""); // Adicionado
+  const [descricaoSerie, setDescricaoSerie] = useState(""); // Adicionado
+  const [autorSerie, setAutorSerie] = useState(""); // Adicionado
+  const [dataPublicacaoSerie, setDataPublicacaoSerie] = useState(""); // Adicionado
+  const [numeroVolumesSerie, setNumeroVolumesSerie] = useState("");
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const getSeriesFromApi = async (id, setSeries) => {
+    if (!isNaN(parseInt(id)) && setSeries) {
+      const timestamp = Date.now().toString();
+      const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
+      const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+  
+      try {
+        const res = await fetch(seriesUrl);
+        const data = await res.json();
+        const seriesData = data.data.results[0];
+  
+        setSeries(seriesData);
+        setTituloSerie(seriesData.title); // Atualizando o título da série
+        setDescricaoSerie(seriesData.description); // Atualizando a descrição
+        setAutorSerie(seriesData.creators.items[0]?.name); // Atualizando o autor
+        const onSaleDate = (seriesData.dates || []).find((date) => date.type === "onsaleDate");
+        setDataPublicacaoSerie(onSaleDate ? onSaleDate.date : "N/A"); // Atualizando a data de publicação
+        setNumeroVolumesSerie(seriesData.totalIssues); // Atualizando o número de volumes
+  
+        // Verifique se a série existe no Firestore
+        checkSeriesInFirestore(id, seriesData);
       } catch (error) {
-        console.error("Error fetching series from API:", error);
+        console.error("Error fetching comic series from API:", error);
       }
     }
   };
+  
 
   const getSeriesFromFirestore = async () => {
     try {
@@ -83,42 +70,71 @@ const Comic = () => {
       if (docSnap.exists()) {
         setSeries(docSnap.data());
       } else {
-        console.log('No data returned!');
+        console.log("No data returned!");
       }
     } catch (error) {
-      console.error('Error fetching series from Firestore:', error);
+      console.error("Error fetching series from Firestore:", error);
     }
   };
 
   const isMarvelApiId = (id) => {
     return !isNaN(parseInt(id));
   };
-  
+
+  const checkSeriesInFirestore = async (serieId, series) => {
+    const seriesCollectionRef = collection(firestore, "serie");
+    const q = query(seriesCollectionRef, where("id", "==", serieId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.size === 0) {
+      // A série não existe no Firestore, então a adicionaremos
+      addSeriesToFirestore(serieId, series);
+    }
+  };
+
+  const addSeriesToFirestore = async (serieId, seriesData) => {
+    try {
+      const seriesCollectionRef = collection(firestore, "serie");
+      await addDoc(seriesCollectionRef, {
+        id: `${serieId}`,
+        Aprovada: true,
+        nomeSerie: seriesData.title,
+        descricaoSerie: seriesData.description || "N/A",
+        imagemSerie: seriesData.thumbnail.path + "." + seriesData.thumbnail.extension,
+        autorSerie: seriesData.creators.items[0]?.name || "N/A",
+        publiSerie:
+          (seriesData.dates &&
+            seriesData.dates.find((date) => date.type === "onsaleDate")?.date) || "N/A",
+        numeroVolumesSerie: seriesData.pageCount || "N/A",
+        notaMedia: 0,
+      });
+      console.log("Série adicionada ao Firestore com sucesso:", seriesData.title);
+    } catch (error) {
+      console.error("Erro ao adicionar a série ao Firestore", error);
+    }
+  };
+
   useEffect(() => {
     if (isMarvelApiId(id)) {
-      getSeriesFromApi();
+      getSeriesFromApi(id, setSeries);
     } else {
       getSeriesFromFirestore();
     }
   }, [id]);
 
+  
+
   const handleAddToList = () => {
     console.log("Adicionado à lista!");
   };
 
-  const formatPublishDate = (dates) => {
-    const options = { day: "numeric", month: "long", year: "numeric" };
-    const onSaleDate = dates && dates.find((date) => date.type === "onsaleDate");
-    return onSaleDate ? new Date(onSaleDate.date).toLocaleDateString(undefined, options) : "Not available";
-  };
 
   return (
-    
     <div className="comic-page">
       <div className="conContainer">
-          <button type="button" className="backButton" onClick={() => navigate('/')}>
-          <FiArrowLeft className="backIcon "/> Voltar
-          </button>
+        <button type="button" className="backButton" onClick={() => navigate('/')}>
+          <FiArrowLeft className="backIcon" /> Voltar
+        </button>
       </div>
 
       <div className="profile-header">
@@ -158,60 +174,58 @@ const Comic = () => {
 
           <div className="info">
             <p className="tagLine">
-              {isMarvelApiId(id)
-                ? apiComic && apiComic.tagline
-                : series && series.tagLine}
+              {isMarvelApiId(id) ? (
+                <>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Descrição:
+                  </h3>
+                  <p>{series.description || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Autor:
+                  </h3>
+                  <p>{series.creators.items[0]?.name || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Data de Publicação:
+                  </h3>
+                  <p>
+                    {series.dates &&
+                      series.dates.find((date) => date.type === "onsaleDate")?.date ||
+                      "N/A"}
+                  </p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Número de Volumes:
+                  </h3>
+                  <p>{series.pageCount || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Nota Média:
+                  </h3>
+                  <p>{series.notaMedia || "N/A"}</p>
+                </>
+              ) : (
+                <>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Descrição:
+                  </h3>
+                  <p>{series && series.descricaoSerie || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Autor:
+                  </h3>
+                  <p>{series && series.autorSerie || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Data de Publicação:
+                  </h3>
+                  <p>{series && series.publiSerie || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Número de Volumes:
+                  </h3>
+                  <p>{series && series.numeroVolumesSerie || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Nota Média:
+                  </h3>
+                  <p>{series.notaMedia || "N/A"}</p>
+                </>
+              )}
             </p>
-
-            {/* Exibir outras informações relevantes da série */}
-            {isMarvelApiId(id) ? (
-              <>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Descrição:
-                </h3>
-                <p>{descricaoSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Autor:
-                </h3>
-                <p>{autorSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Data de Publicação:
-                </h3>
-                <p>{dataPublicacaoSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Número de Volumes:
-                </h3>
-                <p>{numeroVolumesSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Nota Média:
-                </h3>
-                <p>{series.notaMedia || "N/A"}</p>
-              </>
-            ) : (
-              // Detalhes do banco de dados, se não for uma série da API
-              <>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Descrição:
-                </h3>
-                <p>{series && series.descricaoSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Autor:
-                </h3>
-                <p>{series && series.autorSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Data de Publicação:
-                </h3>
-                <p>{series && series.publiSerie || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Número de Volumes:
-                </h3>
-                <p>{series && series.volumes || "N/A"}</p>
-                <h3>
-                  <BsFillFileEarmarkTextFill /> Nota Média:
-                </h3>
-                <p>{series.notaMedia || "N/A"}</p>
-              </>
-            )}
           </div>
         </>
       ) : (
@@ -219,6 +233,6 @@ const Comic = () => {
       )}
     </div>
   );
-};
+      };
 
 export default Comic;

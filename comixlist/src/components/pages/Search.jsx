@@ -74,15 +74,21 @@ const Search = () => {
       const fetchSearchResults = async () => {
         const apiResults = await getSeriesBySearchTerm(searchTerm);
         const firestoreResults = await getSeriesFromFirestore(searchTerm);
-        const combinedResults = [...apiResults, ...firestoreResults];
+        
+        const uniqueFirestoreResults = firestoreResults.filter(
+          (serie) => !apiResults.some((apiSerie) => apiSerie.id === serie.id)
+        );
+  
+        const combinedResults = [...apiResults, ...uniqueFirestoreResults];
         setSeries(combinedResults);
       };
-
+  
       fetchSearchResults();
     } else {
       setSeries([]);
     }
   }, [searchTerm]);
+  
   
   return (
     <div className="container">

@@ -23,7 +23,9 @@ const auth = getAuth(app);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
 
-export { app, auth, database, analytics, firestore, collection, addDoc }; 
+export { app, auth, database, analytics, firestore, collection, addDoc, doc, getDoc  }; 
+
+
 
 export const addSerieToFirestore = async (serieData) => {
   try {
@@ -80,7 +82,9 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
     throw new Error('Erro ao adicionar/atualizar item à lista pessoal: ' + error.message);
   }
 };
-
+const isMarvelApiId = (id) => {
+  return !isNaN(parseInt(id));
+};
 const calcularNotaMedia = async (serieId, userId) => {
   const seriesCollectionRef = collection(firestore, 'serie');
   const serieRef = doc(seriesCollectionRef, serieId);
@@ -116,6 +120,49 @@ const calcularNotaMedia = async (serieId, userId) => {
     throw new Error('Série não encontrada');
   }
 };
+
+const calcularNotaMediaParaSeriesAPI = async () => {
+  try {
+    const seriesCollectionRef = collection(firestore, 'serie');
+    const querySnapshot = await getDocs(seriesCollectionRef);
+
+    for (const doc of querySnapshot.docs) {
+      const serieData = doc.data();
+      const serieId = doc.id;
+
+      if (isMarvelApiId(serieId)) {
+        const usuariosComNotaRef = collection(firestore, 'users');
+        const usuariosQuerySnapshot = await getDocs(usuariosComNotaRef);
+
+        let somaTotalNotas = 0;
+        let numUsuariosQueDeramNota = 0;
+
+        for (const userDoc of usuariosQuerySnapshot.docs) {
+          const userData = userDoc.data();
+
+          if (userData.listaPessoal && Array.isArray(userData.listaPessoal)) {
+            const serieNaLista = userData.listaPessoal.find(item => item.serieId === serieId);
+
+            if (serieNaLista && typeof serieNaLista.nota === 'number') {
+              somaTotalNotas += serieNaLista.nota;
+              numUsuariosQueDeramNota++;
+            }
+          }
+        }
+
+        const novaMedia = numUsuariosQueDeramNota > 0 ? somaTotalNotas / numUsuariosQueDeramNota : 0;
+
+        // Atualize o campo "notaMedia" na série
+        await updateDoc(doc.ref, { notaMedia: novaMedia });
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao calcular e atualizar a média de notas para as séries da API:', error);
+  }
+};
+
+// Chame a função para calcular a média de notas para as séries da API
+calcularNotaMediaParaSeriesAPI();
 
 
 export const getApprovedSeries = async () => {

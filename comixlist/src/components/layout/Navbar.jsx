@@ -11,6 +11,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, logout, user } = useContext(AuthContext);
   const [userProfile, setUserProfile] = useState(null);
+  const [seriesExistsInAPI, setSeriesExistsInAPI] = useState(false);
+  const [seriesExistsInFirestore, setSeriesExistsInFirestore] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -36,7 +38,7 @@ const Navbar = () => {
     setSearchTerm('');
   };
 
-  const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png'; 
+  const seriesExists = seriesExistsInAPI || seriesExistsInFirestore;
 
   return (
     <nav id="navbar">
@@ -60,6 +62,7 @@ const Navbar = () => {
             ) : (
               <div>Loading Profile...</div>
             )}
+            {seriesExists && <Link to="/yourSeries">Your Series</Link>}
             <Link to="/listaPessoal">Lists</Link>
             {userProfile && userProfile.isAdmin && ( 
               <Link to="/AdminPage">Admin</Link>

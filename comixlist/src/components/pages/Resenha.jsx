@@ -5,6 +5,7 @@ import { AuthContext } from "../contexts/auth";
 import { doc, getDoc, collection } from "firebase/firestore";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import axios from "axios"; // Importe o axios
 import "./Resenha.css";
 import { useNavigate } from "react-router-dom";
 
@@ -35,17 +36,35 @@ const Resenha = () => {
       );
 
       if (matchingSerie) {
-        const seriesCollectionRef = collection(firestore, "serie");
-        const serieDocRef = doc(seriesCollectionRef, matchingSerie.serieId);
-        const serieDocSnapshot = await getDoc(serieDocRef);
+        if (matchingSerie.isApiData) {
+          try {
+            // Faça a solicitação para buscar os detalhes da série da API
+            const response = await axios.get(matchingSerie.urlDaApi);
+            const apiData = response.data;
+            setSerie({
+              ...apiData,
+              nota: matchingSerie.nota,
+              review: matchingSerie.review,
+              dataResenha: matchingSerie.dataResenha,
+            });
+          } catch (error) {
+            console.error("Erro ao buscar dados da API:", error);
+            // Adicione aqui o código para lidar com o erro, como exibir uma mensagem de erro na página.
+          }
+        } else {
+          // Se os dados da série estão no Firestore, busque os detalhes da série no Firestore
+          const seriesCollectionRef = collection(firestore, "serie");
+          const serieDocRef = doc(seriesCollectionRef, matchingSerie.serieId);
+          const serieDocSnapshot = await getDoc(serieDocRef);
 
-        if (serieDocSnapshot.exists()) {
-          setSerie({
-            ...serieDocSnapshot.data(),
-            nota: matchingSerie.nota,
-            review: matchingSerie.review,
-            dataResenha: matchingSerie.dataResenha,
-          });
+          if (serieDocSnapshot.exists()) {
+            setSerie({
+              ...serieDocSnapshot.data(),
+              nota: matchingSerie.nota,
+              review: matchingSerie.review,
+              dataResenha: matchingSerie.dataResenha,
+            });
+          }
         }
       }
     };
@@ -53,7 +72,9 @@ const Resenha = () => {
     fetchUserData();
     fetchSerieData();
   }, [id, user, userData]);
+
   const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
+
   return (
     <div className="resenha-container">
       <Link to="/listaPessoal" className="back-button">
@@ -72,7 +93,7 @@ const Resenha = () => {
           </h1>
           <p className="resenha-author">
             <img
-              src={userData?.imagemUsuario || defaultAvatar} 
+              src={userData?.imagemUsuario || defaultAvatar}
               alt="Imagem de perfil"
               className="author-image"
             />

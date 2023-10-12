@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import './AddListaPessoalModal.css';
 import { addListaPessoalToFirestore } from '../bd/FireBase';
 import { AuthContext } from '../contexts/auth';
+import md5 from "md5";
 
 function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries }) {
   const { user } = useContext(AuthContext);
@@ -10,12 +11,11 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
   const [volumesLidos, setVolumesLidos] = useState(0);
   const [tipo, setTipo] = useState('');
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const dataAtual = new Date();
-    const dataResenha = dataAtual.toISOString(); 
+    const dataResenha = dataAtual.toISOString();
     const dataUltimaAtualizacao = dataAtual.toISOString();
 
     const notaFloat = parseFloat(nota);
@@ -29,7 +29,17 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
         throw new Error('Usuário ou ID da série não definidos.');
       }
 
-      await addListaPessoalToFirestore(user.uid, serieId, parseFloat(nota), review, volumesLidos, tipo, dataResenha, dataUltimaAtualizacao );
+      // Faça o envio de informações para Firestore aqui
+      await addListaPessoalToFirestore(
+        user.uid,
+        serieId,
+        parseFloat(nota),
+        review,
+        volumesLidos,
+        tipo,
+        dataResenha,
+        dataUltimaAtualizacao
+      );
       alert('Item adicionado à lista pessoal com sucesso');
       onClose();
     } catch (error) {
@@ -48,30 +58,30 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
         </div>
         <div>
           <h3>
-            {getSeries.nomeSerie}({new Date(getSeries.publiSerie).getFullYear()})
+            {getSeries?.nomeSerie} ({new Date(getSeries?.publiSerie).getFullYear()})
           </h3>
           <div>
-  <label htmlFor="volumesLidos">Volumes Lidos:</label>
-  <div className="volume-input">
-    <input
-      type="number"
-      id="volumesLidos"
-      value={volumesLidos}
-      onChange={(e) => setVolumesLidos(e.target.value)} 
-      min="0"
-      max={getSeries.volumes}
-    />
-    <span className="total-volumes"> / {getSeries.volumes}</span>
-    <label>Tipo:</label>
-      <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-        <option value="null">...</option>
-        <option value="completo">Completo</option>
-        <option value="lendo">Lendo</option>
-        <option value="dropado">Dropado</option>
-        <option value="planejo-ler">Planejo Ler</option>
-     </select>
-    </div>
-    </div>
+            <label htmlFor="volumesLidos">Volumes Lidos:</label>
+            <div className="volume-input">
+              <input
+                type="number"
+                id="volumesLidos"
+                value={volumesLidos}
+                onChange={(e) => setVolumesLidos(e.target.value)}
+                min="0"
+                max={getSeries?.numeroVolumesSerie}
+              />
+              <span className="total-volumes"> / {getSeries?.numeroVolumesSerie}</span>
+              <label>Tipo:</label>
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                <option value="null">...</option>
+                <option value="completo">Completo</option>
+                <option value="lendo">Lendo</option>
+                <option value="dropado">Dropado</option>
+                <option value="planejo-ler">Planejo Ler</option>
+              </select>
+            </div>
+          </div>
         </div>
         <form onSubmit={handleSubmit}>
           <div>
