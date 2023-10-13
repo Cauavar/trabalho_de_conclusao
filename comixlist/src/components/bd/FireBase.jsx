@@ -121,7 +121,7 @@ const calcularNotaMedia = async (serieId, userId) => {
   }
 };
 
-const calcularNotaMediaParaSeriesAPI = async () => {
+//const calcularNotaMediaParaSeriesAPI = async () => {
   try {
     const seriesCollectionRef = collection(firestore, 'serie');
     const querySnapshot = await getDocs(seriesCollectionRef);
@@ -159,10 +159,9 @@ const calcularNotaMediaParaSeriesAPI = async () => {
   } catch (error) {
     console.error('Erro ao calcular e atualizar a média de notas para as séries da API:', error);
   }
-};
+//};
 
-// Chame a função para calcular a média de notas para as séries da API
-calcularNotaMediaParaSeriesAPI();
+//calcularNotaMediaParaSeriesAPI();
 
 
 export const getApprovedSeries = async () => {

@@ -17,8 +17,11 @@ import EditProfile from './components/pages/EditProfile';
 import EditSerie from './components/pages/EditSerie';
 import Resenha from './components/pages/Resenha';
 import AdminPage from './components/pages/AdminPage';
-import { getDoc, doc, collection } from 'firebase/firestore'; // Importe as funções corretamente
+import { getDoc, doc, collection } from 'firebase/firestore'; 
 import { firestore } from './components/bd/FireBase';
+import PublicProfilePage from './components/pages/PublicProfilePage';
+import PublicListaPessoal from './components/pages/PublicListaPessoal';
+import PublicProfile from './components/pages/PublicProfile';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading, user } = useContext(AuthContext);
@@ -36,7 +39,7 @@ const PrivateRoute = ({ children }) => {
 
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, loading, user } = useContext(AuthContext);
-  const [isAdmin, setIsAdmin] = useState(null); // Estado para armazenar se o usuário é admin ou não
+  const [isAdmin, setIsAdmin] = useState(null); 
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -48,11 +51,11 @@ const AdminRoute = ({ children }) => {
           const userData = userDocSnapshot.data();
           setIsAdmin(userData.isAdmin === true);
         } else {
-          setIsAdmin(false); // Se o documento do usuário não existe ou não tem isAdmin definido como true
+          setIsAdmin(false); 
         }
       } catch (error) {
         console.error('Erro ao verificar status de admin:', error);
-        setIsAdmin(false); // Em caso de erro, trate como se o usuário não fosse admin
+        setIsAdmin(false); 
       }
     };
 
@@ -92,7 +95,10 @@ const AppRoutes = () => {
             <Route path="/editSerie" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
             <Route path="/resenha/:id" element={<Resenha />} />
             <Route path="/AdminPage" element={<AdminRoute><AdminPage /></AdminRoute>} />
+            <Route path="/profile/:id" element={<PublicProfile />} />
+            <Route path="/listaPessoal/:id" element={<PublicListaPessoal />} />
           </Routes>
+
         </AuthProvider>
       </Router>
     </React.StrictMode>

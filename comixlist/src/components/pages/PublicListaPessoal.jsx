@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { doc, getDoc, collection, getDocs, updateDoc } from "firebase/firestore";
-import { AuthContext } from "../contexts/auth";
 import { firestore } from "../bd/FireBase";
 import SeriesCardFirestoreListaPessoal from "./SeriesCardFirestoreListaPessoal";
 import SeriesCardApiListaPessoal from "./SeriesCardApiListaPessoal";
 import styles from "./ListaPessoal.module.css";
 import { BiSearchAlt2 } from 'react-icons/bi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Fuse from 'fuse.js';
 
-const ListaPessoal = () => {
-  const { user } = useContext(AuthContext);
+
+const PublicListaPessoal = () => {
+  const { id } = useParams;
   const [listaPessoal, setListaPessoal] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,10 +26,10 @@ const ListaPessoal = () => {
   const endIndex = startIndex + itemsPerPage;
 
   useEffect(() => {
-    if (!user) return;
+    if (!id) return;
 
     const fetchListaPessoal = async () => {
-      const userDocRef = doc(firestore, "users", user.uid);
+      const userDocRef = doc(firestore, "users", id);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (userDocSnapshot.exists()) {
@@ -52,7 +52,7 @@ const ListaPessoal = () => {
 
     fetchListaPessoal();
     fetchSeriesData();
-  }, [user]);
+  }, [id]);
 
   const listaFiltrada = listaPessoal.filter((item) => {
     if (tipoQueryParam === "completo") {
@@ -68,51 +68,7 @@ const ListaPessoal = () => {
     }
   });
 
-  const handleDeleteFromList = async (serieId) => {
-    try {
-      const serieIndex = listaPessoal.findIndex((item) => item.serieId === serieId);
 
-      if (serieIndex !== -1) {
-        const novaListaPessoal = [...listaPessoal];
-        novaListaPessoal.splice(serieIndex, 1);
-
-        const userDocRef = doc(firestore, "users", user.uid);
-        await updateDoc(userDocRef, { listaPessoal: novaListaPessoal });
-
-        setListaPessoal(novaListaPessoal);
-
-        console.log('Série excluída da lista pessoal com sucesso.');
-      }
-    } catch (error) {
-      console.error('Erro ao excluir a série da lista pessoal:', error);
-    }
-  };
-
-  const handleEditInList = async (editedData) => {
-    try {
-      const userDocRef = doc(firestore, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
-
-      if (userDocSnapshot.exists()) {
-        const userData = userDocSnapshot.data();
-        const listaPessoalData = userData.listaPessoal || [];
-
-        const itemIndex = listaPessoalData.findIndex((item) => item.serieId === editedData.serieId);
-
-        if (itemIndex !== -1) {
-          listaPessoalData[itemIndex] = editedData;
-
-          await updateDoc(userDocRef, { listaPessoal: listaPessoalData });
-
-          console.log('Item editado na lista pessoal com sucesso.');
-        } else {
-          console.error('Item não encontrado na lista pessoal.');
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao editar item na lista pessoal:', error);
-    }
-  };
 
   const searchInList = (searchTerm) => {
     if (!searchTerm) {
@@ -154,11 +110,11 @@ const ListaPessoal = () => {
     <div className={styles.container}>
       <h2 className={styles.title}>Lista Pessoal:</h2>
       <div className={styles.buttonContainer}>
-        <button onClick={() => navigate('/listaPessoal/?tipo=')}>Todos</button>
-        <button onClick={() => navigate('/listaPessoal/?tipo=completo')}>Completo</button>
-        <button onClick={() => navigate('/listaPessoal/?tipo=lendo')}>Lendo</button>
-        <button onClick={() => navigate('/listaPessoal/?tipo=dropado')}>Dropado</button>
-        <button onClick={() => navigate('/listaPessoal/?tipo=planejo-ler')}>Planejo Ler</button>
+      <button onClick={() => navigate(`/listaPessoal/${id}?tipo=`)}>Todos</button>
+<button onClick={() => navigate(`/listaPessoal/${id}?tipo=completo`)}>Completo</button>
+<button onClick={() => navigate(`/listaPessoal/${id}?tipo=lendo`)}>Lendo</button>
+<button onClick={() => navigate(`/listaPessoal/${id}?tipo=dropado`)}>Dropado</button>
+<button onClick={() => navigate(`/listaPessoal/${id}?tipo=planejo-ler`)}>Planejo Ler</button>
       </div>
       <div className={styles.pagination}>
         <button
@@ -243,8 +199,6 @@ const ListaPessoal = () => {
           tipo={item.tipo}
           review={item.review}
           volumesLidos={item.volumesLidos}
-          onDeleteFromList={() => handleDeleteFromList(item.serieId)}
-          onEdit={handleEditInList}
         />
       );
     } else if (item.apiSerieData) {
@@ -255,8 +209,6 @@ const ListaPessoal = () => {
           tipo={item.tipo}
           review={item.review}
           volumesLidos={item.volumesLidos}
-          onDeleteFromList={() => handleDeleteFromList(item.serieId)}
-          onEdit={handleEditInList}
         />
       );
     } else {
@@ -265,4 +217,4 @@ const ListaPessoal = () => {
   }
 };
 
-export default ListaPessoal;
+export default PublicListaPessoal;
