@@ -5,6 +5,7 @@ import { getDatabase } from 'firebase/database';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { getStorage }  from 'firebase/storage';
 import { doc, getDoc, getDocs, updateDoc, query, where } from 'firebase/firestore';
+import { arrayUnion } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
@@ -36,6 +37,42 @@ export const addSerieToFirestore = async (serieData) => {
     console.error('Erro durante o cadastro da série', error);
   }
 };
+
+export const addCommentToFirestore = async (userId, commentText, commentedUserId) => {
+  try {
+    const userRef = doc(firestore, 'users', commentedUserId); // Use o ID do usuário que está sendo comentado
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const newComment = {
+          text: commentText,
+          userId: currentUser.uid,
+          // Outros campos do comentário, se houverem
+        };
+
+        // Atualize o campo 'comments' usando arrayUnion para adicionar o novo comentário
+        await updateDoc(userRef, {
+          comments: arrayUnion(newComment),
+        });
+
+        console.log('Comentário adicionado com sucesso.');
+      } else {
+        console.error('Usuário não autenticado.');
+      }
+    } else {
+      console.error('Documento do usuário não encontrado.');
+    }
+  } catch (error) {
+    console.error('Erro ao adicionar comentário:', error);
+  }
+};
+
+
+
+
 
 export const addListaPessoalToFirestore = async (userId, serieId, nota, review, volumesLidos, tipo) => {
   try {
@@ -193,5 +230,8 @@ export const getUnapprovedSeries = async () => {
     return [];
   }
 };
+
+
+  
 
 export const storage = getStorage(app);

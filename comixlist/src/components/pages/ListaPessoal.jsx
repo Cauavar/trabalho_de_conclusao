@@ -21,7 +21,7 @@ const ListaPessoal = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const tipoQueryParam = queryParams.get('tipo');
-  const itemsPerPage = 18;
+  const itemsPerPage = 20;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
