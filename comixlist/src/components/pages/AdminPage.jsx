@@ -9,7 +9,7 @@ function AdminPage() {
   const [unapprovedSeries, setUnapprovedSeries] = useState([]);
   const { user } = useContext(AuthContext);
   const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
-  const seriesPerPage = 3; // Quantidade de séries por página
+  const seriesPerPage = 3;
 
   const fetchUnapprovedSeriesFromFirestore = async () => {
     try {
@@ -39,12 +39,9 @@ function AdminPage() {
       await updateDoc(serieDocRef, {
         Aprovada: true,
       });
-
-      // Atualize o estado para refletir a aprovação
+  
       setUnapprovedSeries((prevState) =>
-        prevState.map((serie) =>
-          serie.id === serieId ? { ...serie, Aprovada: true } : serie
-        )
+        prevState.filter((serie) => serie.id !== serieId)
       );
     } catch (error) {
       console.error('Erro ao aprovar série:', error);
@@ -54,9 +51,8 @@ function AdminPage() {
   const handleReject = async (serieId) => {
     try {
       const serieDocRef = doc(firestore, 'serie', serieId);
-      await deleteDoc(serieDocRef); // Isso excluirá o documento no Firestore
+      await deleteDoc(serieDocRef); 
   
-      // Remova a série da lista de séries não aprovadas
       setUnapprovedSeries((prevState) => prevState.filter((serie) => serie.id !== serieId));
     } catch (error) {
       console.error('Erro ao reprovar série:', error);

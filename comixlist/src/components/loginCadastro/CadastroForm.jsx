@@ -1,15 +1,13 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Input from '../form/Input';
 import SubmitButton from '../form/SubmitButton';
 import styles from './CadastroForm.module.css';
 import { AuthContext } from '../contexts/auth';
 import ReCAPTCHA from "react-google-recaptcha";
-import { storage } from '../bd/FireBase';
-import { ref } from 'firebase/database';
-import { uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, setDoc } from 'firebase/firestore'; 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-
+import { query } from 'firebase/database';
+import { collection, doc, setDoc, where, getDocs } from 'firebase/firestore';
+import { firestore } from '../bd/FireBase';
 
 function CadastroForm({ btnText }) {
   const { signup } = useContext(AuthContext);
@@ -24,32 +22,9 @@ function CadastroForm({ btnText }) {
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const storageRef = ref(storage, `user_images/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    setUploading(true);
-
-    uploadTask.on(
-      'state_changed',
-      null,
-      (error) => {
-        console.error(error);
-        setUploading(false);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          setImagemUsuario(url);
-          setUploading(false);
-        });
-      }
-    );
-  };
+  const [emailInUseError, setEmailInUseError] = useState(false);
+  const [emailInvalidError, setEmailInvalidError] = useState(false);
+  const [passwordRequirementsError, setPasswordRequirementsError] = useState(false);
 
   const listaPessoalData = {
     dataAdicao: new Date().toISOString(),
@@ -61,7 +36,7 @@ function CadastroForm({ btnText }) {
     serieId: "", 
     ultimaAtualizacao: new Date().toISOString(),
   };
-  
+
   const createNewUserWithSubcollection = async (userData) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.senha);
@@ -87,14 +62,33 @@ function CadastroForm({ btnText }) {
 
   const handleRecaptchaChange = (value) => {
     setRecaptchaValue(value);
-  }
+  };
 
   const handleToggleShowPassword = () => {
     setShowPassword(prevShowPassword => !prevShowPassword);
-  }
+  };
+
+  const hideErrors = () => {
+    setEmailInUseError(false);
+    setEmailInvalidError(false);
+    setPasswordRequirementsError(false);
+  };
+
+  const showErrorForSeconds = (errorSetter, duration) => {
+    errorSetter(true);
+    setTimeout(() => errorSetter(false), duration);
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 6 || !/\d/.test(password)) {
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    hideErrors();
     if (recaptchaValue) {
       try {
         const userData = {
@@ -106,6 +100,24 @@ function CadastroForm({ btnText }) {
           imagemUsuario,
           local,
         };
+        
+        if (!isValidEmail(email)) {
+          showErrorForSeconds(setEmailInvalidError, 3000);
+          return;
+        }
+
+        if (!validatePassword(senha)) {
+          showErrorForSeconds(setPasswordRequirementsError, 3000);
+          return;
+        }
+
+        const emailExistsQuery = query(collection(firestore, 'users'), where('email', '==', email));
+        const emailExistsSnapshot = await getDocs(emailExistsQuery);
+        if (!emailExistsSnapshot.empty) {
+          showErrorForSeconds(setEmailInUseError, 3000);
+          return;
+        }
+        
         await createNewUserWithSubcollection(userData);
         await signup(userData);
 
@@ -114,6 +126,11 @@ function CadastroForm({ btnText }) {
         console.log('Erro durante o cadastro', error);
       }
     }
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+    return emailRegex.test(email);
   };
 
   return (
@@ -126,14 +143,24 @@ function CadastroForm({ btnText }) {
         value={nome}
         onChange={(e) => setNome(e.target.value)}
       />
+            <br></br>
+
       <Input
         type="email"
         text="Email"
         name="email"
         placeholder="Insira um E-mail"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          hideErrors(); 
+        }}
       />
+      {emailInUseError && <p className={styles.errorText}>Este email já está em uso.</p>}
+      {emailInvalidError && <p className={styles.errorText}>Este email não é válido.</p>}
+      <br></br>
+
+
       <Input
         type={showPassword ? 'text' : 'password'}
         text="Senha"
@@ -142,6 +169,8 @@ function CadastroForm({ btnText }) {
         value={senha}
         onChange={(e) => setSenha(e.target.value)}
       />
+      {passwordRequirementsError && <p className={styles.errorText}>A senha deve ter ao menos 6 caracteres.</p>}
+      <br></br>
       <button
         type="button"
         onClick={handleToggleShowPassword}

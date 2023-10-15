@@ -109,7 +109,6 @@ function Profile() {
         <div className="profile-comics">
           <h2>ComixList</h2>
           <div className="comics-grid">
-            {/* Adicione seções de lista de quadrinhos aqui */}
             <div className="comics-section">
               <h3><Link to={`/listaPessoal?tipo=completo`}>Completo</Link></h3>
             </div>
@@ -129,17 +128,20 @@ function Profile() {
       <ul className="comment-list">
   {commentsWithUserInfo.map((comment, index) => (
     <li key={index}>
-      <img
-        src={comment.userInfo.imagemUsuario}
-        alt="Foto de perfil do usuário"
-      />
-      <div className="comment-content">
+      <Link to={`/profile/${comment.userId}`}>
+        <img
+          src={comment.userInfo.imagemUsuario}
+          alt="Foto de perfil do usuário"
+        />
+              </Link>
+              <div className="comment-content">
         <strong>{comment.userInfo.nome}</strong>
         <p>{comment.text}</p>
+        <p className="comment-date">{comment.commentDate}</p> 
       </div>
     </li>
   ))}
-  </ul>
+</ul>
     </div>
   );
 }

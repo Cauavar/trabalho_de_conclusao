@@ -39,8 +39,12 @@ export const addSerieToFirestore = async (serieData) => {
 };
 
 export const addCommentToFirestore = async (userId, commentText, commentedUserId) => {
+
+  const dataAtual = new Date();
+  const commentDate = dataAtual.toISOString();
+
   try {
-    const userRef = doc(firestore, 'users', commentedUserId); // Use o ID do usuário que está sendo comentado
+    const userRef = doc(firestore, 'users', commentedUserId); 
     const userDoc = await getDoc(userRef);
 
     if (userDoc.exists()) {
@@ -50,10 +54,10 @@ export const addCommentToFirestore = async (userId, commentText, commentedUserId
         const newComment = {
           text: commentText,
           userId: currentUser.uid,
-          // Outros campos do comentário, se houverem
+          commentDate,
         };
 
-        // Atualize o campo 'comments' usando arrayUnion para adicionar o novo comentário
+  
         await updateDoc(userRef, {
           comments: arrayUnion(newComment),
         });

@@ -5,7 +5,7 @@ import "./Comic.css";
 import md5 from "md5";
 import SeriesCardApi from "./SeriesCardApi";
 import SeriesCardFirestore from "./SeriesCardFirestore";
-import { getDoc, doc, collection, getDocs, query, where, addDoc } from "firebase/firestore"; // Importe a função getDocs aqui
+import { getDoc, doc, collection, getDocs, query, where, addDoc } from "firebase/firestore"; 
 import { firestore } from "../bd/FireBase";
 import AddListaPessoalModal from "../modals/AddListaPessoalModal";
 import LinkButton from "../layout/LinkButton";
@@ -15,17 +15,12 @@ import { useNavigate } from "react-router-dom";
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
 
-
 const Comic = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tituloSerie, setTituloSerie] = useState(""); // Adicionado
-  const [descricaoSerie, setDescricaoSerie] = useState(""); // Adicionado
-  const [autorSerie, setAutorSerie] = useState(""); // Adicionado
-  const [dataPublicacaoSerie, setDataPublicacaoSerie] = useState(""); // Adicionado
-  const [numeroVolumesSerie, setNumeroVolumesSerie] = useState("");
+  const [usersWithSeries, setUsersWithSeries] = useState([]); 
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -40,20 +35,14 @@ const Comic = () => {
       const timestamp = Date.now().toString();
       const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
       const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-  
+
       try {
         const res = await fetch(seriesUrl);
         const data = await res.json();
         const seriesData = data.data.results[0];
-  
+
         setSeries(seriesData);
-        setTituloSerie(seriesData.title); // Atualizando o título da série
-        setDescricaoSerie(seriesData.description); // Atualizando a descrição
-        setAutorSerie(seriesData.creators.items[0]?.name); // Atualizando o autor
-        const onSaleDate = (seriesData.dates || []).find((date) => date.type === "onsaleDate");
-        setDataPublicacaoSerie(onSaleDate ? onSaleDate.date : "N/A"); // Atualizando a data de publicação
-        setNumeroVolumesSerie(seriesData.totalIssues); // Atualizando o número de volumes
-  
+
         // Verifique se a série existe no Firestore
         checkSeriesInFirestore(id, seriesData);
       } catch (error) {
@@ -61,7 +50,6 @@ const Comic = () => {
       }
     }
   };
-  
 
   const getSeriesFromFirestore = async () => {
     try {
@@ -102,9 +90,8 @@ const Comic = () => {
         descricaoSerie: seriesData.description || "N/A",
         imagemSerie: seriesData.thumbnail.path + "." + seriesData.thumbnail.extension,
         autorSerie: seriesData.creators.items[0]?.name || "N/A",
-        publiSerie:
-          (seriesData.dates &&
-            seriesData.dates.find((date) => date.type === "onsaleDate")?.date) || "N/A",
+        publiSerie: (seriesData.dates &&
+          seriesData.dates.find((date) => date.type === "onsaleDate")?.date) || "N/A",
         numeroVolumesSerie: seriesData.pageCount || "N/A",
         notaMedia: 0,
       });
@@ -114,20 +101,31 @@ const Comic = () => {
     }
   };
 
+  const getUsersWithSeries = async () => {
+    const listaPessoalRef = collection(firestore, "listaPessoal");
+    const q = query(listaPessoalRef, where("serieId", "==", id));
+    const querySnapshot = await getDocs(q);
+  
+    const users = [];
+    querySnapshot.forEach((doc) => {
+      users.push(doc.data().userId);
+    });
+    setUsersWithSeries(users);
+  };
+  
+
   useEffect(() => {
     if (isMarvelApiId(id)) {
       getSeriesFromApi(id, setSeries);
     } else {
       getSeriesFromFirestore();
     }
+    getUsersWithSeries();
   }, [id]);
-
-  
 
   const handleAddToList = () => {
     console.log("Adicionado à lista!");
   };
-
 
   return (
     <div className="comic-page">
@@ -200,6 +198,10 @@ const Comic = () => {
                     <BsFillFileEarmarkTextFill /> Nota Média:
                   </h3>
                   <p>{series.notaMedia || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Usuários com esta série na lista pessoal:
+                  </h3>
+                  <p>{usersWithSeries.length}</p>
                 </>
               ) : (
                 <>
@@ -223,6 +225,10 @@ const Comic = () => {
                     <BsFillFileEarmarkTextFill /> Nota Média:
                   </h3>
                   <p>{series.notaMedia || "N/A"}</p>
+                  <h3>
+                    <BsFillFileEarmarkTextFill /> Usuários com esta série na lista pessoal:
+                  </h3>
+                  <p>{usersWithSeries.length}</p>
                 </>
               )}
             </p>
@@ -233,6 +239,6 @@ const Comic = () => {
       )}
     </div>
   );
-      };
+};
 
 export default Comic;

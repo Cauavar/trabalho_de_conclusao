@@ -39,6 +39,8 @@ const Navbar = () => {
   };
 
   const seriesExists = seriesExistsInAPI || seriesExistsInFirestore;
+  const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
+
 
   return (
     <nav id="navbar">

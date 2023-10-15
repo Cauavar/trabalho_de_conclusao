@@ -6,7 +6,7 @@ import { firestore } from '../bd/FireBase';
 import { doc, getDoc, collection, onSnapshot, query, where } from 'firebase/firestore'; // Importe 'query' e 'where' aqui
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../contexts/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function PublicProfile() {
   const { id } = useParams();
@@ -71,21 +71,36 @@ function PublicProfile() {
     fetchCommentsWithUserInfo();
   }, [userProfile]);
 
-  // Configurar uma escuta em tempo real para os comentários no Firestore
   useEffect(() => {
-    const commentsCollectionRef = collection(firestore, 'comments'); // Substitua pelo nome da sua coleção de comentários
-    const q = query(commentsCollectionRef, where('userId', '==', id)); // Substitua 'userId' pelo campo que indica o autor do comentário
-
+    const commentsCollectionRef = collection(firestore, 'comments');
+    const q = query(commentsCollectionRef, where('userId', '==', id));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const updatedComments = querySnapshot.docs.map((doc) => doc.data());
       setCommentsWithUserInfo(updatedComments);
     });
 
     return () => {
-      // Certifique-se de cancelar a escuta quando o componente for desmontado
       unsubscribe();
     };
   }, [id]);
+  
+  const handleDeleteComment = async (commentId) => {
+    if (window.confirm('Tem certeza de que deseja excluir este comentário?')) {
+      try {
+        // Verifique se o usuário atual é autorizado a excluir o comentário
+        if (user.uid === id || user.uid === comment.userInfo.userId) {
+          const commentsRef = collection(firestore, 'comments');
+          await deleteDoc(doc(commentsRef, commentId));
+          console.log('Comentário excluído com sucesso.');
+        } else {
+          console.error('Você não está autorizado a excluir este comentário.');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir o comentário:', error);
+      }
+    }
+  };
+  
 
   if (!userProfile) {
     return <div>Loading...</div>;
@@ -127,23 +142,49 @@ function PublicProfile() {
           <p>{userProfile?.descricaoUsuario || "N/A"}</p>
         </div>
 
+        <div className="profile-comics">
+          <h2>ComixList</h2>
+          <div className="comics-grid">
+            <div className="comics-section">
+              <h3><Link to={`/listaPessoal/${id}?tipo=completo`}>Completo</Link></h3>
+            </div>
+            <div className="comics-section">
+              <h3><Link to={`/listaPessoal/${id}?tipo=lendo`}>Lendo</Link></h3>
+            </div>
+            <div className="comics-section">
+              <h3><Link to={`/listaPessoal/${id}?tipo=dropado`}>Dropado</Link></h3>
+            </div>
+            <div className="comics-section">
+              <h3><Link to={`/listaPessoal/${id}?tipo=planejo-ler`}>Planejo Ler</Link></h3>
+            </div>
+          </div>
+        </div>
+
         <div className="profile-comments">
         </div>
       </div>
       <CommentBar />
       <ul className="comment-list">
-  {commentsWithUserInfo.map((comment, index) => (
-    <li key={index}>
+      {commentsWithUserInfo.map((comment, index) => (
+  <li key={index}>
+    <Link to={`/profile/${comment.userInfo.userId}`}>
       <img
         src={comment.userInfo.imagemUsuario}
         alt="Foto de perfil do usuário"
       />
-      <div className="comment-content">
-        <strong>{comment.userInfo.nome}</strong>
-        <p>{comment.text}</p>
-      </div>
-    </li>
-  ))}
+    </Link>
+    <div className="comment-content">
+      <strong>{comment.userInfo.nome}</strong>
+      <p>{comment.text}</p>
+      <p className="comment-date">{comment.commentDate}</p>
+      {user.uid === id || user.uid === comment.userInfo.userId ? (
+        <button onClick={() => handleDeleteComment(comment.commentId)}>
+          Excluir
+        </button>
+      ) : null}
+    </div>
+  </li>
+))}
 </ul>
 
     </div>

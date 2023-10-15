@@ -12,6 +12,7 @@ import { storage } from '../bd/FireBase';
 
 
 function EditProfileForm({ btnText }) {
+  const [uploadProgress, setUploadProgress] = useState(0);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [editedProfile, setEditedProfile] = useState({
@@ -62,7 +63,7 @@ function EditProfileForm({ btnText }) {
       'state_changed',
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Progresso do Upload: ${progress}%`);
+        setUploadProgress(progress); 
       },
       (error) => {
         console.error('Erro no Upload:', error);
@@ -71,6 +72,7 @@ function EditProfileForm({ btnText }) {
         getDownloadURL(uploadTask.snapshot.ref)
           .then((url) => {
             handleChange('imagemUsuario', url);
+            setUploadProgress(100); 
           })
           .catch((error) => {
             console.error('Erro ao obter o URL da imagem:', error);
@@ -78,6 +80,7 @@ function EditProfileForm({ btnText }) {
       }
     );
   };
+    
   
 
   const handleChange = (field, value) => {
@@ -137,6 +140,17 @@ function EditProfileForm({ btnText }) {
         name="imagemUsuario"
         onChange={handleUpload}
       />
+<div className={styles.progressBarContainer}>
+<div
+  className={styles.progressBar}
+  style={{ width: `${uploadProgress}%` }}
+>
+  {uploadProgress > 0 && uploadProgress < 100 && (
+    <div className={styles.progressText}>{uploadProgress}%</div>
+  )}
+</div>
+</div>
+<br></br>
       
       <SubmitButton text={btnText} />
     </form>

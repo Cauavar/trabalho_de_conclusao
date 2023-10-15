@@ -13,6 +13,7 @@ function LoginForm({ btnText }) {
   const [senha, setSenha] = useState('');
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState(null);
   const navigate = useNavigate();
 
   const handleRecaptchaChange = (value) => {
@@ -27,13 +28,18 @@ function LoginForm({ btnText }) {
         navigate('/');
       } catch (error) {
         console.error('Error during login', error);
-        console.log(error.code); 
-        console.log(error.message); 
+        if (error.code === "auth/user-not-found") {
+          setLoginError("Usuário não encontrado. Verifique o endereço de e-mail.");
+        } else if (error.code === "auth/wrong-password") {
+          setLoginError("Senha incorreta. Verifique sua senha.");
+        } else {
+          setLoginError("Erro ao fazer login. Tente novamente mais tarde.");
+        }
       }
     } else {
       console.log("Please complete the reCAPTCHA.");
     }
-  };
+  }
 
   const handleToggleShowPassword = () => {
     setShowPassword(prevShowPassword => !prevShowPassword);
@@ -41,6 +47,8 @@ function LoginForm({ btnText }) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      {loginError && <p className={styles.errorText}>{loginError}</p>}
+      <br></br>
       <Input
         type="text"
         text="E-mail"
@@ -51,13 +59,14 @@ function LoginForm({ btnText }) {
       />
 
       <Input
-        type={showPassword ? "text" : "password"} // Altera o tipo com base em showPassword
+        type={showPassword ? "text" : "password"}
         text="Senha"
         name="password"
         placeholder="Insira a senha"
         value={senha}
         onChange={(e) => setSenha(e.target.value)}
       />
+
       <button
         type="button"
         onClick={handleToggleShowPassword}

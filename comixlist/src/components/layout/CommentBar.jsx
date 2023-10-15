@@ -25,12 +25,11 @@ function CommentBar() {
       const currentUser = user;
   
       if (currentUser) {
-        // Verifique se o usuário alvo (a quem você está comentando) existe antes de adicionar um comentário
-        const userRef = doc(firestore, 'users', id); // Use o ID do usuário alvo
+        const userRef = doc(firestore, 'users', id); 
         const userDoc = await getDoc(userRef);
   
         if (userDoc.exists()) {
-          await addCommentToFirestore(currentUser.uid, commentText, id); // Passe o ID do usuário alvo
+          await addCommentToFirestore(currentUser.uid, commentText, id); 
           setCommentText('');
           console.log('Comentário enviado com sucesso.');
         } else {

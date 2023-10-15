@@ -9,6 +9,8 @@ import { BiSearchAlt2 } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Fuse from 'fuse.js';
+import { FiArrowLeft } from "react-icons/fi";
+
 
 const ListaPessoal = () => {
   const { user } = useContext(AuthContext);
@@ -152,6 +154,9 @@ const ListaPessoal = () => {
 
   return (
     <div className={styles.container}>
+        <button type="button" className={styles.backButton} onClick={() => navigate('/profile/')}>
+          <FiArrowLeft className={styles.backIcon} /> Voltar
+        </button>
       <h2 className={styles.title}>Lista Pessoal:</h2>
       <div className={styles.buttonContainer}>
         <button onClick={() => navigate('/listaPessoal/?tipo=')}>Todos</button>

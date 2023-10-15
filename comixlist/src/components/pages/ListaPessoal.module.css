@@ -150,8 +150,8 @@
 }
 
 .search-form input[type="text"]:focus {
-  border-color: #ff9900; /* Cor do contorno ao focar */
-  box-shadow: 0 0 5px rgba(255, 153, 0, 0.5); /* Sombra ao focar */
+  border-color: #ff9900; 
+  box-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
 }
 
 .search-form button[type="submit"] {
@@ -167,6 +167,30 @@
 }
 
 .search-form button[type="submit"]:hover {
-  background-color: #ff9900; /* Cor de destaque ao passar o mouse */
+  background-color: #ff9900; 
   color: #fff;
 }
+
+.iconContainer {
+  text-align: left;
+  margin-bottom: 1.5em;
+}
+  
+  .backButton {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .backIcon {
+    margin-right: 0.5em;
+  }
+  
+  .backButton:hover {
+    color: #222;
+  }

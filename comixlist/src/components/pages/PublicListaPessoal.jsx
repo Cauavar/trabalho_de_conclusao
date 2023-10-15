@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useContext } from "react";
-import { doc, getDoc, collection, getDocs, updateDoc } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { firestore } from "../bd/FireBase";
 import SeriesCardFirestoreListaPessoal from "./SeriesCardFirestoreListaPessoal";
 import SeriesCardApiListaPessoal from "./SeriesCardApiListaPessoal";
 import styles from "./ListaPessoal.module.css";
 import { BiSearchAlt2 } from 'react-icons/bi';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom'; 
 import Fuse from 'fuse.js';
-
+import { FiArrowLeft } from "react-icons/fi";
 
 const PublicListaPessoal = () => {
-  const { id } = useParams;
+  const { id } = useParams(); 
   const [listaPessoal, setListaPessoal] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,27 +67,25 @@ const PublicListaPessoal = () => {
     }
   });
 
-
-
   const searchInList = (searchTerm) => {
     if (!searchTerm) {
       setSearchResults([]); 
       return;
     }
-  
+
     const options = {
       keys: ['nomeSerie'], 
       includeScore: true, 
       threshold: 0.4, 
     };
-  
+
     const fuse = new Fuse(listaFiltrada, options); 
     const searchResults = fuse.search(searchTerm);
-  
+
     const results = searchResults.map((result) => result.item);
-  
+
     console.log('Resultados da pesquisa:', results); 
-  
+
     setSearchResults(results); 
   };
 
@@ -108,13 +105,16 @@ const PublicListaPessoal = () => {
 
   return (
     <div className={styles.container}>
+        <button type="button" className={styles.backButton} onClick={() => navigate(`/profile/${id}`)}>
+          <FiArrowLeft className={styles.backIcon} /> Voltar
+        </button>
       <h2 className={styles.title}>Lista Pessoal:</h2>
       <div className={styles.buttonContainer}>
-      <button onClick={() => navigate(`/listaPessoal/${id}?tipo=`)}>Todos</button>
-<button onClick={() => navigate(`/listaPessoal/${id}?tipo=completo`)}>Completo</button>
-<button onClick={() => navigate(`/listaPessoal/${id}?tipo=lendo`)}>Lendo</button>
-<button onClick={() => navigate(`/listaPessoal/${id}?tipo=dropado`)}>Dropado</button>
-<button onClick={() => navigate(`/listaPessoal/${id}?tipo=planejo-ler`)}>Planejo Ler</button>
+        <button onClick={() => navigate(`/listaPessoal/${id}?tipo=`)}>Todos</button>
+        <button onClick={() => navigate(`/listaPessoal/${id}?tipo=completo`)}>Completo</button>
+        <button onClick={() => navigate(`/listaPessoal/${id}?tipo=lendo`)}>Lendo</button>
+        <button onClick={() => navigate(`/listaPessoal/${id}?tipo=dropado`)}>Dropado</button>
+        <button onClick={() => navigate(`/listaPessoal/${id}?tipo=planejo-ler`)}>Planejo Ler</button>
       </div>
       <div className={styles.pagination}>
         <button
@@ -134,26 +134,26 @@ const PublicListaPessoal = () => {
         </button>
       </div>
       <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    console.log("Search term:", searchTerm); 
-    searchInList(searchTerm); 
-  }}
-  className={styles["search-form"]}
->
-  <input
-    type="text"
-    placeholder="Buscar"
-    onChange={(e) => {
-      setSearchTerm(e.target.value);
-    }}
-    value={searchTerm}
-    className={styles["search-form__input"]}
-  />
-  <button type="submit" className={styles["search-form__button"]}>
-    <BiSearchAlt2 />
-  </button>
-</form>
+        onSubmit={(e) => {
+          e.preventDefault();
+          console.log("Search term:", searchTerm); 
+          searchInList(searchTerm); 
+        }}
+        className={styles["search-form"]}
+      >
+        <input
+          type="text"
+          placeholder="Buscar"
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+          value={searchTerm}
+          className={styles["search-form__input"]}
+        />
+        <button type="submit" className={styles["search-form__button"]}>
+          <BiSearchAlt2 />
+        </button>
+      </form>
       <div className={styles["comics_container"]}>
         {searchResults.length > 0 ? (
           searchResults.slice(startIndex, endIndex).map((item) => (
