@@ -171,3 +171,39 @@ body {
   background-color: transparent;
   color: #f7d354;
 }
+
+.comment-list {
+  list-style: none;
+  padding: 0;
+  width: 90%;
+}
+
+.comment-list li {
+  display: flex;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.comment-list li img {
+  max-width: 50px; /* Largura da imagem do perfil */
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.comment-list li .comment-content {
+  flex-grow: 1; /* Ocupar o espaço restante na largura */
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-list li .comment-content strong {
+  font-weight: bold;
+  margin-bottom: 5px; /* Espaçamento entre o nome e o comentário */
+}
+
+.comment-list li .comment-content p {
+  margin: 0;
+}

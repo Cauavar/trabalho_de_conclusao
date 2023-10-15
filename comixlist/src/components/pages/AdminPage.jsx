@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/auth';
-import SeriesCardFirestore from './SeriesCardFirestore';
-import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
-import { firestore } from "../bd/FireBase"; 
-import "./ComicsGrid.css";
+import { collection, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { firestore } from '../bd/FireBase';
+import { Link } from 'react-router-dom';
+import './AdminPage.css';
 
 function AdminPage() {
   const [unapprovedSeries, setUnapprovedSeries] = useState([]);
-  const { user } = useContext(AuthContext); 
+  const { user } = useContext(AuthContext);
+  const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
+  const seriesPerPage = 3; // Quantidade de séries por página
 
   const fetchUnapprovedSeriesFromFirestore = async () => {
     try {
@@ -29,6 +31,8 @@ function AdminPage() {
     }
   }, [user]);
 
+  const [currentPage, setCurrentPage] = useState(0);
+
   const handleApprove = async (serieId) => {
     try {
       const serieDocRef = doc(firestore, 'serie', serieId);
@@ -47,18 +51,63 @@ function AdminPage() {
     }
   };
 
+  const handleReject = async (serieId) => {
+    try {
+      const serieDocRef = doc(firestore, 'serie', serieId);
+      await deleteDoc(serieDocRef); // Isso excluirá o documento no Firestore
+  
+      // Remova a série da lista de séries não aprovadas
+      setUnapprovedSeries((prevState) => prevState.filter((serie) => serie.id !== serieId));
+    } catch (error) {
+      console.error('Erro ao reprovar série:', error);
+    }
+  };
+
+  const next = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const previous = () => {
+    setCurrentPage((prevPage) => prevPage - 1);
+  };
+
+  const seriesToDisplay = unapprovedSeries.slice(currentPage * seriesPerPage, (currentPage + 1) * seriesPerPage);
+
   return (
-    <div>
-      <h2>Página de Administração</h2>
+    <div className="admin-page">
+      <h2 className="admin-header">Página de Administração</h2>
       <h3>Séries Pendentes de Aprovação</h3>
-      <ul>
-        {unapprovedSeries.map((serie) => (
-          <li key={serie.id}>
-            <SeriesCardFirestore serie={serie} />
-            <button onClick={() => handleApprove(serie.id)}>Aprovar</button>
-          </li>
+      <div className="series-list">
+        {seriesToDisplay.map((serie) => (
+          <div key={serie.id} className="series-item">
+            <div className="series-cardi">
+              <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
+              <div className="series-info">
+                <h2>
+                  {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
+                </h2>
+                <Link to={`/series/${serie.id}`} state={{ id: serie.id }}>
+                  Detalhes
+                </Link>
+              </div>
+            </div>
+            <button className="approve-button" onClick={() => handleApprove(serie.id)}>
+              Aprovar
+            </button>
+            <button className="reject-button" onClick={() => handleReject(serie.id)}>
+              Reprovar
+            </button>
+          </div>
         ))}
-      </ul>
+      </div>
+      <div className="pagination">
+        <button className="previous" onClick={previous} disabled={currentPage === 0}>
+          Anterior
+        </button>
+        <button className="next" onClick={next} disabled={currentPage === Math.floor(unapprovedSeries.length / seriesPerPage)}>
+          Próxima
+        </button>
+      </div>
     </div>
   );
 }

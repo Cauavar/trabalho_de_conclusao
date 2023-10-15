@@ -1,0 +1,87 @@
+/* adminPage.css */
+
+.admin-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .admin-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .series-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .series-item {
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center; /* Alinhe o conteúdo verticalmente */
+    justify-content: space-between;
+  }
+  
+  .series-info {
+    flex: 1;
+  }
+  
+  .series-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .series-description {
+    margin-top: 5px;
+    font-size: 14px;
+  }
+  
+  .approve-button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .approve-button:hover {
+    background-color: #45a049;
+  }
+  
+  @media (max-width: 768px) {
+    .series-item {
+      flex-direction: column;
+    }
+  
+    .reject-button {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+  
+  .reject-button {
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .reject-button:hover {
+    background-color: darkred;
+  }
+  
+  .series-cardi img {
+    max-width: 50px; /* Defina o valor máximo de largura desejado */
+    max-height: 50px; /* Defina o valor máximo de altura desejado */
+  }
+  

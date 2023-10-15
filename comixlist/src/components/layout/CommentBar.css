@@ -1,59 +1,56 @@
-
-
 .comment-bar {
-    margin-top: 1rem;
-    padding: 1rem;
-    margin-left: 6rem;
-    margin-right: 6rem;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    padding: 2rem;
-  }
-  
-  .comment-bar h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .comment-list {
-    margin-bottom: 1rem;
-  }
-  
-  .comment {
-    margin-bottom: 0.5rem;
-  }
-  
-  .comment p {
-    margin: 0;
-  }
-  
-  .comment-input {
-    display: flex;
-    align-items: center;
-  }
-  
-  .comment-input textarea {
-    flex: 1;
-    height: 80px;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical;
-  }
-  
-  .comment-input button {
-    padding: 0.5rem 1rem;
-    margin-left: 1rem;
-    background-color: #555;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .comment-input button:hover {
-    background-color: #333;
-  }
-  
+  margin-top: 1rem;
+  padding: 1rem;
+  width: 90%; /* Defina a largura desejada, por exemplo, 90% da largura da tela */
+  margin: 0 auto; /* Centralize horizontalmente */
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.comment-bar h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.comment-list {
+  margin-bottom: 1rem;
+}
+
+.comment {
+  margin-bottom: 0.5rem;
+}
+
+.comment p {
+  margin: 0;
+}
+
+.comment-input {
+  display: flex;
+  align-items: center;
+}
+
+.comment-input textarea {
+  flex: 1;
+  height: 80px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.comment-input button {
+  padding: 0.5rem 1rem;
+  margin-left: 1rem;
+  background-color: #555;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-input button:hover {
+  background-color: #333;
+}
