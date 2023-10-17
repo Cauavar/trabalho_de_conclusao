@@ -140,17 +140,17 @@ function EditProfileForm({ btnText }) {
         name="imagemUsuario"
         onChange={handleUpload}
       />
-<div className={styles.progressBarContainer}>
-<div
-  className={styles.progressBar}
-  style={{ width: `${uploadProgress}%` }}
->
-  {uploadProgress > 0 && uploadProgress < 100 && (
-    <div className={styles.progressText}>{uploadProgress}%</div>
-  )}
-</div>
-</div>
-<br></br>
+      <div className={styles.progressBarContainer}>
+      <div
+        className={styles.progressBar}
+        style={{ width: `${uploadProgress}%` }}
+      >
+        {uploadProgress > 0 && uploadProgress < 100 && (
+          <div className={styles.progressText}>{uploadProgress}%</div>
+        )}
+      </div>
+      </div>
+      <br></br>
       
       <SubmitButton text={btnText} />
     </form>

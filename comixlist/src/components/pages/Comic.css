@@ -121,4 +121,11 @@
   .backButton:hover {
     color: #222;
   }
+  .profile-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  
   

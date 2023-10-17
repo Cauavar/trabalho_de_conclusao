@@ -136,8 +136,10 @@ const Comic = () => {
       </div>
 
       <div className="profile-header">
-        <LinkButton to="/editSerie" text="Edit Series" />
+      <LinkButton to={`/editSerie/${id}`} text="Edit Series" />
       </div>
+
+      
 
       {series ? (
         <>

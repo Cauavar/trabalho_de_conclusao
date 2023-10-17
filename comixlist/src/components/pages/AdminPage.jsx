@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/auth';
-import { collection, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { firestore } from '../bd/FireBase';
 import { Link } from 'react-router-dom';
 import './AdminPage.css';
 
 function AdminPage() {
   const [unapprovedSeries, setUnapprovedSeries] = useState([]);
+  const [unapprovedEdits, setUnapprovedEdits] = useState([]); // Estado para armazenar propostas de edição não aprovadas
   const { user } = useContext(AuthContext);
   const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
   const seriesPerPage = 3;
+  const editsPerPage = 3;
 
   const fetchUnapprovedSeriesFromFirestore = async () => {
     try {
@@ -25,9 +27,25 @@ function AdminPage() {
     }
   };
 
+  const fetchUnapprovedEditsFromFirestore = async () => {
+    try {
+      const editsCollectionRef = collection(firestore, 'edicoesPendentes');
+      const querySnapshot = await getDocs(query(editsCollectionRef));
+      const unapprovedEdits = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setUnapprovedEdits(unapprovedEdits);
+    } catch (error) {
+      console.error('Erro ao listar propostas de edição não aprovadas:', error);
+    }
+  };
+
+
   useEffect(() => {
     if (user) {
       fetchUnapprovedSeriesFromFirestore();
+      fetchUnapprovedEditsFromFirestore();
     }
   }, [user]);
 
@@ -39,7 +57,7 @@ function AdminPage() {
       await updateDoc(serieDocRef, {
         Aprovada: true,
       });
-  
+
       setUnapprovedSeries((prevState) =>
         prevState.filter((serie) => serie.id !== serieId)
       );
@@ -52,10 +70,52 @@ function AdminPage() {
     try {
       const serieDocRef = doc(firestore, 'serie', serieId);
       await deleteDoc(serieDocRef); 
-  
+
       setUnapprovedSeries((prevState) => prevState.filter((serie) => serie.id !== serieId));
     } catch (error) {
       console.error('Erro ao reprovar série:', error);
+    }
+  };
+
+const acceptEdit = async (editId, serieId, campoEditado, valorEditado) => {
+  try {
+    if (editId && serieId) { // Verifique se editId e serieId estão definidos
+      // Verifique se a edição foi aprovada
+      const editDocRef = doc(firestore, 'edicoesPendentes', editId);
+      const editDoc = await getDoc(editDocRef);
+
+      if (editDoc.exists() && !editDoc.data().aprovada) {
+        // Atualize a série com a edição aceita
+        const serieDocRef = doc(firestore, 'serie', serieId);
+        const updateData = {
+          [campoEditado]: valorEditado,
+        };
+        await updateDoc(serieDocRef, updateData);
+
+        // Marque a edição como aprovada
+        await updateDoc(editDocRef, { aprovada: true });
+
+        console.log('Edição aceita com sucesso.');
+      } else {
+        console.error('Edição já aprovada ou não encontrada.');
+      }
+    } else {
+      console.error('Parâmetros editId e serieId não definidos corretamente.');
+    }
+  } catch (error) {
+    console.error('Erro ao aceitar a edição:', error);
+  }
+};
+  
+  // Função para rejeitar uma edição
+  const rejectEdit = async (editId) => {
+    try {
+      const editDocRef = doc(firestore, 'edicoesPendentes', editId);
+      await deleteDoc(editDocRef);
+  
+      console.log('Edição rejeitada com sucesso.');
+    } catch (error) {
+      console.error('Erro ao rejeitar a edição:', error);
     }
   };
 
@@ -92,6 +152,24 @@ function AdminPage() {
             </button>
             <button className="reject-button" onClick={() => handleReject(serie.id)}>
               Reprovar
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="edit-list">
+        {unapprovedEdits.map((edit) => (
+          <div key={edit.id} className="edit-item">
+            <div className="edit-info">
+              <h2>{`Edição proposta para: ${edit.serieId}`}</h2>
+              <p>{`Campo a ser editado: ${edit.campoEditado}`}</p>
+              <p>{`Novo valor: ${edit.valorEditado}`}</p>
+            </div>
+            <button className="accept-edit-button" onClick={() => acceptEdit(edit.id, edit.serieId, edit.campoEditado, edit.valorEditado)}>
+              Aceitar
+            </button>
+            <button className="reject-edit-button" onClick={() => rejectEdit(edit.id)}>
+              Rejeitar
             </button>
           </div>
         ))}

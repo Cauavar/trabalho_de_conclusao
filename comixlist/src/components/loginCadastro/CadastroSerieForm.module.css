@@ -27,4 +27,25 @@
     .backButton:hover {
       color: #222;
     }
+    .progressBarContainer {
+      width: 100%;
+      height: 10px; 
+      background-color: #ccc;
+      border-radius: 5px; 
+    }
     
+    .progressBar {
+      height: 100%;
+      background-color: #f7d354;
+      transition: width 0.3s ease;
+      border-radius: 5px; 
+    }
+    
+    .progressText {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #000;
+      font-weight: bold;
+    }

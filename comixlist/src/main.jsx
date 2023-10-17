@@ -92,7 +92,7 @@ const AppRoutes = () => {
             <Route path="/listaPessoal" element={<PrivateRoute><ListaPessoal /></PrivateRoute>} />
             <Route path="/editProfile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
             <Route path="/cadastroSerie" element={<PrivateRoute><CadastroSerie /></PrivateRoute>} />
-            <Route path="/editSerie" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
+            <Route path="/editSerie/:id" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
             <Route path="/resenha/:id" element={<Resenha />} />
             <Route path="/AdminPage" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="/profile/:id" element={<PublicProfile />} />

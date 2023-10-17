@@ -20,7 +20,7 @@ function CadastroSerieForm({ btnText }) {
     volumes: '',
     imagemSerie: '',
   });
-  const [progress, setProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -36,23 +36,15 @@ function CadastroSerieForm({ btnText }) {
       'state_changed',
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progress);
+        setUploadProgress(progress);
       },
       (error) => {
-        alert(error);
+        console.error('Erro no Upload:', error);
       },
       async () => {
         try {
           const url = await getDownloadURL(uploadTask.snapshot.ref);
           setSerieData({ ...serieData, imagemSerie: url });
-  
-          try {
-            await addSerieToFirestore({ ...serieData, imagemSerie: url });
-            console.log('Série cadastrada com sucesso:', serieData);
-            navigate('/');
-          } catch (error) {
-            console.error('Erro durante o cadastro da Série', error);
-          }
         } catch (error) {
           console.error('Erro ao obter o URL da imagem:', error);
         }
@@ -60,19 +52,21 @@ function CadastroSerieForm({ btnText }) {
     );
   };
   
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (uploadProgress < 100) {
+      console.log('Progress not at 100%, do not submit yet.');
+      return;
+    }
+    
     try {
-
+      await addSerieToFirestore(serieData);
       console.log('Série cadastrada com sucesso:', serieData);
       navigate('/');
     } catch (error) {
       console.error('Erro durante o cadastro da Série', error);
     }
   };
-
   return (
     <div>
       {user ? (
@@ -132,6 +126,15 @@ function CadastroSerieForm({ btnText }) {
             placeholder="Insira uma capa para a Série"
             onChange={handleUpload}
           />
+
+          <div className={styles.progressBarContainer}>
+            <div className={styles.progressBar} style={{ width: `${uploadProgress}%` }}>
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className={styles.progressText}>{uploadProgress}%</div>
+              )}
+            </div>
+          </div>
+          <br></br>
 
           <SubmitButton text={btnText} />
         </form>

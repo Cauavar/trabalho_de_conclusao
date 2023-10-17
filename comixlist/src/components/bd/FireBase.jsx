@@ -38,6 +38,37 @@ export const addSerieToFirestore = async (serieData) => {
   }
 };
 
+export const saveEditProposal = async (serieId, editData) => {
+  try {
+    const editProposalCollectionRef = collection(firestore, 'edicoesPendentes');
+    const newEditProposal = {
+      idSerieOriginal: serieId,
+      ...editData, 
+      aprovada: false, 
+    };
+    await addDoc(editProposalCollectionRef, newEditProposal);
+    console.log('Edição proposta enviada para aprovação com sucesso.');
+  } catch (error) {
+    console.error('Erro ao salvar a edição proposta:', error);
+  }
+};
+
+
+export const applyEditToSerie = async (serieId, campoEditado, valorEditado) => {
+  try {
+    const serieDocRef = doc(collection(firestore, 'serie'), serieId);
+    const updateData = {
+      [campoEditado]: valorEditado,
+    };
+
+    await updateDoc(serieDocRef, updateData);
+    console.log('Edição aplicada à série com sucesso.');
+  } catch (error) {
+    console.error('Erro ao aplicar edição à série:', error);
+  }
+};
+
+
 export const addCommentToFirestore = async (userId, commentText, commentedUserId) => {
 
   const dataAtual = new Date();
