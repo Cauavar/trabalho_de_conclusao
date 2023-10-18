@@ -7,7 +7,7 @@ import './AdminPage.css';
 
 function AdminPage() {
   const [unapprovedSeries, setUnapprovedSeries] = useState([]);
-  const [unapprovedEdits, setUnapprovedEdits] = useState([]); // Estado para armazenar propostas de edição não aprovadas
+  const [unapprovedEdits, setUnapprovedEdits] = useState([]); 
   const { user } = useContext(AuthContext);
   const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
   const seriesPerPage = 3;

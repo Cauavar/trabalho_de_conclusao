@@ -19,7 +19,6 @@ import Resenha from './components/pages/Resenha';
 import AdminPage from './components/pages/AdminPage';
 import { getDoc, doc, collection } from 'firebase/firestore'; 
 import { firestore } from './components/bd/FireBase';
-import PublicProfilePage from './components/pages/PublicProfilePage';
 import PublicListaPessoal from './components/pages/PublicListaPessoal';
 import PublicProfile from './components/pages/PublicProfile';
 

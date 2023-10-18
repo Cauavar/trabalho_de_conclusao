@@ -19,6 +19,7 @@ const ListaPessoal = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -94,19 +95,21 @@ const ListaPessoal = () => {
     try {
       const userDocRef = doc(firestore, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
-
+  
       if (userDocSnapshot.exists()) {
         const userData = userDocSnapshot.data();
         const listaPessoalData = userData.listaPessoal || [];
-
+  
         const itemIndex = listaPessoalData.findIndex((item) => item.serieId === editedData.serieId);
-
+  
         if (itemIndex !== -1) {
           listaPessoalData[itemIndex] = editedData;
-
+  
           await updateDoc(userDocRef, { listaPessoal: listaPessoalData });
-
+  
           console.log('Item editado na lista pessoal com sucesso.');
+  
+          setListaPessoal(listaPessoalData);
         } else {
           console.error('Item não encontrado na lista pessoal.');
         }
@@ -114,6 +117,16 @@ const ListaPessoal = () => {
     } catch (error) {
       console.error('Erro ao editar item na lista pessoal:', error);
     }
+  };
+  
+  const handleSearch = () => {
+    setIsSearching(true);
+    searchInList(searchTerm);
+  };
+
+  const clearSearchResults = () => {
+    setSearchTerm("");
+    setSearchResults([]); 
   };
 
   const searchInList = (searchTerm) => {

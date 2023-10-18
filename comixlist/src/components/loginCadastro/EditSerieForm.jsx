@@ -26,9 +26,7 @@ function EditSerieForm({ btnText, serie }) {
   });
 
   useEffect(() => {
-    // Carregue os dados da série a ser editada quando o componente for montado.
-    // Certifique-se de ter a lógica adequada para carregar os dados da série.
-    // Substitua o exemplo abaixo pelo seu código real.
+
     const getSerieData = async () => {
       const serieDocRef = doc(collection(firestore, 'serie'), id);
       const docSnapshot = await getDoc(serieDocRef);
@@ -48,7 +46,7 @@ function EditSerieForm({ btnText, serie }) {
       
       await saveEditProposal(id, editData);
   
-      console.log('Edição proposta enviada para aprovação com sucesso.');
+      alert('Edição proposta enviada para aprovação com sucesso.');
       navigate(`/series/${id}`);
     } catch (error) {
       console.error('Erro ao editar série:', error);

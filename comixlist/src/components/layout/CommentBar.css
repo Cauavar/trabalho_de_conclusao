@@ -42,15 +42,26 @@
 }
 
 .comment-input button {
-  padding: 0.5rem 1rem;
-  margin-left: 1rem;
-  background-color: #555;
+  background-color: #222;
   color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 0.5em 1em;
+  text-decoration: none;
+  transition: 0.5s;
 }
 
 .comment-input button:hover {
-  background-color: #333;
+  color: #ffbb33;
+}
+.comment-button {
+  background-color: #222;
+  color: #fff;
+  padding: 0.5em 1em;
+  text-decoration: none;
+  transition: 0.5s;
+  border: none;
+  cursor: pointer;
+}
+
+.comment-button:hover {
+  background-color: #ffbb33;
 }

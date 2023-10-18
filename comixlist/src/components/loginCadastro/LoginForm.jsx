@@ -25,7 +25,7 @@ function LoginForm({ btnText }) {
     if (recaptchaValue) {
       try {
         await signInWithEmailAndPassword(auth, email, senha);
-        navigate('/');
+        navigate('/profile');
       } catch (error) {
         console.error('Error during login', error);
         if (error.code === "auth/user-not-found") {

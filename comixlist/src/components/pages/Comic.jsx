@@ -8,15 +8,18 @@ import SeriesCardFirestore from "./SeriesCardFirestore";
 import { getDoc, doc, collection, getDocs, query, where, addDoc } from "firebase/firestore"; 
 import { firestore } from "../bd/FireBase";
 import AddListaPessoalModal from "../modals/AddListaPessoalModal";
-import LinkButton from "../layout/LinkButton";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/auth";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
 
 const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
 const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
 
 const Comic = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useContext(AuthContext);
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,7 +46,6 @@ const Comic = () => {
 
         setSeries(seriesData);
 
-        // Verifique se a série existe no Firestore
         checkSeriesInFirestore(id, seriesData);
       } catch (error) {
         console.error("Error fetching comic series from API:", error);
@@ -75,7 +77,6 @@ const Comic = () => {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.size === 0) {
-      // A série não existe no Firestore, então a adicionaremos
       addSeriesToFirestore(serieId, series);
     }
   };
@@ -136,7 +137,9 @@ const Comic = () => {
       </div>
 
       <div className="profile-header">
-      <LinkButton to={`/editSerie/${id}`} text="Edit Series" />
+      {isAuthenticated ? (
+          <Link to={`/editSerie/${id}`}>Editar Série</Link>
+        ) : null}
       </div>
 
       
@@ -149,7 +152,11 @@ const Comic = () => {
             ) : (
               <SeriesCardFirestore serie={series} showLink={false} />
             )}
-            <button className="addToListButton" onClick={openModal}>
+            <button
+              className="addToListButton"
+              onClick={openModal}
+              disabled={!isAuthenticated}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"

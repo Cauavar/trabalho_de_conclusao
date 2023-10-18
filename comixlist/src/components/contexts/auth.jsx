@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, senha) => {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       console.error('Erro durante o login', error);
     }
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin: isAdmin || false,
       });
 
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       console.error('Erro durante o cadastro', error);
     }

@@ -188,20 +188,20 @@ body {
 }
 
 .comment-list li img {
-  max-width: 50px; /* Largura da imagem do perfil */
+  max-width: 50px; 
   border-radius: 50%;
   margin-right: 10px;
 }
 
 .comment-list li .comment-content {
-  flex-grow: 1; /* Ocupar o espaço restante na largura */
+  flex-grow: 1; 
   display: flex;
   flex-direction: column;
 }
 
 .comment-list li .comment-content strong {
   font-weight: bold;
-  margin-bottom: 5px; /* Espaçamento entre o nome e o comentário */
+  margin-bottom: 5px;
 }
 
 .comment-list li .comment-content p {
@@ -212,4 +212,47 @@ body {
   font-size: 0.8rem;
   color: #555;
   margin-top: 5px;
+}
+
+a:link,
+a:visited {
+  text-decoration: none;
+  color: black; 
+  transition: color 0.3s; 
+}
+
+a:hover {
+  color: #f7d354; 
+}
+
+a:active {
+  color: #f7d354; 
+}
+
+.button a:link,
+.button a:visited {
+  background-color: #f7d354;
+  border: 2px solid #f7d354;
+  border-radius: 4px;
+  color: #000;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: background-color 0.4s, color 0.4s;
+  font-weight: bold;
+}
+
+.button a:hover {
+  background-color: transparent;
+  color: #f7d354;
+}
+
+.comment-list a:link,
+.comment-list a:visited {
+  color: black;
+  text-decoration: underline; 
+  transition: color 0.3s;
+}
+
+.comment-list a:hover {
+  color: black;
 }

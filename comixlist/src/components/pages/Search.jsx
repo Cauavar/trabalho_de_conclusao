@@ -57,7 +57,6 @@ const Search = () => {
         threshold: 0.4, 
       });
   
-      // Realize a pesquisa
       const searchResults = fuse.search(searchTerm);
   
       const results = searchResults.map((result) => result.item);

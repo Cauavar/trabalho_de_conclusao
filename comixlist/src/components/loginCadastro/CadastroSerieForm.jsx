@@ -61,7 +61,7 @@ function CadastroSerieForm({ btnText }) {
     
     try {
       await addSerieToFirestore(serieData);
-      console.log('Série cadastrada com sucesso:', serieData);
+      alert('Cadastro da proposta de série enviada para aprovação com sucesso.', serieData);
       navigate('/');
     } catch (error) {
       console.error('Erro durante o cadastro da Série', error);

@@ -85,16 +85,17 @@
   margin-left: 9rem;
 }
 
+.addToListButton[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed; 
+}
+
 .addToListButton:hover {
-    color: #f7d354;
+  color: #f7d354;
 }
 
 .addToListButton svg {
   font-size: 1.2rem;
-}
-.form{
-  width: 100%;
-  margin: 2em 0;
 }
 
 

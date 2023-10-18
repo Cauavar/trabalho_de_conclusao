@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import './Profile.css';
 import LinkButton from '../layout/LinkButton';
 import CommentBar from '../layout/CommentBar';
-import { firestore } from '../bd/FireBase';
-import { doc, getDoc, collection, onSnapshot, query, where } from 'firebase/firestore'; // Importe 'query' e 'where' aqui
+import { firestore } from '../bd/FireBase'; 
+import { doc, getDoc, collection, onSnapshot, query, where, deleteDoc } from 'firebase/firestore'; 
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../contexts/auth';
 import { useNavigate, Link } from 'react-router-dom';
@@ -16,6 +16,20 @@ function PublicProfile() {
   const [userProfile, setUserProfile] = useState(null);
   const [commentsWithUserInfo, setCommentsWithUserInfo] = useState([]);
   const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
+  const commentsPerPage = 4;
+  const [currentPage, setCurrentPage] = useState(0);
+  const next = () => {
+    if (currentPage < Math.floor(commentsWithUserInfo.length / commentsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const previous = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
 
   const getUserInfo = async (userId) => {
     const userDocRef = doc(collection(firestore, 'users'), userId);
@@ -24,7 +38,6 @@ function PublicProfile() {
   };
 
   useEffect(() => {
-    console.log('Fetching user profile...');
     if (!id) {
       return;
     }
@@ -83,15 +96,18 @@ function PublicProfile() {
       unsubscribe();
     };
   }, [id]);
-  
-  const handleDeleteComment = async (commentId) => {
+
+  const handleDeleteComment = async (comment) => {
     if (window.confirm('Tem certeza de que deseja excluir este comentário?')) {
       try {
-        // Verifique se o usuário atual é autorizado a excluir o comentário
         if (user.uid === id || user.uid === comment.userInfo.userId) {
           const commentsRef = collection(firestore, 'comments');
-          await deleteDoc(doc(commentsRef, commentId));
+          await deleteDoc(doc(commentsRef, comment.commentId));
           console.log('Comentário excluído com sucesso.');
+
+          setCommentsWithUserInfo((comments) =>
+            comments.filter((c) => c.commentId !== comment.commentId)
+          );
         } else {
           console.error('Você não está autorizado a excluir este comentário.');
         }
@@ -100,12 +116,10 @@ function PublicProfile() {
       }
     }
   };
-  
 
   if (!userProfile) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <div className="profile-container">
@@ -163,30 +177,46 @@ function PublicProfile() {
         <div className="profile-comments">
         </div>
       </div>
-      <CommentBar />
-      <ul className="comment-list">
-      {commentsWithUserInfo.map((comment, index) => (
-  <li key={index}>
-    <Link to={`/profile/${comment.userInfo.userId}`}>
-      <img
-        src={comment.userInfo.imagemUsuario}
-        alt="Foto de perfil do usuário"
-      />
-    </Link>
-    <div className="comment-content">
-      <strong>{comment.userInfo.nome}</strong>
-      <p>{comment.text}</p>
-      <p className="comment-date">{comment.commentDate}</p>
-      {user.uid === id || user.uid === comment.userInfo.userId ? (
-        <button onClick={() => handleDeleteComment(comment.commentId)}>
-          Excluir
-        </button>
-      ) : null}
-    </div>
-  </li>
-))}
+
+      <CommentBar
+  commentsWithUserInfo={commentsWithUserInfo}
+  setCommentsWithUserInfo={setCommentsWithUserInfo}
+  userProfile={userProfile}
+  currentUser={user}
+/>
+
+<ul className="comment-list">
+  {commentsWithUserInfo.slice(currentPage * commentsPerPage, (currentPage + 1) * commentsPerPage).map((comment, index) => (
+    <li key={index}>
+      <Link to={`/profile/${comment.userInfo.userId}`}>
+        <img src={comment.userInfo.imagemUsuario} alt="Foto de perfil do usuário" />
+      </Link>
+      <div className="comment-content">
+        <strong>{comment.userInfo.nome}</strong>
+        <p>{comment.text}</p>
+        <p className="comment-date">{comment.commentDate}</p>
+        {(user.uid === id || user.uid === comment.userInfo.userId) && (
+          <button onClick={() => handleDeleteComment(comment)}>
+            Excluir
+          </button>
+        )}
+      </div>
+    </li>
+  ))}
 </ul>
 
+<div className="pagination">
+        <button className="previous" onClick={previous} disabled={currentPage === 0}>
+          Anterior
+        </button>
+        <button
+          className="next"
+          onClick={next}
+          disabled={currentPage === Math.floor(commentsWithUserInfo.length / commentsPerPage)}
+        >
+          Próxima
+        </button>
+      </div>
     </div>
   );
 }
