@@ -64,8 +64,7 @@ const Navbar = () => {
             ) : (
               <div>Loading Profile...</div>
             )}
-            {seriesExists && <Link to="/yourSeries">Your Series</Link>}
-            <Link to="/listaPessoal">Lists</Link>
+            <Link to="/listaPessoal">Minha Lista</Link>
             {userProfile && userProfile.isAdmin && ( 
               <Link to="/AdminPage">Admin</Link>
             )}

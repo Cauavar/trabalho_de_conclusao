@@ -195,27 +195,7 @@ const ListaPessoal = () => {
           Próxima
         </button>
       </div>
-      <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    console.log("Search term:", searchTerm); 
-    searchInList(searchTerm); 
-  }}
-  className={styles["search-form"]}
->
-  <input
-    type="text"
-    placeholder="Buscar"
-    onChange={(e) => {
-      setSearchTerm(e.target.value);
-    }}
-    value={searchTerm}
-    className={styles["search-form__input"]}
-  />
-  <button type="submit" className={styles["search-form__button"]}>
-    <BiSearchAlt2 />
-  </button>
-</form>
+
       <div className={styles["comics_container"]}>
         {searchResults.length > 0 ? (
           searchResults.slice(startIndex, endIndex).map((item) => (

@@ -110,7 +110,7 @@ function Profile() {
               <span className="detail-value">{userProfile.aniversario}</span>
             </div>
             <div className='button'>
-              <LinkButton to="/listaPessoal" text="ComixList" />
+              <LinkButton to="/listaPessoal" text="Minha Lista" />
             </div>
           </div>
         </div>

@@ -229,7 +229,7 @@ const Comic = () => {
                   <h3>
                     <BsFillFileEarmarkTextFill /> Número de Volumes:
                   </h3>
-                  <p>{series && series.numeroVolumesSerie || "N/A"}</p>
+                  <p>{series && series.volumes || "N/A"}</p>
                   <h3>
                     <BsFillFileEarmarkTextFill /> Nota Média:
                   </h3>

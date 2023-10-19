@@ -146,7 +146,7 @@ function PublicProfile() {
               <span className="detail-value">{userProfile?.aniversario || "N/A"}</span>
             </div>
             <div className='button'>
-              <LinkButton to={`/listaPessoal/${id}`} text="ComixList" />
+              <LinkButton to={`/listaPessoal/${id}`} text="Minha Lista" />
             </div>
           </div>
         </div>

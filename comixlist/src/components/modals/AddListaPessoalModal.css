@@ -35,15 +35,18 @@
   transition: background-color 0.2s;
 }
 
-
+#volumesLidos {
+  max-width: 90%;
+}
 
 .volume-input {
   display: flex;
   align-items: center;
 }
 
-.total-volumes {
+#totalVolumes {
   margin-right: 5px;
+  max-width: 20%;
 }
 
 /* Estilos específicos para o seu modal */

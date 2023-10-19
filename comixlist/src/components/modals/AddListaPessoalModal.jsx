@@ -29,7 +29,6 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
         throw new Error('Usuário ou ID da série não definidos.');
       }
 
-      // Faça o envio de informações para Firestore aqui
       await addListaPessoalToFirestore(
         user.uid,
         serieId,
@@ -69,9 +68,11 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
                 value={volumesLidos}
                 onChange={(e) => setVolumesLidos(e.target.value)}
                 min="0"
-                max={getSeries?.numeroVolumesSerie}
+                max={getSeries?.volumes}
               />
-              <span className="total-volumes"> / {getSeries?.numeroVolumesSerie}</span>
+              <span className="total-volumes"> / {getSeries?.volumes}</span>
+              </div>
+              <div>
               <label>Tipo:</label>
               <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
                 <option value="null">...</option>
@@ -80,13 +81,15 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
                 <option value="dropado">Dropado</option>
                 <option value="planejo-ler">Planejo Ler</option>
               </select>
-            </div>
+              </div>
           </div>
         </div>
         <form onSubmit={handleSubmit}>
+          <br></br>
           <div>
             <label>Nota:</label>
-            <input type="number" value={nota} onChange={(e) => setNota(e.target.value)} />
+            <input type="number" value={nota} onChange={(e) => setNota(e.target.value)} id='totalVolumes' max={10}/>
+            <span className="total-volumes" id='totalVolumes'> / 10</span>
           </div>
           <div>
             <label>Review:</label>

@@ -81,6 +81,7 @@
               <button className="cancel-button" onClick={onClose}>
                 Cancelar
               </button>
+              <br></br>
               <button type="submit">Salvar Alterações</button>
             </div>
           </form>
