@@ -175,7 +175,7 @@ const ListaPessoal = () => {
         <button onClick={() => navigate('/listaPessoal/?tipo=')}>Todos</button>
         <button onClick={() => navigate('/listaPessoal/?tipo=completo')}>Completo</button>
         <button onClick={() => navigate('/listaPessoal/?tipo=lendo')}>Lendo</button>
-        <button onClick={() => navigate('/listaPessoal/?tipo=dropado')}>Dropado</button>
+        <button onClick={() => navigate('/listaPessoal/?tipo=dropado')}>Largado</button>
         <button onClick={() => navigate('/listaPessoal/?tipo=planejo-ler')}>Planejo Ler</button>
       </div>
       <div className={styles.pagination}>

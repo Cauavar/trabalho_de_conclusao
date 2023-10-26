@@ -146,7 +146,7 @@ function PublicProfile() {
               <span className="detail-value">{userProfile?.aniversario || "N/A"}</span>
             </div>
             <div className='button'>
-              <LinkButton to={`/listaPessoal/${id}`} text="Minha Lista" />
+              <LinkButton to={`/listaPessoal/${id}`} text="Ver Lista" />
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ function PublicProfile() {
               <h3><Link to={`/listaPessoal/${id}?tipo=lendo`}>Lendo</Link></h3>
             </div>
             <div className="comics-section">
-              <h3><Link to={`/listaPessoal/${id}?tipo=dropado`}>Dropado</Link></h3>
+              <h3><Link to={`/listaPessoal/${id}?tipo=dropado`}>Largado</Link></h3>
             </div>
             <div className="comics-section">
               <h3><Link to={`/listaPessoal/${id}?tipo=planejo-ler`}>Planejo Ler</Link></h3>

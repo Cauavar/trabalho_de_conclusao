@@ -1,8 +1,8 @@
 .comment-bar {
   margin-top: 1rem;
   padding: 1rem;
-  width: 90%; /* Defina a largura desejada, por exemplo, 90% da largura da tela */
-  margin: 0 auto; /* Centralize horizontalmente */
+  width: 90%; 
+  margin: 0 auto; 
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);

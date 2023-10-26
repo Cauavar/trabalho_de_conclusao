@@ -17,7 +17,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Arial', sans-serif;
   font-size: 1.8rem;
   font-weight: bold;
   color: #f7d354;
@@ -36,7 +35,6 @@
 
 #navbar .navbar-links a {
   margin-right: 1rem;
-  font-family: 'Arial', sans-serif;
   font-size: 1rem;
   font-weight: bold;
   color: #f7d354;
@@ -80,7 +78,6 @@
 
 #navbar .navbar-links button {
   margin-right: 1rem;
-  font-family: 'Arial', sans-serif;
   font-size: 1rem;
   font-weight: bold;
   color: #f7d354;

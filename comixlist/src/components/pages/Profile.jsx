@@ -130,7 +130,7 @@ function Profile() {
               <h3><Link to={`/listaPessoal?tipo=lendo`}>Lendo</Link></h3>
             </div>
             <div className="comics-section">
-              <h3><Link to={`/listaPessoal?tipo=dropado`}>Dropado</Link></h3>
+              <h3><Link to={`/listaPessoal?tipo=dropado`}>Largado</Link></h3>
             </div>
             <div className="comics-section">
               <h3><Link to={`/listaPessoal?tipo=planejo-ler`}>Planejo Ler</Link></h3>

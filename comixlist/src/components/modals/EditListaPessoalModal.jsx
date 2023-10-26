@@ -60,7 +60,7 @@
               <input type="number" value={nota} onChange={(e) => setNota(e.target.value)} />
             </div>
             <div>
-              <label>Review:</label>
+              <label>Resenha:</label>
               <textarea placeholder="Escreva sua Resenha..." value={review} onChange={(e) => setReview(e.target.value)} />
             </div>
             <div>
@@ -73,7 +73,7 @@
                 <option value="null">...</option>
                 <option value="completo">Completo</option>
                 <option value="lendo">Lendo</option>
-                <option value="dropado">Dropado</option>
+                <option value="dropado">Largado</option>
                 <option value="planejo-ler">Planejo Ler</option>
               </select>
             </div>

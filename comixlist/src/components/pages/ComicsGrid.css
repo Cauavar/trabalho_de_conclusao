@@ -110,13 +110,11 @@
   color: #f7d354;
 }
 
-/* Estilo para o botão de página ativa (página atual) */
 .pagination .active {
   background-color: #f7d354;
   color: #000;
 }
 
-/* Desative os botões quando necessário */
 .pagination button:disabled {
   background-color: #ccc;
   color: #777;

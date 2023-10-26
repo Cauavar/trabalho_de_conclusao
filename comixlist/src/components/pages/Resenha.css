@@ -6,7 +6,6 @@
     max-width: 800px;
     margin: 2rem auto;
     color: black;
-    font-family: Arial, sans-serif;
     display: flex; /* Usando flex para posicionar elementos lado a lado */
     flex-direction: column; /* Disposição em coluna */
     align-items: center; /* Centralizar conteúdo horizontalmente */
@@ -15,7 +14,7 @@
   }
   
   .resenha-image {
-    max-width: 200px; /* Reduzi o tamanho da imagem da série */
+    max-width: 200px; 
     border-radius: 10px;
     margin-bottom: 1rem;
     align-self: flex-start; /* Alinhar a imagem à esquerda */

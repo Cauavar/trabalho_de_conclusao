@@ -20,7 +20,6 @@ function EditSerieForm({ btnText, serie }) {
     autorSerie: serie ? serie.autorSerie || '' : '',
     descricaoSerie: serie ? serie.descricaoSerie || '' : '',
     publiSerie: serie ? serie.publiSerie || '' : '',
-    editora: serie ? serie.editora || '' : '',
     volumes: serie ? serie.volumes || '' : '',
     imagemSerie: serie ? serie.imagemSerie || '' : '',
   });
@@ -133,15 +132,6 @@ function EditSerieForm({ btnText, serie }) {
         placeholder="Editar data da Publicação"
         value={editedSerie.publiSerie}
         onChange={(e) => handleChange('publiSerie', e.target.value)}
-      />
-
-      <Input
-        type="text"
-        text="Editora"
-        name="editora"
-        placeholder="Editar Editora"
-        value={editedSerie.editora}
-        onChange={(e) => handleChange('editora', e.target.value)}
       />
 
       <Input

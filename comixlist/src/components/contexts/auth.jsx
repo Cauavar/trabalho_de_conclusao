@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin: isAdmin || false,
       });
 
-      navigate('/profile');
+      navigate('/login');
     } catch (error) {
       console.error('Erro durante o cadastro', error);
     }

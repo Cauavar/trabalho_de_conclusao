@@ -78,7 +78,7 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
                 <option value="null">...</option>
                 <option value="completo">Completo</option>
                 <option value="lendo">Lendo</option>
-                <option value="dropado">Dropado</option>
+                <option value="dropado">Largado</option>
                 <option value="planejo-ler">Planejo Ler</option>
               </select>
               </div>
@@ -92,7 +92,7 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
             <span className="total-volumes" id='totalVolumes'> / 10</span>
           </div>
           <div>
-            <label>Review:</label>
+            <label>Resenha:</label>
             <textarea placeholder="Escreva sua Resenha..." value={review} onChange={(e) => setReview(e.target.value)} />
           </div>
           <div className="modal-buttons">
