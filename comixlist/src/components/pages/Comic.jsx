@@ -5,7 +5,7 @@ import "./Comic.css";
 import md5 from "md5";
 import SeriesCardApi from "./SeriesCardApi";
 import SeriesCardFirestore from "./SeriesCardFirestore";
-import { getDoc, doc, collection, getDocs, query, where, addDoc } from "firebase/firestore"; 
+import { getDoc, doc, collection, getDocs, query, where, addDoc } from "firebase/firestore";
 import { firestore } from "../bd/FireBase";
 import AddListaPessoalModal from "../modals/AddListaPessoalModal";
 import { FiArrowLeft } from "react-icons/fi";
@@ -14,8 +14,8 @@ import { AuthContext } from "../contexts/auth";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
-const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
-const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
+const apiPublicKey = '82e3617a5bd9bb2f84486128360cd96a';
+const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
 
 const Comic = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Comic = () => {
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [usersWithSeries, setUsersWithSeries] = useState([]); 
+  const [usersWithSeries, setUsersWithSeries] = useState([]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -33,51 +33,21 @@ const Comic = () => {
     setIsModalOpen(false);
   };
 
-  const getSeriesFromApi = async (id, setSeries) => {
-    if (!isNaN(parseInt(id)) && setSeries) {
-      const timestamp = Date.now().toString();
-      const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
-      const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-
-      try {
-        const res = await fetch(seriesUrl);
-        const data = await res.json();
-        const seriesData = data.data.results[0];
-
-        setSeries(seriesData);
-
-        checkSeriesInFirestore(id, seriesData);
-      } catch (error) {
-        console.error("Error fetching comic series from API:", error);
-      }
-    }
-  };
-
-  const getSeriesFromFirestore = async () => {
-    try {
-      const docRef = doc(collection(firestore, "serie"), id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setSeries(docSnap.data());
-      } else {
-        console.log("No data returned!");
-      }
-    } catch (error) {
-      console.error("Error fetching series from Firestore:", error);
-    }
-  };
-
   const isMarvelApiId = (id) => {
     return !isNaN(parseInt(id));
   };
 
-  const checkSeriesInFirestore = async (serieId, series) => {
+  const checkSeriesInFirestore = async (serieId, seriesData) => {
+    if (!isMarvelApiId(serieId)) {
+      return;
+    }
+
     const seriesCollectionRef = collection(firestore, "serie");
     const q = query(seriesCollectionRef, where("id", "==", serieId));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.size === 0) {
-      addSeriesToFirestore(serieId, series);
+      addSeriesToFirestore(serieId, seriesData);
     }
   };
 
@@ -94,7 +64,7 @@ const Comic = () => {
         publiSerie: (seriesData.dates &&
           seriesData.dates.find((date) => date.type === "onsaleDate")?.date) || "N/A",
         numeroVolumesSerie: seriesData.pageCount || "N/A",
-        notaMedia: 0,
+        notaMedia: 0, // Certifique-se de definir a nota média corretamente
       });
       console.log("Série adicionada ao Firestore com sucesso:", seriesData.title);
     } catch (error) {
@@ -102,27 +72,56 @@ const Comic = () => {
     }
   };
 
-  const getUsersWithSeries = async () => {
-    const listaPessoalRef = collection(firestore, "listaPessoal");
-    const q = query(listaPessoalRef, where("serieId", "==", id));
-    const querySnapshot = await getDocs(q);
-  
-    const users = [];
-    querySnapshot.forEach((doc) => {
-      users.push(doc.data().userId);
-    });
-    setUsersWithSeries(users);
+  const fetchData = async () => {
+    if (isMarvelApiId(id)) {
+      // Fetch series from Marvel API
+      const timestamp = Date.now().toString();
+      const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
+      const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+
+      try {
+        const res = await fetch(seriesUrl);
+        const data = await res.json();
+        const seriesData = data.data.results[0];
+        setSeries(seriesData);
+        checkSeriesInFirestore(id, seriesData);
+      } catch (error) {
+        console.error("Error fetching comic series from API:", error);
+      }
+    } else {
+      // Fetch series from Firestore
+      try {
+        const docRef = doc(collection(firestore, "serie"), id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSeries(docSnap.data());
+        } else {
+          console.log("No data returned!");
+        }
+      } catch (error) {
+        console.error("Error fetching series from Firestore:", error);
+      }
+    }
   };
-  
 
   useEffect(() => {
-    if (isMarvelApiId(id)) {
-      getSeriesFromApi(id, setSeries);
-    } else {
-      getSeriesFromFirestore();
-    }
+    fetchData();
     getUsersWithSeries();
   }, [id]);
+
+  const getUsersWithSeries = async () => {
+    try {
+      const listaPessoalRef = collection(firestore, "listaPessoal");
+      const q = query(listaPessoalRef, where("serieId", "==", id));
+      const querySnapshot = await getDocs(q);
+
+      const numUsers = querySnapshot.size;
+
+      setUsersWithSeries(numUsers);
+    } catch (error) {
+      console.error('Erro ao obter o número de usuários com esta série na lista pessoal:', error);
+    }
+  };
 
   const handleAddToList = () => {
     console.log("Adicionado à lista!");
@@ -137,12 +136,10 @@ const Comic = () => {
       </div>
 
       <div className="profile-header">
-      {isAuthenticated ? (
+        {isAuthenticated ? (
           <Link to={`/editSerie/${id}`}>Editar Série</Link>
         ) : null}
       </div>
-
-      
 
       {series ? (
         <>
@@ -210,7 +207,7 @@ const Comic = () => {
                   <h3>
                     <BsFillFileEarmarkTextFill /> Usuários com esta série na lista pessoal:
                   </h3>
-                  <p>{usersWithSeries.length}</p>
+                  <p>{usersWithSeries}</p>
                 </>
               ) : (
                 <>
@@ -237,7 +234,7 @@ const Comic = () => {
                   <h3>
                     <BsFillFileEarmarkTextFill /> Usuários com esta série na lista pessoal:
                   </h3>
-                  <p>{usersWithSeries.length}</p>
+                  <p>{usersWithSeries}</p>
                 </>
               )}
             </p>

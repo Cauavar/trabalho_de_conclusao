@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { FaStar } from "react-icons/fa";
-import Modal from 'react-modal';
+import { Link } from "react-router-dom";
+import EditListaPessoalModal from "../modals/EditListaPessoalModal";
+import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
+import Modal from 'react-modal'; 
 import "./SeriesCardFirestoreListaPessoal.css";
 
-const SeriesCardApiListaPessoal = ({ serieData, nota, tipo, review, volumesLidos, onDeleteFromList, onEdit }) => {
-  if (!serieData) {
+const SeriesCardApiListaPessoal = ({ serie, showLink = true, nota, tipo, review, volumesLidos, onDeleteFromList, onEdit }) => {
+  if (!serie) {
     return <p>Série não encontrada</p>;
   }
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
 
@@ -26,24 +28,30 @@ const SeriesCardApiListaPessoal = ({ serieData, nota, tipo, review, volumesLidos
   const confirmDelete = () => {
     setIsDeleteConfirmationOpen(false);
     onDeleteFromList();
+    toast.success("Série excluída da lista pessoal com sucesso", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
+
+  const handleEditInList = async (editedData) => {
+    try {
+      await onEdit(editedData);
+      closeModal();
+    } catch (error) {
+      console.error('Erro ao editar a lista pessoal:', error);
+    }
+  };
+
+  const defaultPicture =
+    "https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
 
   return (
     <div className="series-card">
-      <div className="icon-container">
-        <button
-          className="edit-button"
-          onClick={() => onEdit({ serieId: serieData.id, nota, tipo, review, volumesLidos })}
-        >
-          Editar
-        </button>
-        <button
-          className="delete-button"
-          onClick={() => setIsDeleteConfirmationOpen(true)}
-        >
-          Excluir
-        </button>
-      </div>
       <Modal
         isOpen={isDeleteConfirmationOpen}
         onRequestClose={() => setIsDeleteConfirmationOpen(false)}
@@ -56,23 +64,30 @@ const SeriesCardApiListaPessoal = ({ serieData, nota, tipo, review, volumesLidos
         <button onClick={confirmDelete} className="add-button">Sim</button>
         <button onClick={cancelDelete} className="cancel-button">Cancelar</button>
       </Modal>
-      <div className="series-card-lista-pessoal">
-        <img
-          src={`${serieData.thumbnail.path}.${serieData.thumbnail.extension}`}
-          alt={serieData.title}
-        />
-        <h2>{serieData.title}</h2>
-        <p>Descrição: {serieData.description || "N/A"}</p>
-        <p>Autor: {serieData.creators.items[0]?.name || "N/A"}</p>
-        <p>Data de Publicação: {(serieData.dates && serieData.dates.find(date => date.type === "onsaleDate")?.date) || "N/A"}</p>
-        <p>Número de Volumes: {serieData.pageCount || "N/A"}</p>
-        <div className="rating">
-          <FaStar /> {nota || "N/A"}
-        </div>
-      </div>
-      <div className="actions">
-        <button onClick={() => onDeleteFromList(serieData.id)}>Remover da Lista</button>
-      </div>
+      <EditListaPessoalModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onEdit={handleEditInList}
+        initialData={{
+          nota,
+          review,
+          volumesLidos,
+          tipo,
+          serieId: serie.id,
+        }}
+      />
+      <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
+      <h2>
+        {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
+      </h2>
+      <p>Nota: {nota}</p>
+      <p>Review: {review}</p>
+      <p>Progresso: {volumesLidos}/{serie.volumes}</p>
+      {showLink && (
+        <Link to={`/resenha/${serie.id}`} state={{ id: serie.id }}>
+          Resenha
+        </Link>
+      )}
     </div>
   );
 };

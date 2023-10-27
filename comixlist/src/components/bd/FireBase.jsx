@@ -157,83 +157,64 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
 const isMarvelApiId = (id) => {
   return !isNaN(parseInt(id));
 };
+
 const calcularNotaMedia = async (serieId, userId) => {
-  const seriesCollectionRef = collection(firestore, 'serie');
-  const serieRef = doc(seriesCollectionRef, serieId);
-  const serieDoc = await getDoc(serieRef);
-
-  if (serieDoc.exists()) {
-    const usuariosComNotaRef = collection(firestore, 'users');
-    const usuariosQuerySnapshot = await getDocs(usuariosComNotaRef);
-
-    let somaTotalNotas = 0;
-    let numUsuariosQueDeramNota = 0;
-
-    for (const userDoc of usuariosQuerySnapshot.docs) {
-      const userData = userDoc.data();
-
-      
-      if (userData.listaPessoal && Array.isArray(userData.listaPessoal)) {
-        const serieNaLista = userData.listaPessoal.find(item => item.serieId === serieId);
-
-        if (serieNaLista && typeof serieNaLista.nota === 'number') {
-          somaTotalNotas += serieNaLista.nota;
-          numUsuariosQueDeramNota++;
-        }
+  try {
+    let seriesRef;
+    if (!isNaN(parseInt(serieId))) {
+      const querySnapshot = await getDocs(query(collection(firestore, 'serie'), where('id', '==', serieId)));      seriesRef = collection(firestore, 'serie');
+      if (!querySnapshot.empty) {
+        // A série foi encontrada, agora você pode prosseguir com o cálculo da média de notas
+        seriesRef = querySnapshot.docs[0].ref;
+      } else {
+        throw new Error('Série não encontrada');
       }
+    } else {
+      // Se a série já estava no Firestore, acesse o documento diretamente
+      seriesRef = doc(collection(firestore, 'serie'), serieId);
     }
 
-    const novaMedia = numUsuariosQueDeramNota > 0 ? somaTotalNotas / numUsuariosQueDeramNota : 0;
+    const serieDoc = await getDoc(seriesRef);
 
-    // Atualize o campo "notaMedia" na série
-    await updateDoc(serieRef, { notaMedia: novaMedia });
-    console.log('Média de notas calculada e atualizada com sucesso:', novaMedia);
-  } else {
-    throw new Error('Série não encontrada');
-  }
-};
+    if (serieDoc.exists()) {
+      const usuariosComNotaRef = collection(firestore, 'users');
+      const usuariosQuerySnapshot = await getDocs(usuariosComNotaRef);
 
-//const calcularNotaMediaParaSeriesAPI = async () => {
-  try {
-    const seriesCollectionRef = collection(firestore, 'serie');
-    const querySnapshot = await getDocs(seriesCollectionRef);
+      let somaTotalNotas = 0;
+      let numUsuariosQueDeramNota = 0;
 
-    for (const doc of querySnapshot.docs) {
-      const serieData = doc.data();
-      const serieId = doc.id;
+      for (const userDoc of usuariosQuerySnapshot.docs) {
+        const userData = userDoc.data();
 
-      if (isMarvelApiId(serieId)) {
-        const usuariosComNotaRef = collection(firestore, 'users');
-        const usuariosQuerySnapshot = await getDocs(usuariosComNotaRef);
+        if (userData.listaPessoal && Array.isArray(userData.listaPessoal)) {
+          const serieNaLista = userData.listaPessoal.find(item => item.serieId === serieId);
 
-        let somaTotalNotas = 0;
-        let numUsuariosQueDeramNota = 0;
-
-        for (const userDoc of usuariosQuerySnapshot.docs) {
-          const userData = userDoc.data();
-
-          if (userData.listaPessoal && Array.isArray(userData.listaPessoal)) {
-            const serieNaLista = userData.listaPessoal.find(item => item.serieId === serieId);
-
-            if (serieNaLista && typeof serieNaLista.nota === 'number') {
-              somaTotalNotas += serieNaLista.nota;
-              numUsuariosQueDeramNota++;
-            }
+          if (serieNaLista && typeof serieNaLista.nota === 'number') {
+            somaTotalNotas += serieNaLista.nota;
+            numUsuariosQueDeramNota++;
           }
         }
-
-        const novaMedia = numUsuariosQueDeramNota > 0 ? somaTotalNotas / numUsuariosQueDeramNota : 0;
-
-        // Atualize o campo "notaMedia" na série
-        await updateDoc(doc.ref, { notaMedia: novaMedia });
       }
+
+      const novaMedia = numUsuariosQueDeramNota > 0 ? somaTotalNotas / numUsuariosQueDeramNota : 0;
+
+      // Atualize o campo "notaMedia" na série
+      if (isMarvelApiId(serieId)) {
+        // Se for uma série da API Marvel, atualize o campo dentro do documento
+        await updateDoc(seriesRef, { notaMedia: novaMedia });
+      } else {
+        // Se a série já estava no Firestore, acesse diretamente o campo "notaMedia"
+        await updateDoc(seriesRef, { notaMedia: novaMedia });
+      }
+      console.log('Média de notas calculada e atualizada com sucesso:', novaMedia);
+    } else {
+      throw new Error('Série não encontrada');
     }
   } catch (error) {
     console.error('Erro ao calcular e atualizar a média de notas para as séries da API:', error);
   }
-//};
+};
 
-//calcularNotaMediaParaSeriesAPI();
 
 
 export const getApprovedSeries = async () => {

@@ -9,7 +9,7 @@ import "./ComicsGrid.css";
 import { AuthContext } from "../contexts/auth";
 
 const Home = () => {
-  const [topSeries, setTopSeries] = useState([]);
+  const [allApiSeries, setAllApiSeries] = useState([]);
   const [mySeries, setMySeries] = useState([]);
   const { isAuthenticated } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,104 +18,105 @@ const Home = () => {
   const endIndex = startIndex + itemsPerPage;
 
   const seriesURL = "https://gateway.marvel.com/v1/public/series";
-  const apiPublicKey = "1f9dc1c5fe6d097dde3bb4ca36ecbff0";
-  const apiPrivateKey = "219b41d0053667342c94897c56048704ecc93e7e";
+  const apiPublicKey = '82e3617a5bd9bb2f84486128360cd96a';
+  const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
+  const limit = 50;
 
-  const getTopRatedSeries = async (url) => {
-    const timestamp = Date.now();
-    const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
+  const getTopRatedSeries = async () => {
+    if (allApiSeries.length < currentPage * itemsPerPage) {
+      const timestamp = Date.now();
+      const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
+      let offset = (currentPage - 1) * limit;
 
-    try {
-      const response = await fetch(
-        `${url}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}&limit=50`
-      );
-      const data = await response.json();
-      setTopSeries(data.data.results);
-    } catch (error) {
-      console.error("Error fetching top rated series:", error);
+      try {
+        const response = await fetch(
+          `${seriesURL}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}&limit=${limit}&offset=${offset}`
+        );
+        const data = await response.json();
+
+        if (data.data && data.data.results && data.data.results.length > 0) {
+          const uniqueApiSeries = data.data.results.filter((apiSerie) => {
+            // Verifique se o ID da série já existe em mySeries.
+            return !mySeries.some((mySerie) => mySerie.id === apiSerie.id);
+          });
+
+          setAllApiSeries((prevSeries) => [...prevSeries, ...uniqueApiSeries]);
+        } else {
+          console.error("No results found in the API response.");
+        }
+      } catch (error) {
+        console.error("Error fetching top-rated series:", error);
+      }
     }
   };
 
   const fetchMySeriesFromFirestore = async () => {
     try {
-      const seriesCollectionRef = collection(firestore, 'serie');
-      const querySnapshot = await getDocs(query(seriesCollectionRef, where('Aprovada', '==', true)));
+      const seriesCollectionRef = collection(firestore, "serie");
+      const querySnapshot = await getDocs(query(seriesCollectionRef, where("Aprovada", "==", true)));
       const approvedSeries = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setMySeries(approvedSeries); 
+      setMySeries(approvedSeries);
     } catch (error) {
-      console.error('Erro ao listar séries aprovadas:', error);
+      console.error("Error listing approved series:", error);
     }
   };
 
   useEffect(() => {
-    getTopRatedSeries(seriesURL);
     fetchMySeriesFromFirestore();
-  }, []);
+    getTopRatedSeries();
+  }, [currentPage, mySeries, allApiSeries]); // Certifique-se de incluir mySeries e allApiSeries como dependências.
 
   const goToNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
   };
+
   const goToPreviousPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
   };
 
   return (
     <div className="container">
       <h2 className="title">Séries:</h2>
       <div className="navbar-links">
-        {isAuthenticated ? (
-          <Link to="/cadastroSerie">Cadastre uma Série</Link>
-        ) : null}
+        {isAuthenticated ? <Link to="/cadastroSerie">Cadastre uma Série</Link> : null}
       </div>
       <div className="pagination">
-        <button
-          onClick={goToPreviousPage}
-          disabled={currentPage === 1}
-        >
+        <button onClick={goToPreviousPage} disabled={currentPage === 1}>
           Anterior
         </button>
         <span>Página {currentPage}</span>
-        <button
-          onClick={goToNextPage}
-          disabled={topSeries.length <= endIndex}
-        >
+        <button onClick={goToNextPage} disabled={allApiSeries.length < currentPage * itemsPerPage}>
           Próxima
         </button>
       </div>
       <div className="comics_container">
-        {topSeries.slice(startIndex, endIndex).map((serie) => (
+        {allApiSeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardApi key={serie.id} serie={serie} />
         ))}
         {mySeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardFirestore key={serie.id} serie={serie} />
         ))}
       </div>
-  
+
       <div className="pagination">
-        <button
-          onClick={goToPreviousPage}
-          disabled={currentPage === 1}
-        >
+        <button onClick={goToPreviousPage} disabled={currentPage === 1}>
           Anterior
         </button>
         <span>Página {currentPage}</span>
-        <button
-          onClick={goToNextPage}
-          disabled={topSeries.length <= endIndex}
-        >
+        <button onClick={goToNextPage} disabled={allApiSeries.length < currentPage * itemsPerPage}>
           Próxima
         </button>
       </div>
-  
-      <br />
-      <br />
 
+      <br />
+      <br />
     </div>
   );
-  
 };
 
 export default Home;

@@ -11,8 +11,8 @@ import Fuse from 'fuse.js';
 
 
 const seriesURL = 'https://gateway.marvel.com/v1/public/series';
-const apiPublicKey = '1f9dc1c5fe6d097dde3bb4ca36ecbff0';
-const apiPrivateKey = '219b41d0053667342c94897c56048704ecc93e7e';
+const apiPublicKey = '82e3617a5bd9bb2f84486128360cd96a';
+const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
 
 const Search = () => {
   const { searchTerm } = useParams();
