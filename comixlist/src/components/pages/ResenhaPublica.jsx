@@ -1,58 +1,62 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { firestore } from "../bd/FireBase";
-import { AuthContext } from "../contexts/auth";
-import { doc, getDoc, collection } from "firebase/firestore";
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft } from "react-icons/fi";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import "./Resenha.css";
-import { useNavigate } from "react-router-dom";
 
 const ResenhaPublica = () => {
-  const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-  const { id } = useParams();
+  const { id } = useParams(); 
+  const location = useLocation();
+  const navigate = useNavigate(); 
+  const userId = location.state.id; 
+
   const [serie, setSerie] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [autor, setAutor] = useState(null);
 
   useEffect(() => {
-    const fetchSerieData = async () => {
-      const seriesCollectionRef = collection(firestore, "serie");
-      const serieDocRef = doc(seriesCollectionRef, id);
-      const serieDocSnapshot = await getDoc(serieDocRef);
-
-      if (serieDocSnapshot.exists()) {
-        setSerie({
-          ...serieDocSnapshot.data(),
-        });
-      }
-    };
-
-    // Obter informações do perfil com base no ID
-    const fetchUserData = async () => {
+    const fetchResenhaData = async () => {
       try {
-        // Substitua 'sua-rota-de-obter-usuario' pela rota correta em sua API
-        const response = await axios.get(`/sua-rota-de-obter-usuario/${id}`);
-        setUserData(response.data);
+        const seriesCollectionRef = collection(firestore, "serie");
+        const serieDocRef = doc(seriesCollectionRef, id);
+        const serieDocSnapshot = await getDoc(serieDocRef);
+
+        if (serieDocSnapshot.exists()) {
+          const serieData = serieDocSnapshot.data();
+
+         
+          if (serieData && serieData.userId) {
+            const usersCollectionRef = collection(firestore, "users");
+            const q = query(usersCollectionRef, where("userId", "==", serieData.userId));
+            const usersQuerySnapshot = await getDocs(q);
+
+          
+            if (!usersQuerySnapshot.empty) {
+              const userData = usersQuerySnapshot.docs[0].data(); 
+              setAutor(userData);
+            } else {
+              console.log("Dados do autor não encontrados.");
+            }
+          }
+
+          setSerie(serieData);
+        } else {
+          console.log("Dados da série não encontrados.");
+        }
       } catch (error) {
-        console.error("Erro ao obter informações do perfil:", error);
+        console.error("Erro ao buscar dados da série no Firestore:", error);
       }
     };
 
-    fetchSerieData();
-    fetchUserData();
+    fetchResenhaData();
   }, [id]);
-
-  const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
 
   return (
     <div className="resenha-container">
-      <Link to="/listaPessoal" className="back-button">
+      <button onClick={() => navigate(`/listaPessoal/${userId}`)} className="back-button">
         <FiArrowLeft className="back-icon" /> Voltar
-      </Link>
+      </button>
 
-      {serie && userData ? (
+      {serie && autor ? (
         <>
           <img
             src={serie.imagemSerie}
@@ -63,17 +67,8 @@ const ResenhaPublica = () => {
             {serie.nomeSerie} ({serie.ano})
           </h1>
           <p className="resenha-author">
-            <Link to={`/profile/${userData.id}`}>
-              <img
-                src={userData.imagem || defaultAvatar}
-                alt="Imagem de perfil"
-                className="author-image"
-              />
-            </Link>
             Resenha por:{" "}
-            <span className="resenha-reviewer">
-              {userData.nome || "N/A"}
-            </span>
+            <span className="resenha-reviewer">{autor.nome || "N/A"}</span>
           </p>
           <p className="resenha-rating">Nota: {serie.nota}</p>
           <p>Data da Resenha: {serie.dataResenha}</p>

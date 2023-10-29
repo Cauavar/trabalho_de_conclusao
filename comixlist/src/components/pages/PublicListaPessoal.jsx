@@ -5,6 +5,7 @@ import SeriesCardPublicaLista from "./SeriesCardPublicaLista";
 import styles from "./ListaPessoal.module.css";
 import { useNavigate, useParams, useLocation } from 'react-router-dom'; 
 import { FiArrowLeft } from "react-icons/fi";
+import SeriesCardApiListaPessoal from "./SeriesCardApiListaPessoal";
 
 const PublicListaPessoal = () => {
   const { id } = useParams(); 
@@ -148,6 +149,7 @@ const PublicListaPessoal = () => {
           tipo={item.tipo}
           review={item.review}
           volumesLidos={item.volumesLidos}
+          listaPessoalId={id} 
         />
       );
     } else if (item.apiSerieData) {

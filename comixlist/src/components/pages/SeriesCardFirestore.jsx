@@ -19,10 +19,11 @@ const SeriesCardFirestore = ({ serie, showLink = true }) => {
           Detalhes
         </Link>
       )}
-      <div className="rating">
-        <FaStar />
-        {serie.notaMedia}
-      </div>
+<div className="rating">
+  <p>Nota média:</p>
+  {serie.notaMedia.toFixed(1)} 
+</div>
+
     </div>
   );
 };

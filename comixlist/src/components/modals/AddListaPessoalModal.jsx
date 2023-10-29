@@ -22,14 +22,11 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
       const timestamp = Date.now().toString();
       const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
       const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-
+  
       try {
         const res = await fetch(seriesUrl);
         const data = await res.json();
         const seriesData = data.data.results[0];
-
-        checkSeriesInFirestore(id, seriesData);
-
         setApiSeries(seriesData);
       } catch (error) {
         console.error("Error fetching comic series from API:", error);
@@ -37,20 +34,7 @@ function AddListaPessoalModal({ isOpen, onClose, onAddToList, serieId, getSeries
       }
     }
   };
-
-  const checkSeriesInFirestore = async (id, seriesData) => {
-    if (!isMarvelApiId(serieId)) {
-      return;
-    }
-
-    const seriesCollectionRef = collection(firestore, "serie"); 
-    const q = query(seriesCollectionRef, where("id", "==", serieId));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.size === 0) {
-      addSeriesToFirestore(serieId, seriesData, seriesCollectionRef);
-    }
-  };
+  
 
   const isMarvelApiId = (id) => {
     return !isNaN(parseInt(id));

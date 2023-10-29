@@ -17,7 +17,8 @@ const SeriesCardApi = ({ serie, showLink = true }) => {
         </Link>
       )}
       <div className="rating">
-        {serie.notaMedia}
+        <p>Nota média:</p>
+        {serie.notaMedia !== undefined ? serie.notaMedia.toFixed(1) : "N/A"}
       </div>
     </div>
   );

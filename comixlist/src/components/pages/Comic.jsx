@@ -24,7 +24,6 @@ const Comic = () => {
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [usersWithSeries, setUsersWithSeries] = useState([]);
-  const [isSeriesInFirestore, setIsSeriesInFirestore] = useState(false);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -38,29 +37,20 @@ const Comic = () => {
     return !isNaN(parseInt(id));
   };
 
-  useEffect(() => {
-    fetchData();
-    getUsersWithSeries();
-    checkSeriesInFirestore(); // Verifique se a série já existe no Firestore
-  }, [id]);
+  const checkSeriesInFirestore = async (serieId, seriesData) => {
+    if (!isMarvelApiId(serieId)) {
+      return;
+    }
 
-  const checkSeriesInFirestore = async () => {
-    if (isMarvelApiId(id)) {
-      const docRef = doc(collection(firestore, "serie"), id);
+    const seriesCollectionRef = collection(firestore, "serie");
+    const q = query(seriesCollectionRef, where("id", "==", serieId));
+    const querySnapshot = await getDocs(q);
 
-      try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setIsSeriesInFirestore(true); // A série já existe no Firestore
-        } else {
-          setIsSeriesInFirestore(false); // A série não existe no Firestore
-        }
-      } catch (error) {
-        console.error("Erro ao verificar a existência da série no Firestore:", error);
-      }
+    if (querySnapshot.size === 0) {
+      addSeriesToFirestore(serieId, seriesData);
     }
   };
-  
+
   const addSeriesToFirestore = async (serieId, seriesData) => {
     try {
       const seriesCollectionRef = collection(firestore, "serie");
@@ -73,8 +63,8 @@ const Comic = () => {
         autorSerie: seriesData.creators.items[0]?.name || "N/A",
         publiSerie: (seriesData.dates &&
           seriesData.dates.find((date) => date.type === "onsaleDate")?.date) || "N/A",
-        volumes: seriesData.pageCount || "N/A",
-        notaMedia: 0, 
+        numeroVolumesSerie: seriesData.pageCount || "N/A",
+        notaMedia: 0,
       });
       console.log("Série adicionada ao Firestore com sucesso:", seriesData.title);
     } catch (error) {
@@ -82,27 +72,9 @@ const Comic = () => {
     }
   };
 
-  const handleAddSeriesToFirestore = async () => {
-    if (isMarvelApiId(id)) {
-      const timestamp = Date.now().toString();
-      const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
-      const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
-
-      try {
-        const res = await fetch(seriesUrl);
-        const data = await res.json();
-        const seriesData = data.data.results[0];
-        addSeriesToFirestore(id, seriesData);
-        setIsSeriesInFirestore(true); // Marque a série como existente no Firestore após a adição
-      } catch (error) {
-        console.error("Error fetching comic series from API:", error);
-      }
-    }
-  };
-
-
   const fetchData = async () => {
     if (isMarvelApiId(id)) {
+      // Fetch series from Marvel API
       const timestamp = Date.now().toString();
       const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
       const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
@@ -177,14 +149,6 @@ const Comic = () => {
             ) : (
               <SeriesCardFirestore serie={series} showLink={false} />
             )}
-                       {isAuthenticated && !isSeriesInFirestore && (
-              <button
-                className="addToListButton"
-                onClick={handleAddSeriesToFirestore}
-              >
-                Adicionar à Lista Pessoal
-              </button>
-            )}
             <button
               className="addToListButton"
               onClick={openModal}
@@ -239,11 +203,7 @@ const Comic = () => {
                   <h3>
                     <BsFillFileEarmarkTextFill /> Nota Média:
                   </h3>
-                  <p>{series.notaMedia || "N/A"}</p>
-                  <h3>
-                    <BsFillFileEarmarkTextFill /> Usuários com esta série na lista pessoal:
-                  </h3>
-                  <p>{usersWithSeries}</p>
+                  <p>{series.notaMedia  || "N/A"}</p>
                 </>
               ) : (
                 <>
@@ -267,10 +227,6 @@ const Comic = () => {
                     <BsFillFileEarmarkTextFill /> Nota Média:
                   </h3>
                   <p>{series.notaMedia || "N/A"}</p>
-                  <h3>
-                    <BsFillFileEarmarkTextFill /> Usuários com esta série na lista pessoal:
-                  </h3>
-                  <p>{usersWithSeries}</p>
                 </>
               )}
             </p>

@@ -42,7 +42,7 @@ const Search = () => {
     }
   };
 
-  const getSeriesFromFirestore = async (searchTerm) => {
+  const getSeriesFromFirestore = async (searchTerm, apiResults) => {
     try {
       const seriesCollectionRef = collection(firestore, 'serie');
       const queryRef = query(seriesCollectionRef, where('Aprovada', '==', true));
@@ -52,8 +52,11 @@ const Search = () => {
         ...doc.data(),
       }));
   
-
-      const fuse = new Fuse(firestoreResults, {
+      const uniqueFirestoreResults = firestoreResults.filter(
+        (serie) => !apiResults.some((apiSerie) => apiSerie.id === serie.id)
+      );
+  
+      const fuse = new Fuse(uniqueFirestoreResults, {
         keys: ['nomeSerie'], 
         includeScore: true, 
         threshold: 0.4, 
@@ -69,18 +72,15 @@ const Search = () => {
       return [];
     }
   };
+  
 
   useEffect(() => {
     if (searchTerm) {
       const fetchSearchResults = async () => {
         const apiResults = await getSeriesBySearchTerm(searchTerm);
-        const firestoreResults = await getSeriesFromFirestore(searchTerm);
-        
-        const uniqueFirestoreResults = firestoreResults.filter(
-          (serie) => !apiResults.some((apiSerie) => apiSerie.id === serie.id)
-        );
+        const firestoreResults = await getSeriesFromFirestore(searchTerm, apiResults);
   
-        const combinedResults = [...apiResults, ...uniqueFirestoreResults];
+        const combinedResults = [...apiResults, ...firestoreResults];
         setSearchResults(combinedResults);
         setIsLoading(false);
       };
@@ -90,6 +90,7 @@ const Search = () => {
       setSeries([]);
     }
   }, [searchTerm]);
+  
   
   
   return (

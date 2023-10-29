@@ -9,13 +9,14 @@ import { arrayUnion } from 'firebase/firestore';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBHQJBnzh9TL2joGhzh9GCni_kVvu8x0Qg",
-  authDomain: "tcccomixlist2.firebaseapp.com",
-  projectId: "tcccomixlist2",
-  storageBucket: "tcccomixlist2.appspot.com",
-  messagingSenderId: "390751678587",
-  appId: "1:390751678587:web:6cc75380f79c4e455272de",
-  measurementId: "G-W90V2JG2EE"
+  apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
+  authDomain: "tcccomixlist.firebaseapp.com",
+  databaseURL: "https://tcccomixlist-default-rtdb.firebaseio.com",
+  projectId: "tcccomixlist",
+  storageBucket: "tcccomixlist.appspot.com",
+  messagingSenderId: "299354265800",
+  appId: "1:299354265800:web:7a428260830240f11aedfd",
+  measurementId: "G-VFQYV56G6D"
 };
 
 const app = initializeApp(firebaseConfig);

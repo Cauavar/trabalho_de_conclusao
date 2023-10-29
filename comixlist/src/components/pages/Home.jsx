@@ -11,6 +11,8 @@ import { AuthContext } from "../contexts/auth";
 const Home = () => {
   const [allApiSeries, setAllApiSeries] = useState([]);
   const [mySeries, setMySeries] = useState([]);
+  const [displayedSeriesIds, setDisplayedSeriesIds] = useState([]);
+  const [filteredApiSeries, setFilteredApiSeries] = useState([]);
   const { isAuthenticated } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 18;
@@ -26,7 +28,7 @@ const Home = () => {
     return series.sort((a, b) => {
       const nameA = (a[propertyName] || '').toLowerCase();
       const nameB = (b[propertyName] || '').toLowerCase();
-
+  
       if (nameA < nameB) {
         return -1;
       }
@@ -36,35 +38,43 @@ const Home = () => {
       return 0;
     });
   }
-
-  const displayedSeriesKeys = new Set();
-
+  
   const getTopRatedSeries = async () => {
     if (allApiSeries.length < currentPage * itemsPerPage) {
       const timestamp = Date.now();
       const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
       let offset = (currentPage - 1) * limit;
-
+  
       try {
         const response = await fetch(
           `${seriesURL}?ts=${timestamp}&apikey=${apiPublicKey}&hash=${hash}&limit=${limit}&offset=${offset}`
         );
         const data = await response.json();
-
+  
         if (data.data && data.data.results && data.data.results.length > 0) {
           const uniqueApiSeries = data.data.results.filter((apiSerie) => {
-            // Verifique se o ID da série já está no conjunto de séries exibidas
-            if (displayedSeriesKeys.has(apiSerie.id)) {
-              return false; // Já exibida, não incluir
-            }
-
-            displayedSeriesKeys.add(apiSerie.id); // Adicione o ID ao conjunto
-            return !mySeries.some((mySerie) => mySerie.id === apiSerie.id);
+            const serieId = apiSerie.id.toString();
+            return (
+              !displayedSeriesIds.includes(serieId) &&
+              !mySeries.some((mySerie) => mySerie.id === serieId)
+            );
           });
-
+  
           const sortedApiSeries = sortSeriesAlphabetically(uniqueApiSeries, 'title');
-
-          setAllApiSeries((prevSeries) => [...prevSeries, ...sortedApiSeries]);
+          
+          // Adicione um filtro adicional para remover séries que já foram adicionadas ao Firestore
+          const filteredSeries = sortedApiSeries.filter((apiSerie) => {
+            return !filteredApiSeries.some((filteredSerie) => filteredSerie.id === apiSerie.id);
+          });
+  
+          setAllApiSeries((prevSeries) => [...prevSeries, ...filteredSeries]);
+          setDisplayedSeriesIds((prevIds) => [
+            ...prevIds,
+            ...filteredSeries.map((apiSerie) => apiSerie.id.toString()),
+          ]);
+          
+          // Atualize o estado das séries filtradas
+          setFilteredApiSeries((prevFilteredSeries) => [...prevFilteredSeries, ...filteredSeries]);
         } else {
           console.error("No results found in the API response.");
         }
@@ -73,7 +83,6 @@ const Home = () => {
       }
     }
   };
-
   const fetchMySeriesFromFirestore = async () => {
     try {
       const seriesCollectionRef = collection(firestore, "serie");
@@ -83,7 +92,7 @@ const Home = () => {
         ...doc.data(),
       }));
 
-      const sortedFirestoreSeries = sortSeriesAlphabetically(approvedSeries, 'nomeSerie');
+      const sortedFirestoreSeries = sortSeriesAlphabetically(approvedSeries, 'nomeSerie')
       setMySeries(sortedFirestoreSeries);
     } catch (error) {
       console.error("Error listing approved series:", error);
@@ -93,7 +102,7 @@ const Home = () => {
   useEffect(() => {
     fetchMySeriesFromFirestore();
     getTopRatedSeries();
-  }, [currentPage, mySeries]);
+  }, [currentPage, mySeries, allApiSeries]);
 
   const goToNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -122,7 +131,7 @@ const Home = () => {
       </div>
 
       <div className="comics_container">
-        {allApiSeries.slice(startIndex, endIndex).map((serie) => (
+        {filteredApiSeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardApi key={`api-${serie.id}`} serie={serie} />
         ))}
 
@@ -130,6 +139,8 @@ const Home = () => {
           <SeriesCardFirestore key={`firebase-${serie.id}`} serie={serie} />
         ))}
       </div>
+
+
 
       <div className="pagination">
         <button onClick={goToPreviousPage} disabled={currentPage === 1}>
