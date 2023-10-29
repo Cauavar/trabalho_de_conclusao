@@ -6,8 +6,10 @@ import { AuthContext } from '../contexts/auth';
 import ReCAPTCHA from "react-google-recaptcha";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { query } from 'firebase/database';
-import { collection, doc, setDoc, where, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, where, getDocs, addDoc } from 'firebase/firestore';
 import { firestore } from '../bd/FireBase';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../bd/FireBase';
 
 function CadastroForm({ btnText }) {
   const { signup } = useContext(AuthContext);
@@ -25,6 +27,7 @@ function CadastroForm({ btnText }) {
   const [emailInUseError, setEmailInUseError] = useState(false);
   const [emailInvalidError, setEmailInvalidError] = useState(false);
   const [passwordRequirementsError, setPasswordRequirementsError] = useState(false);
+  const navigate = useNavigate();
 
   const listaPessoalData = {
     dataAdicao: new Date().toISOString(),
@@ -119,8 +122,7 @@ function CadastroForm({ btnText }) {
         }
         
         await createNewUserWithSubcollection(userData);
-        await signup(userData);
-
+        navigate('/profile');
         console.log('Cadastro realizado com sucesso!');
       } catch (error) {
         console.log('Erro durante o cadastro', error);

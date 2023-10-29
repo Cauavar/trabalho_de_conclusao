@@ -17,6 +17,8 @@ const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
 const Search = () => {
   const { searchTerm } = useParams();
   const [series, setSeries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchResults, setSearchResults] = useState([]);
 
   const getSeriesBySearchTerm = async (searchTerm) => {
     const timestamp = new Date().getTime();
@@ -79,7 +81,8 @@ const Search = () => {
         );
   
         const combinedResults = [...apiResults, ...uniqueFirestoreResults];
-        setSeries(combinedResults);
+        setSearchResults(combinedResults);
+        setIsLoading(false);
       };
   
       fetchSearchResults();
@@ -93,10 +96,12 @@ const Search = () => {
     <div className="container">
       <h2 className="title">Pesquisar Séries de Quadrinhos</h2>
       <div className="comics_container">
-        {series.length === 0 ? (
+        {isLoading ?(
+          <p>Carregando...</p>
+        ) : searchResults.length === 0? (
           <p>Nenhum resultado encontrado.</p>
         ) : (
-          series.map((serie) =>
+          searchResults.map((serie) =>
             serie.thumbnail ? (
               <SeriesCardApi key={serie.id} serie={serie} />
             ) : (

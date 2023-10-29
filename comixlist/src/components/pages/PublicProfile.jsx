@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import './Profile.css';
 import LinkButton from '../layout/LinkButton';
 import CommentBar from '../layout/CommentBar';
-import { firestore } from '../bd/FireBase'; 
-import { doc, getDoc, collection, onSnapshot, query, where, deleteDoc } from 'firebase/firestore'; 
+import { firestore } from '../bd/FireBase';
+import { doc, getDoc, collection, onSnapshot, query, where, deleteDoc } from 'firebase/firestore';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../contexts/auth';
 import { useNavigate, Link } from 'react-router-dom';
+import { format } from 'date-fns';
 
 function PublicProfile() {
   const { id } = useParams();
@@ -18,6 +19,7 @@ function PublicProfile() {
   const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
   const commentsPerPage = 4;
   const [currentPage, setCurrentPage] = useState(0);
+
   const next = () => {
     if (currentPage < Math.floor(commentsWithUserInfo.length / commentsPerPage)) {
       setCurrentPage(currentPage + 1);
@@ -29,7 +31,6 @@ function PublicProfile() {
       setCurrentPage(currentPage - 1);
     }
   };
-
 
   const getUserInfo = async (userId) => {
     const userDocRef = doc(collection(firestore, 'users'), userId);
@@ -84,6 +85,7 @@ function PublicProfile() {
     fetchCommentsWithUserInfo();
   }, [userProfile]);
 
+
   useEffect(() => {
     const commentsCollectionRef = collection(firestore, 'comments');
     const q = query(commentsCollectionRef, where('userId', '==', id));
@@ -120,6 +122,14 @@ function PublicProfile() {
   if (!userProfile) {
     return <div>Loading...</div>;
   }
+
+  const CommentsToDisplay = commentsWithUserInfo
+    .slice(currentPage * commentsPerPage, (currentPage + 1) * commentsPerPage)
+    .sort((commentA, commentB) => {
+      const dateA = new Date(commentA.commentDate);
+      const dateB = new Date(commentB.commentDate);
+      return dateB - dateA;
+    });
 
   return (
     <div className="profile-container">
@@ -173,39 +183,41 @@ function PublicProfile() {
             </div>
           </div>
         </div>
-
-        <div className="profile-comments">
-        </div>
       </div>
 
       <CommentBar
-  commentsWithUserInfo={commentsWithUserInfo}
-  setCommentsWithUserInfo={setCommentsWithUserInfo}
-  userProfile={userProfile}
-  currentUser={user}
-/>
+        commentsWithUserInfo={commentsWithUserInfo}
+        setCommentsWithUserInfo={setCommentsWithUserInfo}
+        userProfile={userProfile}
+        currentUser={user}
+      />
 
-<ul className="comment-list">
-  {commentsWithUserInfo.slice(currentPage * commentsPerPage, (currentPage + 1) * commentsPerPage).map((comment, index) => (
-    <li key={index}>
-      <Link to={`/profile/${comment.userInfo.userId}`}>
-        <img src={comment.userInfo.imagemUsuario} alt="Foto de perfil do usuário" />
+      <ul className="comment-list">
+      {CommentsToDisplay.map((comment, index) => (
+      <li key={index}>
+      <Link to={`/profile/${comment.userId}`}>
+        <img
+          src={comment.userInfo.imagemUsuario || defaultAvatar}
+          alt="Foto de perfil do usuário"
+        />
       </Link>
-      <div className="comment-content">
-        <strong>{comment.userInfo.nome}</strong>
-        <p>{comment.text}</p>
-        <p className="comment-date">{comment.commentDate}</p>
-        {(user.uid === id || user.uid === comment.userInfo.userId) && (
-          <button onClick={() => handleDeleteComment(comment)}>
-            Excluir
-          </button>
-        )}
-      </div>
-    </li>
-  ))}
-</ul>
+            <div className="comment-content">
+              <strong>{comment.userInfo.nome}</strong>
+              <p>{comment.text}</p>
+              <p className="comment-date">
+                {format(new Date(comment.commentDate), 'dd/MM/yyyy HH:mm:ss')}
+              </p>
+              {(user.uid === id || user.uid === comment.userInfo.userId) && (
+                <button onClick={() => handleDeleteComment(comment)}>
+                  Excluir
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
 
-<div className="pagination">
+      <div className="pagination">
         <button className="previous" onClick={previous} disabled={currentPage === 0}>
           Anterior
         </button>

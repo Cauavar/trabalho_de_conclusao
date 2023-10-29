@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { firestore } from "../bd/FireBase";
-import SeriesCardApiListaPessoal from "./SeriesCardApiListaPessoal";
+import SeriesCardPublicaLista from "./SeriesCardPublicaLista";
 import styles from "./ListaPessoal.module.css";
 import { useNavigate, useParams, useLocation } from 'react-router-dom'; 
 import { FiArrowLeft } from "react-icons/fi";
@@ -11,7 +11,6 @@ const PublicListaPessoal = () => {
   const [listaPessoal, setListaPessoal] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,7 +142,7 @@ const PublicListaPessoal = () => {
     const matchingSerie = seriesData.find((serie) => serie.id === item.serieId);
     if (matchingSerie) {
       return (
-        <SeriesCardApiListaPessoal
+        <SeriesCardPublicaLista
           serie={matchingSerie}
           nota={item.nota}
           tipo={item.tipo}

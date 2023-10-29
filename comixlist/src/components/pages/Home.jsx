@@ -22,6 +22,23 @@ const Home = () => {
   const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
   const limit = 50;
 
+  function sortSeriesAlphabetically(series, propertyName) {
+    return series.sort((a, b) => {
+      const nameA = (a[propertyName] || '').toLowerCase();
+      const nameB = (b[propertyName] || '').toLowerCase();
+
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
+  const displayedSeriesKeys = new Set();
+
   const getTopRatedSeries = async () => {
     if (allApiSeries.length < currentPage * itemsPerPage) {
       const timestamp = Date.now();
@@ -36,11 +53,18 @@ const Home = () => {
 
         if (data.data && data.data.results && data.data.results.length > 0) {
           const uniqueApiSeries = data.data.results.filter((apiSerie) => {
-            // Verifique se o ID da série já existe em mySeries.
+            // Verifique se o ID da série já está no conjunto de séries exibidas
+            if (displayedSeriesKeys.has(apiSerie.id)) {
+              return false; // Já exibida, não incluir
+            }
+
+            displayedSeriesKeys.add(apiSerie.id); // Adicione o ID ao conjunto
             return !mySeries.some((mySerie) => mySerie.id === apiSerie.id);
           });
 
-          setAllApiSeries((prevSeries) => [...prevSeries, ...uniqueApiSeries]);
+          const sortedApiSeries = sortSeriesAlphabetically(uniqueApiSeries, 'title');
+
+          setAllApiSeries((prevSeries) => [...prevSeries, ...sortedApiSeries]);
         } else {
           console.error("No results found in the API response.");
         }
@@ -58,7 +82,9 @@ const Home = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      setMySeries(approvedSeries);
+
+      const sortedFirestoreSeries = sortSeriesAlphabetically(approvedSeries, 'nomeSerie');
+      setMySeries(sortedFirestoreSeries);
     } catch (error) {
       console.error("Error listing approved series:", error);
     }
@@ -67,7 +93,7 @@ const Home = () => {
   useEffect(() => {
     fetchMySeriesFromFirestore();
     getTopRatedSeries();
-  }, [currentPage, mySeries, allApiSeries]); // Certifique-se de incluir mySeries e allApiSeries como dependências.
+  }, [currentPage, mySeries]);
 
   const goToNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -94,12 +120,14 @@ const Home = () => {
           Próxima
         </button>
       </div>
+
       <div className="comics_container">
         {allApiSeries.slice(startIndex, endIndex).map((serie) => (
-          <SeriesCardApi key={serie.id} serie={serie} />
+          <SeriesCardApi key={`api-${serie.id}`} serie={serie} />
         ))}
+
         {mySeries.slice(startIndex, endIndex).map((serie) => (
-          <SeriesCardFirestore key={serie.id} serie={serie} />
+          <SeriesCardFirestore key={`firebase-${serie.id}`} serie={serie} />
         ))}
       </div>
 

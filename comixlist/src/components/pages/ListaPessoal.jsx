@@ -8,7 +8,6 @@ import styles from "./ListaPessoal.module.css";
 import { BiSearchAlt2 } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import Fuse from 'fuse.js';
 import { FiArrowLeft } from "react-icons/fi";
 
 
@@ -17,9 +16,7 @@ const ListaPessoal = () => {
   const [listaPessoal, setListaPessoal] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -119,41 +116,6 @@ const ListaPessoal = () => {
     }
   };
   
-  const handleSearch = () => {
-    setIsSearching(true);
-    searchInList(searchTerm);
-  };
-
-  const clearSearchResults = () => {
-    setSearchTerm("");
-    setSearchResults([]); 
-  };
-
-  const searchInList = (searchTerm) => {
-    if (!searchTerm) {
-      setSearchResults([]); 
-      return;
-    }
-  
-    const options = {
-      keys: ['nomeSerie'], 
-      includeScore: true, 
-      threshold: 0.4, 
-    };
-  
-    const fuse = new Fuse(listaFiltrada, options); 
-    const searchResults = fuse.search(searchTerm);
-  
-    const results = searchResults.map((result) => result.item);
-  
-    console.log('Resultados da pesquisa:', results); 
-  
-    setSearchResults(results); 
-  };
-
-  useEffect(() => {
-    searchInList(searchTerm); 
-  }, [searchTerm]);
 
   const totalItems = listaFiltrada.length;
 

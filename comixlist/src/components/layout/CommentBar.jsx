@@ -16,24 +16,28 @@ function CommentBar({ setCommentsWithUserInfo, commentsWithUserInfo, userProfile
       return;
     }
   
+    const userIdToComment = id || user.uid;
+  
     try {
       const currentUser = user;
   
       if (currentUser) {
-        const userRef = doc(firestore, 'users', id);
-  
+        const userRef = doc(firestore, 'users', userIdToComment);
         const userDoc = await getDoc(userRef);
   
         if (userDoc.exists()) {
-          await addCommentToFirestore(currentUser.uid, commentText, id);
+          const dataAtual = new Date();
+          const commentDate = dataAtual.toISOString();
+  
+          await addCommentToFirestore(currentUser.uid, commentText, userIdToComment, commentDate);
           setCommentText('');
           console.log('Comentário enviado com sucesso.');
   
-          // Adicione o novo comentário à lista local
           const newComment = {
             userId: currentUser.uid,
             text: commentText,
             userInfo: currentUser,
+            commentDate: commentDate, 
           };
   
           setCommentsWithUserInfo([...commentsWithUserInfo, newComment]);
@@ -47,7 +51,7 @@ function CommentBar({ setCommentsWithUserInfo, commentsWithUserInfo, userProfile
       console.error('Erro ao enviar o comentário:', error);
     }
   };
-    
+  
 
   return (
     <div className="comment-bar">

@@ -9,7 +9,7 @@ import axios from "axios";
 import "./Resenha.css";
 import { useNavigate } from "react-router-dom";
 
-const Resenha = () => {
+const ResenhaPublica = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { id } = useParams();
@@ -17,58 +17,32 @@ const Resenha = () => {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    if (!user) return;
-
-    const fetchUserData = async () => {
-      const userDocRef = doc(firestore, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
-
-      if (userDocSnapshot.exists()) {
-        setUserData(userDocSnapshot.data());
-      }
-    };
-
     const fetchSerieData = async () => {
-      if (!userData) return;
+      const seriesCollectionRef = collection(firestore, "serie");
+      const serieDocRef = doc(seriesCollectionRef, id);
+      const serieDocSnapshot = await getDoc(serieDocRef);
 
-      const matchingSerie = userData.listaPessoal.find(
-        (item) => item.serieId === id
-      );
-
-      if (matchingSerie) {
-        if (matchingSerie.isApiData) {
-          try {
-            const response = await axios.get(matchingSerie.urlDaApi);
-            const apiData = response.data;
-            setSerie({
-              ...apiData,
-              nota: matchingSerie.nota,
-              review: matchingSerie.review,
-              dataResenha: matchingSerie.dataResenha,
-            });
-          } catch (error) {
-            console.error("Erro ao buscar dados da API:", error);
-          }
-        } else {
-          const seriesCollectionRef = collection(firestore, "serie");
-          const serieDocRef = doc(seriesCollectionRef, matchingSerie.serieId);
-          const serieDocSnapshot = await getDoc(serieDocRef);
-
-          if (serieDocSnapshot.exists()) {
-            setSerie({
-              ...serieDocSnapshot.data(),
-              nota: matchingSerie.nota,
-              review: matchingSerie.review,
-              dataResenha: matchingSerie.dataResenha,
-            });
-          }
-        }
+      if (serieDocSnapshot.exists()) {
+        setSerie({
+          ...serieDocSnapshot.data(),
+        });
       }
     };
 
-    fetchUserData();
+    // Obter informações do perfil com base no ID
+    const fetchUserData = async () => {
+      try {
+        // Substitua 'sua-rota-de-obter-usuario' pela rota correta em sua API
+        const response = await axios.get(`/sua-rota-de-obter-usuario/${id}`);
+        setUserData(response.data);
+      } catch (error) {
+        console.error("Erro ao obter informações do perfil:", error);
+      }
+    };
+
     fetchSerieData();
-  }, [id, user, userData]);
+    fetchUserData();
+  }, [id]);
 
   const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
 
@@ -78,7 +52,7 @@ const Resenha = () => {
         <FiArrowLeft className="back-icon" /> Voltar
       </Link>
 
-      {serie ? (
+      {serie && userData ? (
         <>
           <img
             src={serie.imagemSerie}
@@ -89,16 +63,16 @@ const Resenha = () => {
             {serie.nomeSerie} ({serie.ano})
           </h1>
           <p className="resenha-author">
-            <Link to={`/profile/${user.uid}`}> 
+            <Link to={`/profile/${userData.id}`}>
               <img
-                src={userData?.imagemUsuario || defaultAvatar}
+                src={userData.imagem || defaultAvatar}
                 alt="Imagem de perfil"
                 className="author-image"
               />
             </Link>
             Resenha por:{" "}
             <span className="resenha-reviewer">
-              {userData ? userData.nome : "N/A"}
+              {userData.nome || "N/A"}
             </span>
           </p>
           <p className="resenha-rating">Nota: {serie.nota}</p>
@@ -115,4 +89,4 @@ const Resenha = () => {
   );
 };
 
-export default Resenha;
+export default ResenhaPublica;

@@ -42,15 +42,15 @@ export const AuthProvider = ({ children }) => {
   const signup = async (userData) => {
     try {
       const { nome, email, senha, aniversario, descricaoUsuario, imagemUsuario, local, isAdmin } = userData;
-
+  
       if (!nome || !email || !senha) {
         console.error('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
-
+  
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
       const userId = userCredential.user.uid;
-
+  
       const userDocRef = doc(firestore, 'users', userId);
       await setDoc(userDocRef, {
         nome: nome,
@@ -61,12 +61,12 @@ export const AuthProvider = ({ children }) => {
         local: local || '',
         isAdmin: isAdmin || false,
       });
-
-      navigate('/login');
+  
     } catch (error) {
       console.error('Erro durante o cadastro', error);
     }
   };
+  
 
   return (
     <AuthContext.Provider value={{ isAuthenticated: !!user, user, login, logout, signup }}>

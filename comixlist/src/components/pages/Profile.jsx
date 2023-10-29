@@ -6,6 +6,7 @@ import { AuthContext } from '../contexts/auth';
 import { firestore } from '../bd/FireBase';
 import { collection, doc, getDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 
 function Profile() {
   const { user } = useContext(AuthContext);
@@ -79,8 +80,13 @@ function Profile() {
 
   const defaultAvatar = 'https://www.promoview.com.br/uploads/images/unnamed%2819%29.png';
 
-  const CommentsToDisplay = commentsWithUserInfo.slice(currentPage * commentsPerPage, (currentPage + 1) * commentsPerPage);
-
+  const CommentsToDisplay = commentsWithUserInfo
+  .slice(currentPage * commentsPerPage, (currentPage + 1) * commentsPerPage)
+  .sort((commentA, commentB) => {
+    const dateA = new Date(commentA.commentDate);
+    const dateB = new Date(commentB.commentDate);
+    return dateB - dateA;
+  });
 
   return (
     <div className="profile-container">
@@ -144,17 +150,19 @@ function Profile() {
       />
       <ul className="comment-list">
       {CommentsToDisplay.map((comment, index) => (
-    <li key={index}>
+      <li key={index}>
       <Link to={`/profile/${comment.userId}`}>
         <img
-          src={comment.userInfo.imagemUsuario}
+          src={comment.userInfo?.imagemUsuario || defaultAvatar}
           alt="Foto de perfil do usuário"
         />
-              </Link>
-              <div className="comment-content">
+      </Link>
+      <div className="comment-content">
         <strong>{comment.userInfo.nome}</strong>
         <p>{comment.text}</p>
-        <p className="comment-date">{comment.commentDate}</p> 
+        <p className="comment-date">
+          {format(new Date(comment.commentDate), 'dd/MM/yyyy HH:mm:ss')}
+        </p>
       </div>
     </li>
     
