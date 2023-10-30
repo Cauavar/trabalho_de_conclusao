@@ -74,7 +74,6 @@ const Comic = () => {
 
   const fetchData = async () => {
     if (isMarvelApiId(id)) {
-      // Fetch series from Marvel API
       const timestamp = Date.now().toString();
       const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
       const seriesUrl = `https://gateway.marvel.com/v1/public/series/${id}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
@@ -89,7 +88,6 @@ const Comic = () => {
         console.error("Error fetching comic series from API:", error);
       }
     } else {
-      // Fetch series from Firestore
       try {
         const docRef = doc(collection(firestore, "serie"), id);
         const docSnap = await getDoc(docRef);
@@ -200,10 +198,7 @@ const Comic = () => {
                     <BsFillFileEarmarkTextFill /> Número de Volumes:
                   </h3>
                   <p>{series.pageCount || "N/A"}</p>
-                  <h3>
-                    <BsFillFileEarmarkTextFill /> Nota Média:
-                  </h3>
-                  <p>{series.notaMedia  || "N/A"}</p>
+ 
                 </>
               ) : (
                 <>
@@ -223,10 +218,6 @@ const Comic = () => {
                     <BsFillFileEarmarkTextFill /> Número de Volumes:
                   </h3>
                   <p>{series && series.volumes || "N/A"}</p>
-                  <h3>
-                    <BsFillFileEarmarkTextFill /> Nota Média:
-                  </h3>
-                  <p>{series.notaMedia || "N/A"}</p>
                 </>
               )}
             </p>

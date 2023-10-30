@@ -3,9 +3,7 @@ import { doc, getDoc, collection, getDocs, updateDoc } from "firebase/firestore"
 import { AuthContext } from "../contexts/auth";
 import { firestore } from "../bd/FireBase";
 import SeriesCardFirestoreListaPessoal from "./SeriesCardFirestoreListaPessoal";
-import SeriesCardApiListaPessoal from "./SeriesCardApiListaPessoal";
 import styles from "./ListaPessoal.module.css";
-import { BiSearchAlt2 } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { FiArrowLeft } from "react-icons/fi";
@@ -199,18 +197,6 @@ const ListaPessoal = () => {
       return (
         <SeriesCardFirestoreListaPessoal
           serie={matchingSerie}
-          nota={item.nota}
-          tipo={item.tipo}
-          review={item.review}
-          volumesLidos={item.volumesLidos}
-          onDeleteFromList={() => handleDeleteFromList(item.serieId)}
-          onEdit={handleEditInList}
-        />
-      );
-    } else if (item.apiSerieData) {
-      return (
-        <SeriesCardApiListaPessoal
-          serieData={item.apiSerieData}
           nota={item.nota}
           tipo={item.tipo}
           review={item.review}

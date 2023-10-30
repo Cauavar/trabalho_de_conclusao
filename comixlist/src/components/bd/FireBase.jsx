@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, Timestamp  } from 'firebase/firestore';
 import { getStorage }  from 'firebase/storage';
 import { doc, getDoc, getDocs, updateDoc, query, where } from 'firebase/firestore';
 import { arrayUnion } from 'firebase/firestore';
@@ -39,13 +39,17 @@ export const addSerieToFirestore = async (serieData) => {
   }
 };
 
-export const saveEditProposal = async (serieId, editData) => {
+
+
+export const saveEditProposal = async (serieId, changes) => {
   try {
     const editProposalCollectionRef = collection(firestore, 'edicoesPendentes');
+    const timestamp = Timestamp.now();
     const newEditProposal = {
       idSerieOriginal: serieId,
-      ...editData, 
-      aprovada: false, 
+      timestamp,
+      changes,
+      aprovada: false,
     };
     await addDoc(editProposalCollectionRef, newEditProposal);
     console.log('Edição proposta enviada para aprovação com sucesso.');
@@ -53,6 +57,7 @@ export const saveEditProposal = async (serieId, editData) => {
     console.error('Erro ao salvar a edição proposta:', error);
   }
 };
+
 
 export const applyEditToSerie = async (serieId, campoEditado, valorEditado) => {
   try {

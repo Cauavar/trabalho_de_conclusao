@@ -21,8 +21,9 @@ const SeriesCardFirestore = ({ serie, showLink = true }) => {
       )}
 <div className="rating">
   <p>Nota média:</p>
-  {serie.notaMedia.toFixed(1)} 
+  {serie.notaMedia !== undefined ? serie.notaMedia.toFixed(1) : "N/A"} 
 </div>
+
 
     </div>
   );

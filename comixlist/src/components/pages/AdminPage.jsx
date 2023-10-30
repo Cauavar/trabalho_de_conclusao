@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/auth';
-import { collection, getDocs, query, where, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+} from 'firebase/firestore';
 import { firestore } from '../bd/FireBase';
 import { Link } from 'react-router-dom';
 import './AdminPage.css';
@@ -11,44 +20,60 @@ function AdminPage() {
   const { user } = useContext(AuthContext);
   const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
   const seriesPerPage = 3;
-  const editsPerPage = 3;
-
-  const fetchUnapprovedSeriesFromFirestore = async () => {
-    try {
-      const seriesCollectionRef = collection(firestore, 'serie');
-      const querySnapshot = await getDocs(query(seriesCollectionRef, where('Aprovada', '==', false)));
-      const unapprovedSeries = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setUnapprovedSeries(unapprovedSeries);
-    } catch (error) {
-      console.error('Erro ao listar séries não aprovadas:', error);
-    }
-  };
-
-  const fetchUnapprovedEditsFromFirestore = async () => {
-    try {
-      const editsCollectionRef = collection(firestore, 'edicoesPendentes');
-      const querySnapshot = await getDocs(query(editsCollectionRef));
-      const unapprovedEdits = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setUnapprovedEdits(unapprovedEdits);
-    } catch (error) {
-      console.error('Erro ao listar propostas de edição não aprovadas:', error);
-    }
-  };
+  const [currentPage, setCurrentPage] = useState(0);
+  const [seriesData, setSeriesData] = useState({});
 
   useEffect(() => {
+    const fetchUnapprovedSeriesFromFirestore = async () => {
+      try {
+        const seriesCollectionRef = collection(firestore, 'serie');
+        const querySnapshot = await getDocs(query(seriesCollectionRef, where('Aprovada', '==', false)));
+        const unapprovedSeries = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUnapprovedSeries(unapprovedSeries);
+      } catch (error) {
+        console.error('Erro ao listar séries não aprovadas:', error);
+      }
+    };
+
+    const fetchUnapprovedEditsFromFirestore = async () => {
+      try {
+        const editsCollectionRef = collection(firestore, 'edicoesPendentes');
+        const querySnapshot = await getDocs(query(editsCollectionRef, where('aprovada', '==', false)));
+        const unapprovedEdits = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUnapprovedEdits(unapprovedEdits);
+      } catch (error) {
+        console.error('Erro ao listar propostas de edição não aprovadas:', error);
+      }
+    };
+
+    const fetchSeriesDataFromFirestore = async () => {
+      try {
+        const seriesCollectionRef = collection(firestore, 'serie');
+        const seriesQuerySnapshot = await getDocs(seriesCollectionRef);
+        const seriesData = {};
+  
+        seriesQuerySnapshot.forEach((doc) => {
+          seriesData[doc.id] = doc.data();
+        });
+  
+        setSeriesData(seriesData);
+      } catch (error) {
+        console.error('Erro ao listar séries:', error);
+      }
+    };
+
     if (user) {
       fetchUnapprovedSeriesFromFirestore();
       fetchUnapprovedEditsFromFirestore();
+      fetchSeriesDataFromFirestore();
     }
   }, [user]);
-
-  const [currentPage, setCurrentPage] = useState(0);
 
   const handleApprove = async (serieId) => {
     try {
@@ -76,61 +101,71 @@ function AdminPage() {
     }
   };
 
-  const acceptEdit = async (editId, idSerieOriginal, campoEditado, valorEditado) => {
+  const acceptEdit = async (editId, idSerieOriginal, changes) => {
     try {
-      if (editId && idSerieOriginal && campoEditado !== undefined && valorEditado !== undefined) {
+      if (editId && idSerieOriginal) {
         const editDocRef = doc(firestore, 'edicoesPendentes', editId);
         const editDoc = await getDoc(editDocRef);
   
         if (editDoc.exists() && !editDoc.data().aprovada) {
           const serieDocRef = doc(firestore, 'serie', idSerieOriginal);
-          const updateData = {
-            [campoEditado]: valorEditado,
-          };
-          await updateDoc(serieDocRef, updateData);
+          const currentSerie = await getDoc(serieDocRef);
   
-          await updateDoc(editDocRef, { aprovada: true });
+          if (currentSerie.exists()) {
+            const serieData = currentSerie.data();
   
-          // Atualize o estado local após a operação bem-sucedida
-          setUnapprovedSeries((prevState) =>
-            prevState.map((serie) => {
-              if (serie.id === idSerieOriginal) {
-                return {
-                  ...serie,
-                  [campoEditado]: valorEditado,
-                };
-              }
-              return serie;
-            })
-          );
+            for (const change in changes) {
+              const { newValue } = changes[change];
+              serieData[change] = newValue;
+            }
   
-          setUnapprovedEdits((prevState) =>
-            prevState.filter((edit) => edit.id !== editId)
-          );
+            await updateDoc(serieDocRef, serieData);
+            await updateDoc(editDocRef, { aprovada: true });
+
+            const editToDeleteRef = doc(firestore, 'edicoesPendentes', editId);
+            await deleteDoc(editToDeleteRef);
   
-          console.log('Edição aceita com sucesso.');
+            setUnapprovedSeries((prevState) =>
+              prevState.map((serie) => {
+                if (serie.id === idSerieOriginal) {
+                  return {
+                    ...serie,
+                    ...serieData,
+                  };
+                }
+                return serie;
+              })
+            );
+  
+            setUnapprovedEdits((prevState) =>
+              prevState.filter((edit) => edit.id !== editId)
+            );
+  
+            console.log('Edição aceita com sucesso.');
+          } else {
+            console.error('Série original não encontrada.');
+          }
         } else {
           console.error('Edição já aprovada ou não encontrada.');
         }
       } else {
-        console.error('Parâmetros editId, serieIdOriginal, campoEditado ou valorEditado são indefinidos.');
+        console.error('Parâmetros editId, serieIdOriginal ou changes são indefinidos.');
       }
     } catch (error) {
       console.error('Erro ao aceitar a edição:', error);
     }
   };
   
-  
+
   const rejectEdit = async (editId) => {
     try {
       const editDocRef = doc(firestore, 'edicoesPendentes', editId);
       await deleteDoc(editDocRef);
-  
-      // Atualize o estado local após a operação bem-sucedida
+
       setUnapprovedEdits((prevState) =>
         prevState.filter((edit) => edit.id !== editId)
       );
-  
+
       console.log('Edição rejeitada com sucesso.');
     } catch (error) {
       console.error('Erro ao rejeitar a edição:', error);
@@ -183,32 +218,51 @@ function AdminPage() {
       </div>
 
       <h3>Propostas de Edição Pendentes</h3>
-      <div className="edit-list">
-        {unapprovedEdits.length === 0 ? (
-          <p>Nenhuma proposta de edição pendente.</p>
-        ) : (
-          unapprovedEdits.map((edit) => (
-            <div key={edit.id} className="series-item">
-              <div className="series-cardi">
-                <div className="series-info">
-                  <h2>{`Edição proposta para: ${edit.serieId}`}</h2>
-                  <p>{`Campo a ser editado: ${edit.campoEditado}`}</p>
-                  <p>{`Novo valor: ${edit.valorEditado}`}</p>
-                </div>
-                <button
-                  className="approve-button"
-                  onClick={() => acceptEdit(edit.id, edit.idSerieOriginal, edit.campoEditado, edit.valorEditado)}
-                >
-                  Aceitar
-                </button>
-                <button className="reject-button" onClick={() => rejectEdit(edit.id)}>
-                  Rejeitar
-                </button>
+      <div className="series-list">
+  {unapprovedEdits.length === 0 ? (
+    <p>Nenhuma proposta de edição pendente.</p>
+  ) : (
+    unapprovedEdits.map((edit) => (
+      <div key={edit.id} className="series-item">
+        <div className="series-cardi">
+          <div className="series-info">
+            <h2>{`Edição proposta para: ${seriesData[edit.idSerieOriginal].nomeSerie}`}</h2>
+            {Object.entries(edit.changes).map(([campo, { oldValue, newValue }]) => (
+              <div key={campo}>
+                <p>{`Campo a ser editado: ${campo}`}</p>
+                {campo === 'imagemSerie' ? (
+                  <>
+                    <p>Valor antigo:</p>
+                    <img src={oldValue || defaultPicture} alt={`Valor antigo ${campo}`} />
+                    <p>Valor novo:</p>
+                    <img src={newValue || defaultPicture} alt={`Valor novo ${campo}`} />
+                  </>
+                ) : (
+                  <>
+                    <p>{`Valor antigo: ${oldValue}`}</p>
+                    <p>{`Novo valor: ${newValue}`}</p>
+                  </>
+                )}
               </div>
-            </div>
-          ))
-        )}
+            ))}
+          </div>
+          <br></br>
+          <button
+            className="approve-button"
+            onClick={() => acceptEdit(edit.id, edit.idSerieOriginal, edit.changes)}
+          >
+            Aceitar
+          </button>
+          <br></br>
+          <br></br>
+          <button className="reject-button" style={{ maxWidth: '100px' }} onClick={() => rejectEdit(edit.id)}>
+            Rejeitar
+          </button>
+        </div>
       </div>
+    ))
+  )}
+</div>
       <div className="pagination">
         <button className="previous" onClick={previous} disabled={currentPage === 0}>
           Anterior

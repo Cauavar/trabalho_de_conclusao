@@ -4,7 +4,7 @@ import Input from '../form/Input';
 import SubmitButton from '../form/SubmitButton';
 import styles from './EditSerieForm.module.css';
 import { firestore } from '../bd/FireBase';
-import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, updateDoc, addDoc } from 'firebase/firestore'; // Certifique-se de importar `addDoc`
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../bd/FireBase';
@@ -24,12 +24,14 @@ function EditSerieForm({ btnText, serie }) {
     imagemSerie: serie ? serie.imagemSerie || '' : '',
   });
 
-  useEffect(() => {
+  const [originalSerieData, setOriginalSerieData] = useState(null);
 
+  useEffect(() => {
     const getSerieData = async () => {
       const serieDocRef = doc(collection(firestore, 'serie'), id);
       const docSnapshot = await getDoc(serieDocRef);
       if (docSnapshot.exists()) {
+        setOriginalSerieData(docSnapshot.data()); 
         setEditedSerie(docSnapshot.data());
       }
     };
@@ -41,16 +43,27 @@ function EditSerieForm({ btnText, serie }) {
   
     try {
       const editData = { ...editedSerie };
-      editData.imagemSerie = editedSerie.imagemSerie;
+  
+      const changes = {};
       
-      await saveEditProposal(id, editData);
+      for (const key in editData) {
+        if (editData[key] !== originalSerieData[key]) {
+          changes[key] = {
+            oldValue: originalSerieData[key],
+            newValue: editData[key],
+          };
+        }
+      }
+  
+      await saveEditProposal(id, changes);
   
       alert('Edição proposta enviada para aprovação com sucesso.');
       navigate(`/series/${id}`);
     } catch (error) {
       console.error('Erro ao editar série:', error);
     }
-  }
+  };
+  
   
   const handleUpload = async (e) => {
     const file = e.target.files[0];
