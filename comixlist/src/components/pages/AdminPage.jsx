@@ -190,78 +190,77 @@ function AdminPage() {
       <h2 className="admin-header">Página de Administração</h2>
       <h3>Séries Pendentes de Aprovação</h3>
       <div className="series-list">
-        {unapprovedSeries.length === 0 ? (
-          <p>Nenhuma solicitação de série pendente de aprovação.</p>
-        ) : (
-          seriesToDisplay.map((serie) => (
-            <div key={serie.id} className="series-item">
-              <div className="series-cardi">
-                <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
-                <div className="series-info">
-                  <h2>
-                    {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
-                  </h2>
-                  <Link to={`/series/${serie.id}`} state={{ id: serie.id }}>
-                    Detalhes
-                  </Link>
-                </div>
+            {unapprovedSeries.length === 0 ? (
+        <p>Nenhuma solicitação de série pendente de aprovação.</p>
+      ) : (
+        seriesToDisplay.map((serie) => (
+          <div key={serie.id} className="series-item">
+            <div className="series-cardi">
+              <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
+              <div className="series-info">
+                <h2>
+                  {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
+                </h2>
+                <Link to={`/series/${serie.id}`} state={{ id: serie.id }}>
+                  Detalhes
+                </Link>
               </div>
-              <button className="approve-button" onClick={() => handleApprove(serie.id)}>
-                Aprovar
-              </button>
-              <button className="reject-button" onClick={() => handleReject(serie.id)}>
-                Reprovar
-              </button>
             </div>
-          ))
-        )}
+            <button className="approve-button" onClick={() => handleApprove(serie.id)}>
+              Aprovar
+            </button>
+            <button className="reject-button" onClick={() => handleReject(serie.id)}>
+              Reprovar
+            </button>
+          </div>
+        ))
+      )}
+
       </div>
 
       <h3>Propostas de Edição Pendentes</h3>
       <div className="series-list">
-  {unapprovedEdits.length === 0 ? (
-    <p>Nenhuma proposta de edição pendente.</p>
-  ) : (
-    unapprovedEdits.map((edit) => (
-      <div key={edit.id} className="series-item">
-        <div className="series-cardi">
-          <div className="series-info">
-            <h2>{`Edição proposta para: ${seriesData[edit.idSerieOriginal].nomeSerie}`}</h2>
-            {Object.entries(edit.changes).map(([campo, { oldValue, newValue }]) => (
-              <div key={campo}>
-                <p>{`Campo a ser editado: ${campo}`}</p>
-                {campo === 'imagemSerie' ? (
-                  <>
-                    <p>Valor antigo:</p>
-                    <img src={oldValue || defaultPicture} alt={`Valor antigo ${campo}`} />
-                    <p>Valor novo:</p>
-                    <img src={newValue || defaultPicture} alt={`Valor novo ${campo}`} />
-                  </>
-                ) : (
-                  <>
-                    <p>{`Valor antigo: ${oldValue}`}</p>
-                    <p>{`Novo valor: ${newValue}`}</p>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-          <br></br>
-          <button
-            className="approve-button"
-            onClick={() => acceptEdit(edit.id, edit.idSerieOriginal, edit.changes)}
-          >
-            Aceitar
-          </button>
-          <br></br>
-          <br></br>
-          <button className="reject-button" style={{ maxWidth: '100px' }} onClick={() => rejectEdit(edit.id)}>
-            Rejeitar
-          </button>
+      {unapprovedEdits.length === 0 ? (
+  <p>Nenhuma proposta de edição pendente.</p>
+) : (
+  unapprovedEdits.map((edit) => (
+    <div key={edit.id} className="series-item">
+      <div className="series-cardi">
+        <div className="series-info">
+          <h2>{`Edição proposta para: ${seriesData[edit.idSerieOriginal].nomeSerie}`}</h2>
+          {Object.entries(edit.changes).map(([campo, { oldValue, newValue }]) => (
+            <div key={campo}>
+              <p>{`Campo a ser editado: ${campo}`}</p>
+              {campo === 'imagemSerie' ? (
+                <>
+                  <p>Valor antigo:</p>
+                  <img src={oldValue || defaultPicture} alt={`Valor antigo ${campo}`} />
+                  <p>Valor novo:</p>
+                  <img src={newValue || defaultPicture} alt={`Valor novo ${campo}`} />
+                </>
+              ) : (
+                <>
+                  <p>{`Valor antigo: ${oldValue}`}</p>
+                  <p>{`Novo valor: ${newValue}`}</p>
+                </>
+              )}
+            </div>
+          ))}
         </div>
+        <button
+          className="approve-button"
+          onClick={() => acceptEdit(edit.id, edit.idSerieOriginal, edit.changes)}
+        >
+          Aceitar
+        </button>
+        <button className="reject-button" style={{ maxWidth: '100px' }} onClick={() => rejectEdit(edit.id)}>
+          Rejeitar
+        </button>
       </div>
-    ))
-  )}
+    </div>
+  ))
+)}
+
 </div>
       <div className="pagination">
         <button className="previous" onClick={previous} disabled={currentPage === 0}>
