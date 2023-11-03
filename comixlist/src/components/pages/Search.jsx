@@ -42,7 +42,7 @@ const Search = () => {
     }
   };
 
-  const getSeriesFromFirestore = async (searchTerm, apiResults) => {
+  const getSeriesFromFirestore = async (searchTerm) => {
     try {
       const seriesCollectionRef = collection(firestore, 'serie');
       const queryRef = query(seriesCollectionRef, where('Aprovada', '==', true));
@@ -52,12 +52,8 @@ const Search = () => {
         ...doc.data(),
       }));
 
-      const uniqueFirestoreResults = firestoreResults.filter(
-        (serie) => !apiResults.some((apiSerie) => apiSerie.id === serie.id)
-      );
-
-      const fuse = new Fuse(uniqueFirestoreResults, {
-        keys: ['nomeSerie'],
+      const fuse = new Fuse(firestoreResults, {
+        keys: ['nomeSerie', 'title'],
         includeScore: true,
         threshold: 0.4,
       });
@@ -76,13 +72,23 @@ const Search = () => {
   const getUsersFromFirestore = async (searchTerm) => {
     try {
       const usersCollectionRef = collection(firestore, 'users');
-      const queryRef = query(usersCollectionRef, where('nome', '==', searchTerm));
-      const querySnapshot = await getDocs(query(queryRef));
+      const querySnapshot = await getDocs(usersCollectionRef);
       const firestoreResults = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      return firestoreResults;
+  
+      const fuse = new Fuse(firestoreResults, {
+        keys: ['nome'],
+        includeScore: true,
+        threshold: 0.4, 
+      });
+  
+      const searchResults = fuse.search(searchTerm);
+  
+      const results = searchResults.map((result) => result.item);
+  
+      return results;
     } catch (error) {
       console.error('Error fetching users from Firestore:', error);
       return [];
@@ -106,18 +112,35 @@ const Search = () => {
   useEffect(() => {
     fetchMyUsersFromFirestore();
   }, [searchTerm]);
-  
 
   useEffect(() => {
     if (searchTerm) {
       const fetchSearchResults = async () => {
-        let combinedResults = [];
+        let apiResults = await getSeriesBySearchTerm(searchTerm);
+        let firestoreResults = await getSeriesFromFirestore(searchTerm);
+        let usersResults = await getUsersFromFirestore(searchTerm);
 
-        const apiResults = await getSeriesBySearchTerm(searchTerm);
-        const firestoreResults = await getSeriesFromFirestore(searchTerm, apiResults);
-        const usersResults = await getUsersFromFirestore(searchTerm);
+        const combinedResults = [];
+        const uniqueNames = new Set();
 
-        combinedResults = [...apiResults, ...firestoreResults, ...usersResults];
+        firestoreResults.forEach((result) => {
+          combinedResults.push(result);
+          uniqueNames.add(result.nomeSerie);
+        });
+
+        apiResults.forEach((result) => {
+          if (!uniqueNames.has(result.title)) {
+            combinedResults.push(result);
+            uniqueNames.add(result.title);
+          }
+        });
+
+        usersResults.forEach((result) => {
+          if (!uniqueNames.has(result.nome)) {
+            combinedResults.push(result);
+            uniqueNames.add(result.nome);
+          }
+        });
 
         setSearchResults(combinedResults);
         setIsLoading(false);
@@ -131,7 +154,7 @@ const Search = () => {
 
   return (
     <div className="container">
-      <h2 className="title">Pesquisar Resultados</h2>
+      <h2 className="title">Resultados encontrados para: "{searchTerm}"</h2>
       <div className="comics_container">
         {isLoading ? (
           <p>Carregando...</p>
@@ -140,9 +163,11 @@ const Search = () => {
         ) : (
           searchResults.map((result) => {
             if (result.thumbnail) {
-              return <div key={result.id}><SeriesCardApi serie={result} /></div>;
+              return <SeriesCardApi key={result.id} serie={result} />;
+            } else if (result.nomeSerie) {
+              return <SeriesCardFirestore key={result.id} serie={result} />;
             } else {
-              return <div key={result.id}><UserCard user={result} /></div>;
+              return <UserCard key={result.id} user={result} />;
             }
           })
         )}

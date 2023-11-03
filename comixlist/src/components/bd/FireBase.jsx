@@ -9,14 +9,16 @@ import { arrayUnion } from 'firebase/firestore';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBHQJBnzh9TL2joGhzh9GCni_kVvu8x0Qg",
-  authDomain: "tcccomixlist2.firebaseapp.com",
-  projectId: "tcccomixlist2",
-  storageBucket: "tcccomixlist2.appspot.com",
-  messagingSenderId: "390751678587",
-  appId: "1:390751678587:web:6cc75380f79c4e455272de",
-  measurementId: "G-W90V2JG2EE"
+  apiKey: "AIzaSyDdEkAj4hkN5om83TRSHF0HcxPMFoE34vM",
+  authDomain: "tcccomixlist.firebaseapp.com",
+  databaseURL: "https://tcccomixlist-default-rtdb.firebaseio.com",
+  projectId: "tcccomixlist",
+  storageBucket: "tcccomixlist.appspot.com",
+  messagingSenderId: "299354265800",
+  appId: "1:299354265800:web:7a428260830240f11aedfd",
+  measurementId: "G-VFQYV56G6D"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
@@ -110,9 +112,6 @@ export const addCommentToFirestore = async (userId, commentText, commentedUserId
 };
 
 
-
-
-
 export const addListaPessoalToFirestore = async (userId, serieId, nota, review, volumesLidos, tipo) => {
   try {
     const userRef = doc(firestore, 'users', userId);
@@ -121,11 +120,9 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
     if (userDoc.exists()) {
       const listaPessoal = userDoc.data().listaPessoal || [];
 
-      // Verifique se a série já existe na lista
       const serieIndex = listaPessoal.findIndex((item) => item.serieId === serieId);
 
       if (serieIndex !== -1) {
-        // Se a série já existe, atualize os dados
         listaPessoal[serieIndex] = {
           ...listaPessoal[serieIndex],
             nota,
@@ -134,7 +131,6 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
             tipo,
         };
       } else {
-        // Se a série não existe na lista, adicione-a
         const itemNaLista = {
           serieId,
           nota,
@@ -147,7 +143,6 @@ export const addListaPessoalToFirestore = async (userId, serieId, nota, review, 
 
       await updateDoc(userRef, { listaPessoal });
 
-      // Após atualizar a lista pessoal, calcule a nota média
       await calcularNotaMedia(serieId, userId); 
       
       console.log('Item adicionado/atualizado à lista pessoal com sucesso');
@@ -168,13 +163,11 @@ const calcularNotaMedia = async (serieId, userId) => {
     if (!isNaN(parseInt(serieId))) {
       const querySnapshot = await getDocs(query(collection(firestore, 'serie'), where('id', '==', serieId)));      seriesRef = collection(firestore, 'serie');
       if (!querySnapshot.empty) {
-        // A série foi encontrada, agora você pode prosseguir com o cálculo da média de notas
         seriesRef = querySnapshot.docs[0].ref;
       } else {
         throw new Error('Série não encontrada');
       }
     } else {
-      // Se a série já estava no Firestore, acesse o documento diretamente
       seriesRef = doc(collection(firestore, 'serie'), serieId);
     }
 
@@ -202,12 +195,9 @@ const calcularNotaMedia = async (serieId, userId) => {
 
       const novaMedia = numUsuariosQueDeramNota > 0 ? somaTotalNotas / numUsuariosQueDeramNota : 0;
 
-      // Atualize o campo "notaMedia" na série
       if (isMarvelApiId(serieId)) {
-        // Se for uma série da API Marvel, atualize o campo dentro do documento
         await updateDoc(seriesRef, { notaMedia: novaMedia });
       } else {
-        // Se a série já estava no Firestore, acesse diretamente o campo "notaMedia"
         await updateDoc(seriesRef, { notaMedia: novaMedia });
       }
       console.log('Média de notas calculada e atualizada com sucesso:', novaMedia);

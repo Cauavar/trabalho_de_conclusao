@@ -6,13 +6,11 @@ import { firestore } from "../bd/FireBase";
 import SeriesCardApi from "./SeriesCardApi";
 import SeriesCardFirestore from "./SeriesCardFirestore";
 import "./ComicsGrid.css";
-import { AuthContext } from "../contexts/auth";
-import UserCard from "./UserCard";
+import { AuthContext} from "../contexts/auth";
 
 const Home = () => {
   const [allApiSeries, setAllApiSeries] = useState([]);
   const [mySeries, setMySeries] = useState([]);
-  const [myUsers, setMyUsers ] = useState([]);
   const [displayedSeriesIds, setDisplayedSeriesIds] = useState([]);
   const [filteredApiSeries, setFilteredApiSeries] = useState([]);
   const { isAuthenticated } = useContext(AuthContext);
@@ -85,7 +83,6 @@ const Home = () => {
       }
     }
   };
-
   const fetchMySeriesFromFirestore = async () => {
     try {
       const seriesCollectionRef = collection(firestore, "serie");
@@ -105,31 +102,6 @@ const Home = () => {
   useEffect(() => {
     fetchMySeriesFromFirestore();
     getTopRatedSeries();
-  }, [currentPage, mySeries, allApiSeries]);
-
-  const fetchMyUsersFromFirestore = async () => {
-    try {
-      const usersCollectionRef = collection(firestore, "users"); // Use a referência da coleção de usuários
-      const querySnapshot = await getDocs(usersCollectionRef); // Obtenha os documentos de usuários
-      const firestoreResults = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Ordene os resultados, se necessário
-      // const sortedFirestoreUsers = sortUsersAlphabetically(firestoreResults, 'nome');
-
-      // Defina os usuários no estado
-      setMyUsers(firestoreResults);
-    } catch (error) {
-      console.error("Error listing users:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchMySeriesFromFirestore();
-    getTopRatedSeries();
-    fetchMyUsersFromFirestore(); // Chame a função para buscar usuários
   }, [currentPage, mySeries, allApiSeries]);
 
   const goToNextPage = () => {
@@ -166,11 +138,8 @@ const Home = () => {
         {mySeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardFirestore key={`firebase-${serie.id}`} serie={serie} />
         ))}
-        {myUsers.map((user) => ( // Mapeie os usuários para renderizar os cards de usuário
-          <UserCard key={user.id} user={user} />
-        ))}
+        
       </div>
-
 
       <div className="pagination">
         <button onClick={goToPreviousPage} disabled={currentPage === 1}>

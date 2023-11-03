@@ -7,10 +7,10 @@ const SeriesCardFirestore = ({ serie, showLink = true }) => {
     return <p>Série não encontrada</p>;
   }
 
-  const defaultPcture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'; 
+  const defaultPicture = 'https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'; 
   return (
     <div className="series-card">
-      <img src={serie.imagemSerie || defaultPcture} alt={serie.nomeSerie} />
+      <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
       <h2>
         {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
       </h2>
@@ -19,10 +19,11 @@ const SeriesCardFirestore = ({ serie, showLink = true }) => {
           Detalhes
         </Link>
       )}
-<div className="rating">
-  <p>Nota média:</p>
-  {serie.notaMedia !== undefined ? serie.notaMedia.toFixed(1) : "N/A"} 
-</div>
+    <div className="rating">
+      <p>Nota média:</p>
+      {serie.notaMedia !== undefined && serie.notaMedia !== 0.0
+              ? serie.notaMedia.toFixed(1)
+              : "N/A"}</div>
 
 
     </div>

@@ -14,6 +14,7 @@ import { AuthContext } from "../contexts/auth";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
+
 const apiPublicKey = '82e3617a5bd9bb2f84486128360cd96a';
 const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
 
@@ -23,7 +24,7 @@ const Comic = () => {
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [usersWithSeries, setUsersWithSeries] = useState([]);
+  const [isSeriesInFirestore, setIsSeriesInFirestore] = useState(false); 
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -39,17 +40,16 @@ const Comic = () => {
 
   const checkSeriesInFirestore = async (serieId, seriesData) => {
     if (!isMarvelApiId(serieId)) {
-      return;
+      return false;
     }
 
     const seriesCollectionRef = collection(firestore, "serie");
     const q = query(seriesCollectionRef, where("id", "==", serieId));
     const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.size === 0) {
-      addSeriesToFirestore(serieId, seriesData);
-    }
+    return querySnapshot.size > 0;
   };
+
 
   const addSeriesToFirestore = async (serieId, seriesData) => {
     try {
@@ -82,8 +82,13 @@ const Comic = () => {
         const res = await fetch(seriesUrl);
         const data = await res.json();
         const seriesData = data.data.results[0];
-        setSeries(seriesData);
-        checkSeriesInFirestore(id, seriesData);
+        setIsSeriesInFirestore(await checkSeriesInFirestore(id, seriesData));
+
+        if (!isSeriesInFirestore) {
+          setSeries(seriesData);
+        } else {
+          // A série está no Firestore, não é necessário fazer nada aqui
+        }
       } catch (error) {
         console.error("Error fetching comic series from API:", error);
       }
@@ -92,6 +97,7 @@ const Comic = () => {
         const docRef = doc(collection(firestore, "serie"), id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+          setIsSeriesInFirestore(true); 
           setSeries(docSnap.data());
         } else {
           console.log("No data returned!");
@@ -104,25 +110,37 @@ const Comic = () => {
 
   useEffect(() => {
     fetchData();
-    getUsersWithSeries();
   }, [id]);
 
-  const getUsersWithSeries = async () => {
-    try {
-      const listaPessoalRef = collection(firestore, "listaPessoal");
-      const q = query(listaPessoalRef, where("serieId", "==", id));
-      const querySnapshot = await getDocs(q);
+  const handleAddToList = async () => {
+    if (isAuthenticated && series) {
+      openModal();
 
-      const numUsers = querySnapshot.size;
+      if (isSeriesInFirestore) {
+        console.log("A série já existe no Firestore.");
+        return;
+      }
 
-      setUsersWithSeries(numUsers);
-    } catch (error) {
-      console.error('Erro ao obter o número de usuários com esta série na lista pessoal:', error);
+      if (!isMarvelApiId(id)) {
+        const docRef = doc(collection(firestore, "serie"), id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          console.log("A série já existe no Firestore.");
+          return;
+        }
+      } else {
+        const seriesCollectionRef = collection(firestore, "serie");
+        const q = query(seriesCollectionRef, where("id", "==", id));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.size > 0) {
+          console.log("A série já existe no Firestore.");
+          return;
+        }
+      }
+
+      addSeriesToFirestore(id, series);
     }
-  };
-
-  const handleAddToList = () => {
-    console.log("Adicionado à lista!");
   };
 
   return (
@@ -141,42 +159,42 @@ const Comic = () => {
 
       {series ? (
         <>
-          <div className="comic-card">
-            {isMarvelApiId(id) ? (
-              <SeriesCardApi serie={series} showLink={false} />
-            ) : (
-              <SeriesCardFirestore serie={series} showLink={false} />
-            )}
-            <button
-              className="addToListButton"
-              onClick={openModal}
-              disabled={!isAuthenticated}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Adicionar à Lista
-            </button>
-            <AddListaPessoalModal
-              isOpen={isModalOpen}
-              onClose={closeModal}
-              onAddToList={handleAddToList}
-              serieId={id}
-              getSeries={series}
-            />
+      <div className="comic-card">
+        {isMarvelApiId(id) ? (
+          <SeriesCardApi serie={series} showLink={false} id={id} /> // Passe o 'id' como uma propriedade
+        ) : (
+          <SeriesCardFirestore serie={series} showLink={false} id={id} /> // Passe o 'id' como uma propriedade
+        )}
+      <button
+        className="addToListButton"
+        onClick={handleAddToList}
+        disabled={!isAuthenticated}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        Adicionar à Lista
+      </button>
+      <AddListaPessoalModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onAddToList={handleAddToList}
+        serieId={id}
+        getSeries={series}
+      />
           </div>
 
           <div className="info">
             <p className="tagLine">
-              {isMarvelApiId(id) ? (
+              {isMarvelApiId(id) && isSeriesInFirestore? (
                 <>
                   <h3>
                     <BsFillFileEarmarkTextFill /> Descrição:
