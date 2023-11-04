@@ -94,7 +94,6 @@ const AppRoutes = () => {
             <Route path="/cadastroSerie" element={<PrivateRoute><CadastroSerie /></PrivateRoute>} />
             <Route path="/editSerie/:id" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
             <Route path="/resenha/:id" element={<Resenha />} />
-            <Route path="/resenhaPublica/:id" element={<ResenhaPublica />} />
             <Route path="/AdminPage" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="/profile/:id" element={<PublicProfile />} />
             <Route path="/listaPessoal/:id" element={<PublicListaPessoal />} />
