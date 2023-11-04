@@ -21,7 +21,6 @@ import { getDoc, doc, collection } from 'firebase/firestore';
 import { firestore } from './components/bd/FireBase';
 import PublicListaPessoal from './components/pages/PublicListaPessoal';
 import PublicProfile from './components/pages/PublicProfile';
-import ResenhaPublica from './components/pages/resenhaPublica';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading, user } = useContext(AuthContext);
