@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./SeriesCardFirestoreListaPessoal.css";
 
-const SeriesCardPublicaLista = ({ serie, showLink = true, nota, tipo, review, volumesLidos, listaPessoalId }) => {
+const SeriesCardPublicaLista = ({ serie, showLink = true, nota, tipo, review, volumesLidos, listaPessoalId, userId }) => {
   if (!serie) {
     return <p>Série não encontrada</p>;
   }
@@ -19,12 +19,12 @@ const SeriesCardPublicaLista = ({ serie, showLink = true, nota, tipo, review, vo
       <p>Nota: {nota}</p>
       <p>Review: {review}</p>
       <p>Progresso: {volumesLidos}/{serie.volumes}</p>
-      <Link to={`/resenhaPublica/${serie.id}`} state={{ id: listaPessoalId }}>
-  Resenha
-</Link>
-
+      <Link to={`/resenha-publica/${userId}/${serie.id}`}> 
+        Resenha
+      </Link>
     </div>
   );
 };
+
 
 export default SeriesCardPublicaLista;

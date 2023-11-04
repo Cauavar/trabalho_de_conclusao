@@ -149,7 +149,8 @@ const PublicListaPessoal = () => {
           tipo={item.tipo}
           review={item.review}
           volumesLidos={item.volumesLidos}
-          listaPessoalId={id} 
+          listaPessoalId={id}
+          userId={id}
         />
       );
     } else if (item.apiSerieData) {

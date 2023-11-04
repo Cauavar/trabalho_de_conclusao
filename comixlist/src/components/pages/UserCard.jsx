@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const UserCard = ({ user, showLink = true }) => {
+const UserCard = ({ user }) => {
   if (!user) {
     return <p>Usuário não encontrado</p>;
   }
@@ -18,11 +18,9 @@ const UserCard = ({ user, showLink = true }) => {
         <p>Sobre mim: {user.descricaoUsuario}</p>
         {user.isAdmin && <p>Admin</p>}
       </div>
-      {showLink && (
-        <Link to={`/profile/${user.id}`} state={{ id: user.id }}>
-          Ver Perfil
-        </Link>
-      )}
+      <Link to={`/profile/${user.id}`} state={{ id: user.id }}>
+        Ver Perfil
+      </Link>
     </div>
   );
 };

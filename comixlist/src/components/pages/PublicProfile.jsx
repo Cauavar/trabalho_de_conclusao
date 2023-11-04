@@ -59,10 +59,6 @@ function PublicProfile() {
       }
     };
 
-    if (user && user.uid === id) {
-      return navigate('/profile');
-    }
-
     fetchUserProfile();
   }, [id, user, navigate]);
 
@@ -194,27 +190,28 @@ function PublicProfile() {
 
       <ul className="comment-list">
       {CommentsToDisplay.map((comment, index) => (
-      <li key={index}>
-      <Link to={`/profile/${comment.userId}`}>
-        <img
-          src={comment.userInfo.imagemUsuario || defaultAvatar}
-          alt="Foto de perfil do usuário"
-        />
-      </Link>
-            <div className="comment-content">
-              <strong>{comment.userInfo.nome}</strong>
-              <p>{comment.text}</p>
-              <p className="comment-date">
-                {format(new Date(comment.commentDate), 'dd/MM/yyyy HH:mm:ss')}
-              </p>
-              {(user.uid === id || user.uid === comment.userInfo.userId) && (
-                <button onClick={() => handleDeleteComment(comment)}>
-                  Excluir
-                </button>
-              )}
-            </div>
-          </li>
-        ))}
+  <li key={index}>
+    <Link to={`/profile/${comment.userId}`}>
+      <img
+        src={comment.userInfo?.imagemUsuario || defaultAvatar}
+        alt="Foto de perfil do usuário"
+      />
+    </Link>
+    <div className="comment-content">
+      <strong>{comment.userInfo?.nome || "N/A"}</strong>
+      <p>{comment.text}</p>
+      <p className="comment-date">
+        {format(new Date(comment.commentDate), 'dd/MM/yyyy HH:mm:ss')}
+      </p>
+      {user && id && comment.userInfo && user.uid === id || user.uid === comment.userInfo.userId && (
+        <button onClick={() => handleDeleteComment(comment)}>
+          Excluir
+        </button>
+      )}
+    </div>
+  </li>
+))}
+
       </ul>
 
       <div className="pagination">

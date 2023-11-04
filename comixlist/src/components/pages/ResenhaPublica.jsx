@@ -1,54 +1,87 @@
 import React, { useState, useEffect } from "react";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection } from "firebase/firestore";
 import { firestore } from "../bd/FireBase";
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { FiArrowLeft } from "react-icons/fi";
+import "./Resenha.css";
+import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import md5 from "md5";
+
+const apiPublicKey = '82e3617a5bd9bb2f84486128360cd96a';
+const apiPrivateKey = '6e79be75b2993ae4f1eaaf7bdf75531a77a3f0f8';
 
 const ResenhaPublica = () => {
-  const { id } = useParams(); 
-  const location = useLocation();
-  const navigate = useNavigate(); 
-  const userId = location.state.id; 
-
+  const navigate = useNavigate();
+  const { userId, serieId } = useParams();
   const [serie, setSerie] = useState(null);
   const [autor, setAutor] = useState(null);
+
+  const fetchMarvelSerieData = async (serieId) => {
+    const timestamp = Date.now().toString();
+    const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
+    const seriesUrl = `https://gateway.marvel.com/v1/public/series/${serieId}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
+    try {
+      const response = await axios.get(seriesUrl);
+      const apiData = response.data.data.results[0];
+      setSerie(apiData);
+    } catch (error) {
+      console.error("Erro ao buscar dados da API:", error);
+    }
+  };
+
+  const isMarvelApiId = (id) => {
+    return !isNaN(parseInt(id));
+  };
 
   useEffect(() => {
     const fetchResenhaData = async () => {
       try {
-        const seriesCollectionRef = collection(firestore, "serie");
-        const serieDocRef = doc(seriesCollectionRef, id);
-        const serieDocSnapshot = await getDoc(serieDocRef);
+        // Consulta a coleção de usuários com base no ID do usuário.
+        const userDocRef = doc(firestore, "users", userId);
+        const userDocSnapshot = await getDoc(userDocRef);
 
-        if (serieDocSnapshot.exists()) {
-          const serieData = serieDocSnapshot.data();
+        if (userDocSnapshot.exists()) {
+          const userData = userDocSnapshot.data();
+          setAutor(userData);
+          if (userData.listaPessoal) {
+            // Encontre a entrada relacionada à série com base no ID da série.
+            const serieEntry = userData.listaPessoal.find(entry => entry.serieId === serieId);
+            if (serieEntry) {
+              if (isMarvelApiId(serieId)) {
+                // Se a série é da API Marvel, chame a função para buscar os dados da API.
+                fetchMarvelSerieData(serieId);
+              } else {
+                // Caso contrário, siga com a busca dos dados do Firestore.
+                const serieDocRef = doc(firestore, "serie", serieId);
+                const serieDocSnapshot = await getDoc(serieDocRef);
 
-         
-          if (serieData && serieData.userId) {
-            const usersCollectionRef = collection(firestore, "users");
-            const q = query(usersCollectionRef, where("userId", "==", serieData.userId));
-            const usersQuerySnapshot = await getDocs(q);
-
-          
-            if (!usersQuerySnapshot.empty) {
-              const userData = usersQuerySnapshot.docs[0].data(); 
-              setAutor(userData);
-            } else {
-              console.log("Dados do autor não encontrados.");
+                if (serieDocSnapshot.exists()) {
+                  const serieData = serieDocSnapshot.data();
+                  // Crie um objeto "tempSerie" que combina os dados da série com a nota e a resenha do autor.
+                  const tempSerie = {
+                    ...serieData,
+                    nota: serieEntry.nota,
+                    review: serieEntry.review,
+                  };
+                  setSerie(tempSerie);
+                }
+              }
             }
           }
-
-          setSerie(serieData);
         } else {
-          console.log("Dados da série não encontrados.");
+          console.log("Dados do autor não encontrados.");
         }
       } catch (error) {
-        console.error("Erro ao buscar dados da série no Firestore:", error);
+        console.error("Erro ao buscar dados da série e do autor no Firestore:", error);
       }
     };
 
     fetchResenhaData();
-  }, [id]);
+  }, [userId, serieId]);
+
+  const defaultAvatar =
+    "https://www.promoview.com.br/uploads/images/unnamed%2819%29.png";
 
   return (
     <div className="resenha-container">
@@ -58,22 +91,59 @@ const ResenhaPublica = () => {
 
       {serie && autor ? (
         <>
-          <img
-            src={serie.imagemSerie}
-            alt={serie.nomeSerie}
-            className="resenha-image"
-          />
-          <h1 className="resenha-title">
-            {serie.nomeSerie} ({serie.ano})
-          </h1>
-          <p className="resenha-author">
-            Resenha por:{" "}
-            <span className="resenha-reviewer">{autor.nome || "N/A"}</span>
-          </p>
-          <p className="resenha-rating">Nota: {serie.nota}</p>
-          <p>Data da Resenha: {serie.dataResenha}</p>
-          <p>Data da Edição: {serie.dataUltimaAtualizacao}</p>
-          <p className="resenha-review">{serie.review}</p>
+          {isMarvelApiId(serieId) && serie.thumbnail ? (
+            <>
+              <img
+                src={`${serie.thumbnail.path}.${serie.thumbnail.extension}`}
+                alt={serie.title}
+                className="resenha-image"
+              />
+              <h1 className="resenha-title">
+                {serie.title} ({serie.dates && serie.dates[0] ? serie.dates[0].date.slice(0, 4) : 'N/A'})
+              </h1>
+              <p className="resenha-author">
+                <Link to={`/profile/${userId}`}>
+                  <img
+                    src={autor.imagemUsuario || defaultAvatar}
+                    alt="Imagem de perfil"
+                    className="author-image"
+                  />
+                </Link>
+                Resenha por:{" "}
+                <span className="resenha-reviewer">
+                  {autor.nome || "N/A"}
+                </span>
+              </p>
+              <p className="resenha-rating">Nota: {serie.nota || "N/A"}</p>
+              <p className="resenha-review">Resenha: {serie.review || "N/A"}</p>
+            </>
+          ) : (
+            <>
+              <img
+                src={serie.imagemSerie}
+                alt={serie.nomeSerie}
+                className="resenha-image"
+              />
+              <h1 className="resenha-title">
+                {serie.nomeSerie} ({serie.publiSerie || 'N/A'})
+              </h1>
+              <p className="resenha-author">
+                <Link to={`/profile/${userId}`}>
+                  <img
+                    src={autor.imagemUsuario || defaultAvatar}
+                    alt="Imagem de perfil"
+                    className="author-image"
+                  />
+                </Link>
+                Resenha por:{" "}
+                <span className="resenha-reviewer">
+                  {autor.nome || "N/A"}
+                </span>
+              </p>
+              <p className="resenha-rating">Nota: {serie.nota || "N/A"}</p>
+              <p className="resenha-review">Resenha: {serie.review || "N/A"}</p>
+            </>
+          )}
         </>
       ) : (
         <p>Loading...</p>

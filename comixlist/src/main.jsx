@@ -21,6 +21,7 @@ import { getDoc, doc, collection } from 'firebase/firestore';
 import { firestore } from './components/bd/FireBase';
 import PublicListaPessoal from './components/pages/PublicListaPessoal';
 import PublicProfile from './components/pages/PublicProfile';
+import ResenhaPublica from './components/pages/ResenhaPublica';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading, user } = useContext(AuthContext);
@@ -93,6 +94,7 @@ const AppRoutes = () => {
             <Route path="/cadastroSerie" element={<PrivateRoute><CadastroSerie /></PrivateRoute>} />
             <Route path="/editSerie/:id" element={<PrivateRoute><EditSerie /></PrivateRoute>} />
             <Route path="/resenha/:id" element={<Resenha />} />
+            <Route path="/resenha-publica/:userId/:serieId" element={<ResenhaPublica />} />
             <Route path="/AdminPage" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="/profile/:id" element={<PublicProfile />} />
             <Route path="/listaPessoal/:id" element={<PublicListaPessoal />} />
