@@ -87,7 +87,6 @@ const Comic = () => {
         if (!isSeriesInFirestore) {
           setSeries(seriesData);
         } else {
-          // A série está no Firestore, não é necessário fazer nada aqui
         }
       } catch (error) {
         console.error("Error fetching comic series from API:", error);

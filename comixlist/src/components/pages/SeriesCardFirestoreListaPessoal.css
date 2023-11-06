@@ -1,11 +1,10 @@
-/* Estilos para o modal de confirmação */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo com um pouco mais de transparência */
+    background-color: rgba(0, 0, 0, 0.6); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -16,7 +15,7 @@
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra mais suave */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
     max-width: 450px;
     width: 100%;
   }
@@ -24,22 +23,22 @@
   .modal-buttons {
     display: flex;
     justify-content: flex-end;
-    margin-top: 20px; /* Espaçamento superior aumentado */
+    margin-top: 20px; 
   }
   
   .cancel-button,
   .add-button {
-    padding: 10px 20px; /* Maior espaçamento interno */
+    padding: 10px 20px; 
     border: none;
     cursor: pointer;
     border-radius: 4px;
-    font-weight: bold; /* Texto mais em negrito */
+    font-weight: bold; 
   }
   
   .add-button {
     background-color: #f7d354;
     color: #000;
-    margin-left: 10px; /* Espaçamento entre os botões */
+    margin-left: 10px; 
   }
   
   .add-button:hover {
@@ -55,13 +54,10 @@
     background-color: #999;
   }
   
-  /* Estilos específicos para o seu modal */
   .modal-content h2 {
-    font-size: 1.4rem; /* Tamanho de fonte aumentado */
+    font-size: 1.4rem; 
     margin-bottom: 1rem;
   }
-  
-  /* Outros estilos aqui... */
   
   
   .modal-content img {
@@ -93,7 +89,6 @@
     min-height: 100px;
   }
   
-  /* Estilização para a barra de volumes */
   .volume-input {
     display: flex;
     align-items: center;

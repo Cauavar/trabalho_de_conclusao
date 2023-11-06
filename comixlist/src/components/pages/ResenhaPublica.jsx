@@ -37,7 +37,6 @@ const ResenhaPublica = () => {
   useEffect(() => {
     const fetchResenhaData = async () => {
       try {
-        // Consulta a coleção de usuários com base no ID do usuário.
         const userDocRef = doc(firestore, "users", userId);
         const userDocSnapshot = await getDoc(userDocRef);
 
@@ -45,20 +44,16 @@ const ResenhaPublica = () => {
           const userData = userDocSnapshot.data();
           setAutor(userData);
           if (userData.listaPessoal) {
-            // Encontre a entrada relacionada à série com base no ID da série.
             const serieEntry = userData.listaPessoal.find(entry => entry.serieId === serieId);
             if (serieEntry) {
               if (isMarvelApiId(serieId)) {
-                // Se a série é da API Marvel, chame a função para buscar os dados da API.
                 fetchMarvelSerieData(serieId);
               } else {
-                // Caso contrário, siga com a busca dos dados do Firestore.
                 const serieDocRef = doc(firestore, "serie", serieId);
                 const serieDocSnapshot = await getDoc(serieDocRef);
 
                 if (serieDocSnapshot.exists()) {
                   const serieData = serieDocSnapshot.data();
-                  // Crie um objeto "tempSerie" que combina os dados da série com a nota e a resenha do autor.
                   const tempSerie = {
                     ...serieData,
                     nota: serieEntry.nota,
@@ -141,7 +136,8 @@ const ResenhaPublica = () => {
                 </span>
               </p>
               <p className="resenha-rating">Nota: {serie.nota || "N/A"}</p>
-              <p className="resenha-review">Resenha: {serie.review || "N/A"}</p>
+              <h2>Resenha:</h2>
+              <p className="resenha-review">{serie.review || "N/A"}</p>
             </>
           )}
         </>

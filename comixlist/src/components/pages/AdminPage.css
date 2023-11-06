@@ -21,7 +21,7 @@
   padding: 15px;
   margin-bottom: 15px;
   display: flex;
-  align-items: center; /* Alinhe o conteúdo verticalmente */
+  align-items: center; 
   justify-content: space-between;
 }
 
@@ -78,6 +78,6 @@
   background-color: darkred;
 }
 .series-cardi img {
-  max-width: 50px; /* Defina o valor máximo de largura desejado */
-  max-height: 50px; /* Defina o valor máximo de altura desejado */
+  max-width: 50px; 
+  max-height: 50px; 
 }

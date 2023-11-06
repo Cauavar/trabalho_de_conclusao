@@ -50,56 +50,64 @@ const SeriesCardFirestoreListaPessoal = ({ serie, showLink = true, nota, tipo, r
   const defaultPicture =
     "https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
 
-  return (
-    <div className="series-card">
-      <div className="icon-container">
-        <FaPencilAlt
-          className="edit-button"
-          onClick={openModal}
-        />
-        <FaTrashAlt
-          className="delete-button"
-          onClick={() => setIsDeleteConfirmationOpen(true)}
-        />
-      </div>
-      <Modal
-        isOpen={isDeleteConfirmationOpen}
-        onRequestClose={() => setIsDeleteConfirmationOpen(false)}
-        contentLabel="Confirmar exclusão"
-        ariaHideApp={false}
-        className="modal-content delete-modal" 
-        overlayClassName="modal-overlay" 
-      >
-        <p>Tem certeza de que deseja excluir esta série?</p>
-        <button onClick={confirmDelete} className="add-button">Sim</button>
-        <button onClick={cancelDelete} className="cancel-button">Cancelar</button>
-      </Modal>
-      <EditListaPessoalModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onEdit={handleEditInList}
-        initialData={{
-          nota,
-          review,
-          volumesLidos,
-          tipo,
-          serieId: serie.id,
-        }}
-      />
-      <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
-      <h2>
-        {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
-      </h2>
-      <p>Nota: {nota}</p>
-      <p>Review: {review}</p>
-      <p>Progresso: {volumesLidos}/{serie.volumes}</p>
-      {showLink && (
-        <Link to={`/resenha/${serie.id}`} state={{ id: serie.id }}>
-          Resenha
-        </Link>
-      )}
-    </div>
-  );
-};
+  const MAX_RESUMO_LENGTH = 50; 
 
-export default SeriesCardFirestoreListaPessoal;
+  const isResumoLong = review.length > MAX_RESUMO_LENGTH;
+  
+  const truncatedResumo = isResumoLong ? review.slice(0, MAX_RESUMO_LENGTH) + "..." : review;
+  
+    return (
+      <div className="series-card">
+        <div className="icon-container">
+          <FaPencilAlt
+            className="edit-button"
+            onClick={openModal}
+          />
+          <FaTrashAlt
+            className="delete-button"
+            onClick={() => setIsDeleteConfirmationOpen(true)}
+          />
+        </div>
+        <Modal
+          isOpen={isDeleteConfirmationOpen}
+          onRequestClose={() => setIsDeleteConfirmationOpen(false)}
+          contentLabel="Confirmar exclusão"
+          ariaHideApp={false}
+          className="modal-content delete-modal" 
+          overlayClassName="modal-overlay" 
+        >
+          <p>Tem certeza de que deseja excluir esta série?</p>
+          <button onClick={confirmDelete} className="add-button">Sim</button>
+          <button onClick={cancelDelete} className="cancel-button">Cancelar</button>
+        </Modal>
+        <EditListaPessoalModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onEdit={handleEditInList}
+          initialData={{
+            nota,
+            review,
+            volumesLidos,
+            tipo,
+            serieId: serie.id,
+          }}
+        />
+        <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
+        <h2>
+          {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
+        </h2>
+        <p>Nota: {nota}</p>
+  
+        <p>Review: {truncatedResumo}</p>
+  
+        <p>Progresso: {volumesLidos}/{serie.volumes}</p>
+        {showLink && (
+          <Link to={`/resenha/${serie.id}`} state={{ id: serie.id }}>
+            Resenha
+          </Link>
+        )}
+      </div>
+    );
+  };
+  
+  export default SeriesCardFirestoreListaPessoal;

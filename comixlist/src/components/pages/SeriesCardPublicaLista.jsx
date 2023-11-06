@@ -10,6 +10,12 @@ const SeriesCardPublicaLista = ({ serie, showLink = true, nota, tipo, review, vo
   const defaultPicture =
     "https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
 
+    const MAX_RESUMO_LENGTH = 50; 
+
+    const isResumoLong = review.length > MAX_RESUMO_LENGTH;
+    
+    const truncatedResumo = isResumoLong ? review.slice(0, MAX_RESUMO_LENGTH) + "..." : review;
+
   return (
     <div className="series-card-publica">
       <img src={serie.imagemSerie || defaultPicture} alt={serie.nomeSerie} />
@@ -17,7 +23,7 @@ const SeriesCardPublicaLista = ({ serie, showLink = true, nota, tipo, review, vo
         {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
       </h2>
       <p>Nota: {nota}</p>
-      <p>Review: {review}</p>
+      <p>Review: {truncatedResumo}</p>
       <p>Progresso: {volumesLidos}/{serie.volumes}</p>
       <Link to={`/resenha-publica/${userId}/${serie.id}`}> 
         Resenha

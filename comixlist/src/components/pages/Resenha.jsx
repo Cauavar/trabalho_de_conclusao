@@ -43,7 +43,6 @@ const Resenha = () => {
 
       if (matchingSerie) {
         if (isMarvelApiId(matchingSerie.serieId)) {
-          // Se a série é da API Marvel, faça a requisição à API para buscar os dados.
           const timestamp = Date.now().toString();
           const hash = md5(`${timestamp}${apiPrivateKey}${apiPublicKey}`);
           const seriesUrl = `https://gateway.marvel.com/v1/public/series/${matchingSerie.serieId}?apikey=${apiPublicKey}&ts=${timestamp}&hash=${hash}`;
@@ -60,7 +59,6 @@ const Resenha = () => {
             console.error("Erro ao buscar dados da API:", error);
           }
         } else {
-          // Caso contrário, busque os dados do Firestore como você já estava fazendo.
           const seriesCollectionRef = collection(firestore, "serie");
           const serieDocRef = doc(seriesCollectionRef, matchingSerie.serieId);
           const serieDocSnapshot = await getDoc(serieDocRef);
@@ -142,7 +140,8 @@ const Resenha = () => {
           </span>
         </p>
         <p className="resenha-rating">Nota: {serie.nota}</p>
-        <p className="resenha-review">Resenha: {serie.review}</p>
+        <h2>Resenha:</h2>
+        <p className="resenha-review">{serie.review}</p>
       </>
     )}
   </>

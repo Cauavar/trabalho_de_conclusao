@@ -73,7 +73,6 @@ const Home = () => {
             ...filteredSeries.map((apiSerie) => apiSerie.id.toString()),
           ]);
           
-          // Atualize o estado das séries filtradas
           setFilteredApiSeries((prevFilteredSeries) => [...prevFilteredSeries, ...filteredSeries]);
         } else {
           console.error("No results found in the API response.");
@@ -114,6 +113,7 @@ const Home = () => {
     }
   };
 
+
   return (
     <div className="container">
       <h2 className="title">Séries:</h2>
@@ -131,12 +131,12 @@ const Home = () => {
       </div>
 
       <div className="comics_container">
-        {filteredApiSeries.slice(startIndex, endIndex).map((serie) => (
-          <SeriesCardApi key={`api-${serie.id}`} serie={serie} />
-        ))}
-
         {mySeries.slice(startIndex, endIndex).map((serie) => (
           <SeriesCardFirestore key={`firebase-${serie.id}`} serie={serie} />
+        ))}
+
+        {filteredApiSeries.slice(startIndex, endIndex).map((serie) => (
+          <SeriesCardApi key={`api-${serie.id}`} serie={serie} />
         ))}
         
       </div>

@@ -7,20 +7,16 @@ const SeriesCardApi = ({ serie, showLink = true }) => {
   const fetchSeriesFromFirestoreAsync = async (apiSerie) => {
     const serieId = apiSerie.id.toString();
   
-    // Defina a referência à coleção no Firestore onde você armazena as séries
-    const seriesCollectionRef = collection(firestore, "serie"); // Substitua "séries" pelo nome correto da sua coleção
+    const seriesCollectionRef = collection(firestore, "serie"); 
   
-    // Crie uma consulta para procurar uma série com o mesmo ID da série da API
     const q = query(seriesCollectionRef, where("id", "==", serieId));
   
     try {
       const querySnapshot = await getDocs(q);
   
       if (!querySnapshot.empty) {
-        // Se houver uma série correspondente no Firestore, obtenha a primeira série correspondente
         const firestoreSerie = querySnapshot.docs[0].data();
   
-        // Verifique se o campo "notaMedia" existe na série do Firestore
         if (firestoreSerie.notaMedia !== undefined) {
           apiSerie.notaMedia = firestoreSerie.notaMedia;
         }
