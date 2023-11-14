@@ -39,13 +39,12 @@ function CommentBar({ setCommentsWithUserInfo, commentsWithUserInfo, userProfile
           setCommentText('');
           console.log('Comentário enviado com sucesso.');
 
-          // Fetch the user information for the current user who added the comment
           const userInfo = await getUserInfo(currentUser.uid);
 
           const newComment = {
             userId: currentUser.uid,
             text: commentText,
-            userInfo: userInfo, // Use the fetched userInfo
+            userInfo: userInfo,
             commentDate: commentDate,
           };
 
