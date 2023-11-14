@@ -98,7 +98,7 @@ const SeriesCardFirestoreListaPessoal = ({ serie, showLink = true, nota, tipo, r
         </h2>
         <p>Nota: {nota}</p>
   
-        <p>Review: {truncatedResumo}</p>
+        <p>Resenha: {truncatedResumo}</p>
   
         <p>Progresso: {volumesLidos}/{serie.volumes}</p>
         {showLink && (

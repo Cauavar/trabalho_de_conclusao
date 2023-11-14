@@ -23,7 +23,7 @@ const SeriesCardPublicaLista = ({ serie, showLink = true, nota, tipo, review, vo
         {serie.nomeSerie}({new Date(serie.publiSerie).getFullYear()})
       </h2>
       <p>Nota: {nota}</p>
-      <p>Review: {truncatedResumo}</p>
+      <p>Resenha: {truncatedResumo}</p>
       <p>Progresso: {volumesLidos}/{serie.volumes}</p>
       <Link to={`/resenha-publica/${userId}/${serie.id}`}> 
         Resenha
